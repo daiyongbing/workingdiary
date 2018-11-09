@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mapper namespace="com.iscas.workingdiary.mapper.UserMapper" >
+    <resultMap id="UserResultMap" type="com.iscas.workingdiary.bean.User" >
+        <id column="userid" property="userId" jdbcType="SMALLINT" />
+        <result column="username" property="userName" jdbcType="VARCHAR" />
+        <result column="sex" property="sex" jdbcType="VARCHAR" />
+        <result column="projectteam" property="projectTeam" jdbcType="VARCHAR" />
+        <result column="userposition" property="userPosition" jdbcType="VARCHAR" />
+        <result column="leader" property="leader" jdbcType="VARCHAR" />
+        <result column="role" property="userName" jdbcType="TINYINT" />
+        <result column="password" property="password" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!-- 登录验证 -->
+    <select id="loginQuery" resultMap="UserResultMap">
+        select * from t_user
+        where userid = #{userId,jdbcType=INTEGER} and password = #{password, jdbcType=VARCHAR}
+    </select>
+
+    <!-- 查询所有用户 -->
+    <select id="selectAllUser" resultMap="UserResultMap">
+        select * from t_user
+    </select>
+
+    <!-- 删除指定id的用户 -->
+    <delete id="deleteUserById" parameterType="java.lang.Integer" >
+        delete from t_user
+        where userid = #{userId,jdbcType=INTEGER}
+    </delete>
+
+    <!-- 添加用户 -->
+    <insert id="insertUser" parameterType="com.iscas.workingdiary.bean.User" >
+        insert into t_user (userid, username, sex, projectteam, userposition, leader, role, password)
+        values (#{userId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR}，#{projectTeam,jdbcType=VARCHAR},
+        #{userPosition,jdbcType=VARCHAR}, #{leader,jdbcType=VARCHAR}, #{role,jdbcType=TINYINT},#{password,jdbcType=VARCHAR},)
+    </insert>
+
+
+
+    <update id="updateUserById" parameterType="com.iscas.workingdiary.bean.User" >
+        update t_user
+        <set >
+            <if test="userName != null" >
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null" >
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null" >
+                phone = #{phone,jdbcType=VARCHAR}
+            </if>
+        </set>
+        where userid = #{userId,jdbcType=INTEGER}
+    </update>
+</mapper>
