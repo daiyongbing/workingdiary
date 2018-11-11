@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<mapper namespace="com.iscas.workingdiary.mapper.UserMapper" >
+<mapper namespace="com.iscas.workingdiary.mapper.IUserMapper" >
     <resultMap id="UserResultMap" type="com.iscas.workingdiary.bean.User" >
         <id column="userid" property="userId" jdbcType="SMALLINT" />
         <result column="username" property="userName" jdbcType="VARCHAR" />
