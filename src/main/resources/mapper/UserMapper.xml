@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.iscas.workingdiary.service.UserService">
+    <update id="updateUser" parameterType="com.iscas.workingdiary.bean.User">
+        update t_user
+        <set>
+            <if test="userName != null">user_name=#{userName},</if>
+            <if test="userSex != null">user_sex=#{userSex},</if>
+            <if test="projectTeam != null">project_team=#{projectTeam},</if>
+            <if test="userPosition != null">user_position=#{userPosition},</if>
+            <if test="leader != null">leader=#{leader},</if>
+            <if test="role != null">role=#{role},</if>
+            <if test="password != null">password=#{password},</if>
+        </set>
+    </update>
+</mapper>

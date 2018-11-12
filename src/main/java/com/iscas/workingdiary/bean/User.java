@@ -7,21 +7,22 @@ import jdk.nashorn.internal.ir.annotations.Ignore;
  * 用户实体类
  */
 public class User {
-    private String userId;
+
+    private int userId;
     private String userName;
-    private String sex;
+    private String userSex;
     private String projectTeam;
     private String userPosition;
     private String leader;
-    private String role;
+    private int role;
     @JsonIgnore
     private String password;
 
-    public String getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
@@ -33,12 +34,12 @@ public class User {
         this.userName = userName;
     }
 
-    public String getSex() {
-        return sex;
+    public String getUserSex() {
+        return userSex;
     }
 
-    public void setSex(String sex) {
-        this.sex = sex;
+    public void setUserSex(String userSex) {
+        this.userSex = userSex;
     }
 
     public String getProjectTeam() {
@@ -65,11 +66,11 @@ public class User {
         this.leader = leader;
     }
 
-    public String getRole() {
+    public int getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(int role) {
         this.role = role;
     }
 
@@ -77,10 +78,21 @@ public class User {
         return password;
     }
 
-    @Ignore()
     public void setPassword(String password) {
         this.password = password;
     }
 
-
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", userName='" + userName + '\'' +
+                ", userSex='" + userSex + '\'' +
+                ", projectTeam='" + projectTeam + '\'' +
+                ", userPosition='" + userPosition + '\'' +
+                ", leader='" + leader + '\'' +
+                ", role=" + role +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }
