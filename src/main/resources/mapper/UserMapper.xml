@@ -3,7 +3,8 @@
         PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
         "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
 
-<mapper namespace="com.iscas.workingdiary.service.UserService">
+<mapper namespace="com.iscas.workingdiary.mapper.UserMapper">
+
     <update id="updateUser" parameterType="com.iscas.workingdiary.bean.User">
         update t_user
         <set>
@@ -15,5 +16,30 @@
             <if test="role != null">role=#{role},</if>
             <if test="password != null">password=#{password},</if>
         </set>
+        WHERE
+            <if test="userId != null">user_id=#{userId}</if>
     </update>
+
+
+    <select id="userLogin" parameterType="com.iscas.workingdiary.bean.User" resultType="java.lang.String">
+        SELECT user_name
+        FROM t_user
+        WHERE
+            <if test="userId != null">user_id=#{userId}</if>
+        AND
+            <if test="password != null">password=#{password}</if>
+    </select>
+
+    <insert id="insertUser" parameterType="com.iscas.workingdiary.bean.User">
+        INSERT INTO t_user
+            (user_id, user_name, user_sex, project_team, user_position, leader, role, password)
+        VALUES
+            (#{userId}, #{userName}, #{userSex}, #{projectTeam}, #{userPosition}, #{leader}, #{role}, #{password})
+    </insert>
+    
+    <delete id="deleteUser" parameterType="java.lang.Integer">
+        DELETE FROM t_user
+        WHERE
+        <if test="userId != null">user_id = #{userId}</if>
+    </delete>
 </mapper>

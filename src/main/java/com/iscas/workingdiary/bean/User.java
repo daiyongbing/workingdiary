@@ -8,13 +8,13 @@ import jdk.nashorn.internal.ir.annotations.Ignore;
  */
 public class User {
 
-    private int userId;
+    private Integer userId;
     private String userName;
     private String userSex;
     private String projectTeam;
     private String userPosition;
     private String leader;
-    private int role;
+    private Integer role;
     @JsonIgnore
     private String password;
 

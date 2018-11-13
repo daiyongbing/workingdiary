@@ -1,17 +1,19 @@
 package com.iscas.workingdiary.service;
 
 import com.iscas.workingdiary.bean.User;
+import org.springframework.stereotype.Service;
 
+@Service()
 public interface UserService {
 
     // register
     void userRegister(User user);
 
     //login in
-    String login(User user);
+    String userLogin(User user);
 
     // delete user
-    void deleteById(int userId);
+    void deleteUserById(int userId);
 
     // update user
 

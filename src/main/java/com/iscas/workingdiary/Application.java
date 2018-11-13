@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @MapperScan("com.iscas.workingdiary.mapper")
-@ComponentScan("com.iscas.workingdiary")
+//@ComponentScan("com.iscas.workingdiary.mapper")
 public class Application {
 
     public static void main(String[] args) {

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
-@Service("userService")
+@Service()
 public class UserServiceImpl implements UserService {
 
     @Resource
@@ -14,21 +14,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void userRegister(User user) {
-
+        userMapper.insertUser(user);
     }
 
     @Override
-    public String login(User user) {
-        return null;
-    }
-
-    @Override
-    public void deleteById(int userId) {
-
+    public String userLogin(User user) {
+        return userMapper.userLogin(user);
     }
 
     @Override
     public void updateById(User user) {
-        userMapper.updateById(user);
+        userMapper.updateUser(user);
     }
+
+    @Override
+    public void deleteUserById(int userId) {
+        userMapper.deleteUser(userId);
+    }
+
 }
