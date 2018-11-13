@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.iscas.workingdiary.mapper.CertMapper">
+
+    <insert id="insertCert" parameterType="com.iscas.workingdiary.bean.Cert">
+        INSERT INTO t_cert
+            (cert_no, user_id, pem_cert, cert_addr, cert_status, cert_level)
+        VALUES
+            (#{certNo}, #{userId}, #{pemCert}, #{certAddr}, #{certStatus}, #{certLevel})
+    </insert>
+
+    <update id="updateCert" parameterType="com.iscas.workingdiary.bean.Cert">
+        update t_cert
+        <set>
+            <if test="userId != null">user_id=#{userId},</if>
+            <if test="pemCert != null">pem_cert=#{pemCert},</if>
+            <if test="certAddr != null">cert_addr=#{certAddr},</if>
+            <if test="certStatus != null">cert_status=#{certStatus},</if>
+            <if test="certLevel != null">cert_level=#{certLevel}</if>
+        </set>
+        WHERE
+            <if test="certNo != null">cert_no=#{certNo}</if>
+    </update>
+
+    <delete id="deleteCertByCertNo" parameterType="java.lang.String">
+        DELETE FROM t_cert
+        WHERE
+            <if test="certNo != null">cert_no=#{certNo}</if>
+    </delete>
+    
+    <delete id="deleteCertByUserId" parameterType="java.lang.Integer">
+        DELETE FROM t_cert
+        WHERE
+            <if test="userId != null">user_id=#{userId}</if>
+    </delete>
+
+    <select id="queryCert" parameterType="java.lang.String" resultType="com.iscas.workingdiary.bean.Cert">
+        SELECT* FROM t_cert
+        WHERE
+            <if test="certNo != null">cert_no=#{certNo}</if>
+    </select>
+
+    <select id="selectAll" resultType="java.util.List">
+        SELECT* FROM t_cert
+    </select>
+
+</mapper>
