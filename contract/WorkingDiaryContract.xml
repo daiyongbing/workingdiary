@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<CSpec>
+    <stype>1</stype>
+    <idPath></idPath>
+    <idName></idName>
+    <iptFunc></iptFunc>
+    <iptArgs>
+    </iptArgs>
+    <timeout>0</timeout>
+    <secureContext>string</secureContext>
+    <code>
+        <![CDATA[
+import java.net.URLEncoder
+import java.text.SimpleDateFormat
+import java.util.Date
+
+import akka.http.javadsl.Http
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import rep.sc.contract._
+import sun.net.www.http.HttpClient
+
+/**
+ * 用于提交工作日志的合约
+ */
+
+class WorkingDiaryContract extends IContract{
+
+    case class RequestGet(targetURL:String, paramName:String, paramValue:String, connTimeoutMs:Integer, readTimeoutMs:Integer)
+    case class RequestPost(targetURL:String, params:Map[String, String])
+    case class ReplaceCert(newPemCert:String, oldCertAddr:String)
+    case class Integral(userName:String, operator:Integer, value:Integer)
+    case class WorkingDiary(userName:String, text:String)
+    val INTEGRAL = "INTEGRAL_"
+    implicit val formats = DefaultFormats
+
+    def init(ctx: ContractContext){
+        println(s"tid: $ctx.t.txid")
+    }
+
+    // 获取当前时间
+    def getDay():String={
+        var now:Date = new Date()
+        var  dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+        var day = dateFormat.format( now )
+        day
+    }
+
+   /**
+    * 积分操作
+    * 约定：Integral.operator <= 表示“-”，反之表示“+”
+    * 约定：Integral.userName 是用户的真实名字全拼+用户id
+    * 约定：积分账户 = INTEGRAL + Integral.userName
+    */
+    def integralOperation(ctx: ContractContext, data:Integral):Object = {
+        val integralAccount = INTEGRAL + data.userName
+        val oldIntegral:Integer = ctx.api.getVal(integralAccount).toString.toInt
+        if (data.operator > 0){
+            ctx.api.setVal(integralAccount, oldIntegral + data.value)
+        }
+        "ok"
+    }
+
+    // 查询用户积分
+    def queryIntegral(ctx: ContractContext, account: String):Object = {
+        val integralAccount = INTEGRAL+account
+        ctx.api.getVal(integralAccount).toString
+    }
+
+   /**
+    * 工作日志上链
+    * 约定：key = 用户名
+    * 约定：value = 日志标题+日志内容
+    * 约定：存入区块链的workingDiaryKey = key+当前系统时间
+    * 说明：为防止人为修改入链时间，标题中的时间不允许后台创建，由合约自动创建
+    */
+    def workingDiaryProof(ctx: ContractContext, data:WorkingDiary):Object = {
+        val currentDay = getDay()
+        println(currentDay)
+        val workingDiaryKey = data.userName+currentDay
+        if(ctx.api.getVal(workingDiaryKey) != None){
+            throw new Exception("今天日志已上链")
+        }
+        ctx.api.setVal(workingDiaryKey, data.text)
+        "ok"
+    }
+
+
+    // 查询用户日志
+    def queryWorkingDiary(ctx: ContractContext, userName: String):Object = {
+        ctx.api.getVal(userName).toString
+    }
+
+
+    def signup(ctx: ContractContext, data:Map[String,String]):Object = {
+        var addr = ""
+        for((k,v)<-data){
+        ctx.api.check(ctx.t.cert.toStringUtf8,ctx.t)
+            addr = ctx.api.signup(k,v)
+        }
+        addr
+    }
+
+    def destroyCert(ctx: ContractContext, certAddr: String): Object = {
+        println(s"destroy cert->addr:$certAddr")
+        ctx.api.check(ctx.t.cert.toStringUtf8,ctx.t)    //ctx中自带交易内容
+        ctx.api.destroyCert(certAddr);
+        "destory scuccess"
+    }
+
+    def replaceCert(ctx: ContractContext, data:ReplaceCert): Object = {
+        val cert = data.newPemCert
+        val addr = data.oldCertAddr
+        ctx.api.check(ctx.t.cert.toStringUtf8,ctx.t)
+        ctx.api.replaceCert(cert,addr);   // 返回短地址
+    }
+
+    /**
+    * 处理Get请求
+    * @param ctx 合约上下文
+    * @param data RequestGet(targetURL:请求路径, paramName:参数名称, paramValue:参数值, connTimeoutMs:连接超时时间, readTimeoutMs:读取超时时间)
+    * @return response
+    */
+    /*def requestGet(ctx: ContractContext, data:RequestGet):Object = {
+        val response = Http(data.targetURL)
+                       .param(data.paramName, data.paramValue)
+                       .timeout(data.connTimeoutMs, data.readTimeoutMs)
+                       .asString
+        response
+    }*/
+
+    /*def get():Unit = {
+        val client = new HttpClient
+        // 设置代理服务器地址和端口
+        val city = URLEncoder.encode("北京")
+        //把中文转成Unicode编码
+        // 使用 GET 方法 ，如果服务器需要通过 HTTPS 连接，那只需要将下面 URL 中的 http 换成 https
+        val method = new GetMethod("url")
+        client.executeMethod(method)
+        //打印服务器返回的状态
+        println(method.getStatusLine)
+        //打印返回的信息
+        println(method.getResponseBodyAsString)
+        //释放连接
+        method.releaseConnection()
+
+    }*/
+
+    /*def post():Unit = {
+        val httpClient = Utils.getHttpClient
+        try { //url
+            val post = new HttpPost("url")
+            //创建参数列表
+            val list = new util.ArrayList[NameValuePair]
+            list.add(new BasicNameValuePair("timestamp", time))
+            list.add(new BasicNameValuePair("signature", signature))
+            list.add(new BasicNameValuePair("ID", "1"))
+            //提交参数
+            val uefEntity = new UrlEncodedFormEntity(list, "UTF-8")
+            post.setEntity(uefEntity)
+            //执行请求
+            val httpResponse = httpClient.execute(post)
+            try {
+                //获取返回结果
+                val entity: HttpEntity = httpResponse.getEntity
+                val str = EntityUtils.toString(entity, "UTF-8")
+                //业务逻辑
+                if (null != str) {
+                    prinln(str)
+                }
+            } finally httpResponse.close()
+        } catch {
+            case e: UnsupportedEncodingException =>
+                e.printStackTrace()
+            case e: IOException =>
+                e.printStackTrace()
+            } finally try
+            Utils.closeHttpClient(httpClient)
+            catch {
+            case e: Exception =>
+              e.printStackTrace()
+        }
+    }*/
+
+
+     /**
+      * 处理POST请求
+      * @param ctx 合约上下文
+      * @param data RequestPost(targetURL:String, params:Map[String, String])
+      * @return response
+      */
+    /*def requestPost(ctx: ContractContext, data:RequestPost):Object = {
+        val targetURL = data.targetURL
+        val addr = data.params.get("addr").toString
+        val cid = data.params.get("cid").toString
+        val str = "{" + "\"addr\":" + addr + "," + "\"cid\":" + cid + "}"
+        val jsonStr = JSON.parseFull(str)
+        println(jsonStr.toString)
+        val response = Http(targetURL)
+                        .postMulti()
+                        .asString
+            response
+    }*/
+
+
+
+
+    /**
+    * 根据action,找到对应的method，并将传入的json字符串parse为method需要的传入参数
+    */
+    def onAction(ctx: ContractContext,action:String, sdata:String ):Object={
+        val json = parse(sdata)
+
+        action match {
+
+            case "workingDiaryProof" =>
+                println(s"workingDiaryProof")
+                workingDiaryProof(ctx, json.extract[WorkingDiary])
+
+            case "queryWorkingDiary" =>
+                println(s"queryWorkingDiary")
+                queryWorkingDiary(ctx, json.extract[String])
+
+            case "integralOperation" =>
+                println(s"integralOperation")
+                integralOperation(ctx,json.extract[Integral])
+
+            case "queryIntegral" =>
+                println(s"queryIntegral")
+                queryIntegral(ctx, json.extract[String])
+
+            case "signup" =>
+                println(s"signup")
+                signup(ctx, json.extract[Map[String,String]])
+
+            case "destroyCert" =>
+                println(s"destroyCert")
+                destroyCert(ctx, json.extract[String])
+
+            case "replaceCert" =>
+                println(s"replaceCert")
+                replaceCert(ctx, json.extract[ReplaceCert])
+        }
+    }
+}
+]]>
+    </code>
+    <ctype>1</ctype>
+</CSpec>
