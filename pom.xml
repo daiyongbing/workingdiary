@@ -24,7 +24,16 @@
         <java.version>1.8</java.version>
     </properties>
 
+
     <dependencies>
+
+        <!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java-util -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>3.5.1</version>
+        </dependency>
+
         <!-- JDBC -->
        <!-- <dependency>
             <groupId>org.springframework.boot</groupId>
