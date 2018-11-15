@@ -100,7 +100,6 @@ public class RepChainUtils {
         }
         System.out.println(transaction);
         String HexTransaction = Byte2Hex.bytes2hex(transaction.toByteArray());
-        System.out.println("HexTransaction:"+HexTransaction);
         return HexTransaction;
     }
 }
