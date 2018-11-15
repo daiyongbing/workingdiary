@@ -13,6 +13,6 @@ public class WorkingDairyController {
         String title = request.getParameter("title");
         String text = request.getParameter("text");
 
-        
+
     }
 }
