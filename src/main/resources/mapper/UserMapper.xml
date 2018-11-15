@@ -14,7 +14,7 @@
             <if test="userPosition != null">user_position=#{userPosition},</if>
             <if test="leader != null">leader=#{leader},</if>
             <if test="role != null">role=#{role},</if>
-            <if test="password != null">password=#{password},</if>
+            <if test="password != null">password=#{password}</if>
         </set>
         WHERE
             <if test="userId != null">user_id=#{userId}</if>
