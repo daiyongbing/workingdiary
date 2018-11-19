@@ -1,5 +1,6 @@
 package com.iscas.workingdiary.util;
 
+import com.alibaba.fastjson.JSON;
 import com.client.RepChainClient;
 import com.crypto.BitcoinUtils;
 import com.crypto.ECDSASign;
@@ -35,6 +36,6 @@ public class RepChainUtils {
         }
         System.out.println(transaction);
         String hexTransaction = Byte2Hex.bytes2hex(transaction.toByteArray());
-        return hexTransaction;
+        return JSON.toJSONString(hexTransaction);
     }
 }

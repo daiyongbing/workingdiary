@@ -9,7 +9,7 @@ public class Byte2Hex {
      * @param bytes
      * @return hex
      */
-    public static String bytes2hex( byte[] bytes){
+    public static String bytes2Hex( byte[] bytes){
         String hex;
         final StringBuilder hexString = new StringBuilder("");
         if (bytes == null || bytes.length <= 0)
@@ -24,6 +24,19 @@ public class Byte2Hex {
         }
         hex = hexString.toString().toLowerCase();
         return hex;
+    }
+
+    /**
+     * 代码来源于RCJava
+     * @param bytes
+     * @return
+     */
+    public static String bytes2hex(byte[] bytes) {
+        StringBuilder buf = new StringBuilder(bytes.length * 2);
+        for(byte b : bytes) { // 使用String的format方法进行转换
+            buf.append(String.format("%02x", new Integer(b & 0xff)));
+        }
+        return buf.toString();
     }
 
     public static Boolean isEmpty(String str){
@@ -55,4 +68,5 @@ public class Byte2Hex {
         }
         return byteArray;
     }
+
 }
