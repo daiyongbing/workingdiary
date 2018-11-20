@@ -1,8 +1,12 @@
 package com.iscas.workingdiary.util;
 
-import java.io.*;
+import com.utils.certUtil;
 
-public class FileUtils {
+import java.io.*;
+import java.security.cert.Certificate;
+import java.util.List;
+
+public class FileUtils extends Thread {
     public static String readStringFromFile(String url){
         String encoding = "UTF-8";
         File file = new File(url);
