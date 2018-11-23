@@ -10,11 +10,18 @@ import java.util.List;
 @Service()
 public class RepClientImpl implements RepClient {
     // 开发阶段方便测试，暂时使用固定的jks和chaincodeId，后续考虑其他解决方法
-    private final String chaincodeId = "f67952e094ddc4a7baf10a35d40dd6c462beafacdb71a2c5a0a2ed430fc109d9";
+    private final String chaincodeId = "dd1da6dd6a1687117dbd678c80dca340616acba6055ae8bce3e8d7dca5731553";
     private final String host = "192.168.21.14:8081";
-    private final String jks = "jks/mykeystore_1.jks";
+    /*private final String jks = "jks/mykeystore_1.jks";
+    private final String alias = "1";*/
+
+    private final String jks = "userjks/daiyongbing.jks";
+    private final String alias = "daiyongbing";
+
+   /*private final String jks = "userjks/hujing.jks";
+    private final String alias = "hujing";*/
     private final String jkspwd = "123";
-    private final String alias = "1";
+
     @Override
     public RepChainClient getRepClient() {
         return  new RepChainClient(host,jks,jkspwd, alias);

@@ -5,11 +5,13 @@ import com.client.RepChainClient;
 import com.iscas.workingdiary.bean.Cert;
 import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.service.RepClient;
+import com.iscas.workingdiary.util.FileUtils;
 import com.iscas.workingdiary.util.RepChainUtils;
 import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,10 @@ public class CertController {
 
     @PostMapping("insert")
     public void insertCert(Cert cert){
+        FileInputStream jks = FileUtils.getFis("C:/Users/vic/Desktop/wd_jks/"+cert.getCommonName()+".jks");
+        FileInputStream pemCert = FileUtils.getFis("C:/Users/vic/Desktop/wd_jks/"+cert.getCommonName()+".cer");
+        //cert.setJks(jks);
+        //cert.setPemCert(pemCert);
         certService.insertCert(cert);
     }
 
@@ -63,6 +69,14 @@ public class CertController {
 
     /********************************************以下接口针对区块链****************************************/
 
+    @PostMapping("signCert")
+    public JSONObject signCert(@RequestBody JSONObject param){
+        RepChainClient repChainClient = repClient.getRepClient();
+        List<String> argsList = repClient.getParamList(param);
+        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"certProof", argsList);
+        return repChainClient.postTranByString(hexTransaction);
+    }
+
     @GetMapping(value = "destroy")
     public JSONObject destroyCert(@RequestParam("certAddr") String addr){
         RepChainClient repChainClient = repClient.getRepClient();
@@ -76,14 +90,6 @@ public class CertController {
         RepChainClient repChainClient = repClient.getRepClient();
         List<String> argsList = repClient.getParamList(data);
         String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"replaceCert", argsList);
-        return repChainClient.postTranByString(hexTransaction);
-    }
-
-    @PostMapping("sign")
-    public JSONObject signCert(@RequestParam("cert") String pemCert){
-        RepChainClient repChainClient = repClient.getRepClient();
-        List<String> argsList = repClient.getParamList(pemCert);
-        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"signCert", argsList);
         return repChainClient.postTranByString(hexTransaction);
     }
 }

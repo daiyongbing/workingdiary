@@ -29,4 +29,15 @@ public class FileUtils extends Thread {
             return null;
         }
     }
+
+    public static FileInputStream getFis(String path){
+        File file = new File(path);
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return fileInputStream;
+    }
 }

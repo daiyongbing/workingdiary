@@ -2,3 +2,7 @@
 /.mvn/
 /target/
 /workingdiary.iml
+/usercert
+/userjks
+/contract
+/jks

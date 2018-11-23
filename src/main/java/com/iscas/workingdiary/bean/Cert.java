@@ -1,5 +1,7 @@
 package com.iscas.workingdiary.bean;
 
+import java.io.FileInputStream;
+
 /**
  * 证书实体类
  */
@@ -10,6 +12,8 @@ public class Cert {
     private String certAddr;
     private int certStatus;
     private int certLevel;
+    private String commonName;
+    private String jks;
 
     public String getCertNo() {
         return certNo;
@@ -57,5 +61,21 @@ public class Cert {
 
     public void setCertLevel(int certLevel) {
         this.certLevel = certLevel;
+    }
+
+    public String getCommonName() {
+        return commonName;
+    }
+
+    public void setCommonName(String commonName) {
+        this.commonName = commonName;
+    }
+
+    public String getJks() {
+        return jks;
+    }
+
+    public void setJks(String jks) {
+        this.jks = jks;
     }
 }

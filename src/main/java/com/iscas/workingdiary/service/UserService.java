@@ -10,7 +10,7 @@ public interface UserService {
     void userRegister(User user);
 
     //login in
-    String userLogin(User user);
+    String userLogin(String userName, String password);
 
     // delete user
     void deleteUserById(int userId);

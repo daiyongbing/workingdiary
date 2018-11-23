@@ -21,11 +21,11 @@
     </update>
 
 
-    <select id="userLogin" parameterType="com.iscas.workingdiary.bean.User" resultType="java.lang.String">
+    <select id="userLogin" resultType="java.lang.String">
         SELECT user_name
         FROM t_user
         WHERE
-            <if test="userId != null">user_id=#{userId}</if>
+            <if test="userName != null">user_name=#{userName}</if>
         AND
             <if test="password != null">password=#{password}</if>
     </select>

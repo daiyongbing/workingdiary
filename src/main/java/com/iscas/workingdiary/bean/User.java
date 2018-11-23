@@ -2,20 +2,21 @@ package com.iscas.workingdiary.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jdk.nashorn.internal.ir.annotations.Ignore;
+import org.springframework.lang.Nullable;
 
 /**
  * 用户实体类
  */
 public class User {
 
+
     private Integer userId;
     private String userName;
-    private String userSex;
+    private String userSex = "male";
     private String projectTeam;
     private String userPosition;
-    private String leader;
-    private Integer role;
-    @JsonIgnore
+    private String leader = "unknown";
+    private Integer role = 0;
     private String password;
 
     public int getUserId() {
