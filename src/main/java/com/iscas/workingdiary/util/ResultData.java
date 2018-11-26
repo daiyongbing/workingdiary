@@ -1,5 +1,10 @@
 package com.iscas.workingdiary.util;
 
+import com.iscas.workingdiary.util.exception.RuntimeFunctionException;
+import com.iscas.workingdiary.util.exception.RuntimeOtherException;
+import com.iscas.workingdiary.util.exception.RuntimeServiceException;
+import com.iscas.workingdiary.util.exception.RuntimeWebException;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.annotation.XmlElement;
 import java.io.FileNotFoundException;
