@@ -18,12 +18,13 @@ public class User {
     private String leader = "unknown";
     private Integer role = 0;
     private String password;
+    private String certNo;
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
@@ -67,11 +68,11 @@ public class User {
         this.leader = leader;
     }
 
-    public int getRole() {
+    public Integer getRole() {
         return role;
     }
 
-    public void setRole(int role) {
+    public void setRole(Integer role) {
         this.role = role;
     }
 
@@ -81,6 +82,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getCertNo() {
+        return certNo;
+    }
+
+    public void setCertNo(String certNo) {
+        this.certNo = certNo;
     }
 
     @Override
@@ -94,6 +103,7 @@ public class User {
                 ", leader='" + leader + '\'' +
                 ", role=" + role +
                 ", password='" + password + '\'' +
+                ", certNo='" + certNo + '\'' +
                 '}';
     }
 }

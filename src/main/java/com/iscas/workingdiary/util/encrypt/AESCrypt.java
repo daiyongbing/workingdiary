@@ -1,7 +1,13 @@
 package com.iscas.workingdiary.util.encrypt;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 /**
@@ -16,12 +22,23 @@ public final class AESCrypt {
      * @return base64Encoded 编码后的AES加密字符串
      * @throws Exception
      */
-    public static String AESEncrypt(String sourceStr) throws Exception {
-        byte[] keyBytes = CRYPTKEY.getBytes("utf-8");
+    public static String AESEncrypt(String sourceStr) {
+        byte[] keyBytes = new byte[0];
+        try {
+            keyBytes = CRYPTKEY.getBytes("utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
-        byte[] aesEncrypted = cipher.doFinal(sourceStr.getBytes("utf-8"));
+        Cipher cipher = null;
+        byte[] aesEncrypted = null;
+        try {
+            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+            aesEncrypted = cipher.doFinal(sourceStr.getBytes("utf-8"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         String base64Encoded = Base64.getEncoder().encodeToString(aesEncrypted);
         return base64Encoded;
     }
@@ -54,12 +71,12 @@ public final class AESCrypt {
     }
 
     public static void main(String[] args) throws Exception {
-        String cSrc = "HELLO";
+        String cSrc = "123";
         String enString = AESEncrypt(cSrc);
-        System.out.println("加密后的字串是：" + enString);
+        System.out.println("加密后的字符串：" + enString);
 
         // 解密
         String DeString = AESDecrypt(enString);
-        System.out.println("解密后的字串是：" + DeString);
+        System.out.println("解密后的字符串：" + DeString);
     }
 }

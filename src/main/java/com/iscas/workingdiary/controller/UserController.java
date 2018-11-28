@@ -5,6 +5,7 @@ import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.JsonResultUtils;
 import com.iscas.workingdiary.util.ResultData;
+import com.iscas.workingdiary.util.encrypt.AESCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.transaction.annotation.Isolation;
@@ -30,27 +31,32 @@ public class UserController {
 
     // 用户注册
     @PostMapping(value = "register")
-    public User register(@RequestBody User user){
-        /*System.out.println(userJson.toJSONString());
-         User user = new User();
-         user.setUserName(userJson.getString("userName"));
-         user.setUserId(Integer.parseInt(userJson.getString("userId")));
-         user.setPassword(userJson.getString("password"));
-         user.setProjectTeam(userJson.getString("projectTeam"));
-         user.setUserPosition(userJson.getString("userPosition"));*/
+    public Boolean register(@RequestBody User user){
+        String encryptedPWD = AESCrypt.AESEncrypt(user.getPassword());
+        user.setPassword(encryptedPWD);
+        System.out.println(user.toString());
         userService.userRegister(user);
-        return user;
+        return true;
     }
 
+    @PostMapping(value = "validate")
+    public Boolean validate(@RequestBody JSONObject jsonObject){
+        Integer userId = Integer.parseInt(jsonObject.getString("userId"));
+        String result = userService.validate(userId);
+        if (result == null) return true;
+        else return false;
+    }
     // 用户登录
     @PostMapping("login")
-    public String login(@RequestBody JSONObject object, HttpServletResponse response, HttpServletRequest request){
+    public Integer login(@RequestBody JSONObject object){
+        int result = 201;
         String userName = object.getString("userName");
         String password = object.getString("password");
-        if (userService.userLogin(userName, password) !=null ){
-            JsonResultUtils.returnJson(request, response, new ResultData());
+        String cryptpwd = AESCrypt.AESEncrypt(password);
+        if (userService.userLogin(userName, cryptpwd) !=null ){
+            result = 200;
         }
-
+        return result;
     }
 
     // 删除用户

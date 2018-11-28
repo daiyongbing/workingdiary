@@ -32,9 +32,9 @@
 
     <insert id="insertUser" parameterType="com.iscas.workingdiary.bean.User">
         INSERT INTO t_user
-            (user_id, user_name, user_sex, project_team, user_position, leader, role, password)
+            (user_id, user_name, user_sex, project_team, user_position, leader, role, password,cert_no)
         VALUES
-            (#{userId}, #{userName}, #{userSex}, #{projectTeam}, #{userPosition}, #{leader}, #{role}, #{password})
+            (#{userId}, #{userName}, #{userSex}, #{projectTeam}, #{userPosition}, #{leader}, #{role}, #{password}, #{certNo})
     </insert>
     
     <delete id="deleteUser" parameterType="java.lang.Integer">
@@ -42,4 +42,11 @@
         WHERE
         <if test="userId != null">user_id = #{userId}</if>
     </delete>
+
+    <select id="validate" resultType="java.lang.String">
+        SELECT user_name
+        FROM t_user
+        WHERE
+        <if test="userId != null">user_id=#{userId}</if>
+    </select>
 </mapper>

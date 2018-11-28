@@ -28,6 +28,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public String validate(Integer userId) {
+        return userMapper.validate(userId);
+    }
+
+    @Override
     public void deleteUserById(int userId) {
         userMapper.deleteUser(userId);
     }

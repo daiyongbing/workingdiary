@@ -13,4 +13,6 @@ public interface UserMapper {
     void insertUser(User user);
 
     void deleteUser(@Param(value = "userId") Integer userId);
+
+    String validate(@Param(value = "userId") Integer userId);
 }

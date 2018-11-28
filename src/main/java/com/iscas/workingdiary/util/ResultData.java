@@ -145,11 +145,11 @@ public class ResultData {
     /**
      * 501-功能不完善，无对应方法
      */
-    public ResultData(RuntimeFunctionException rex) {
+    /*public ResultData(RuntimeFunctionException rex) {
         super();
         this.code = CODE_ERROR_FUNCTION;
         this.message = rex.getMessage();
-    }
+    }*/
 
     /**
      * 502-网络异常
