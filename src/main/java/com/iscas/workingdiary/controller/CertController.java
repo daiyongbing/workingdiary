@@ -32,7 +32,11 @@ public class CertController {
     @Autowired
     private RepClient repClient;
 
-    @PostMapping("insert")
+    /**
+     * 插入mysql 直接存文件还是存地址？
+     * @param cert
+     */
+    @PostMapping(value = "insert", produces = MediaType.APPLICATION_JSON_VALUE)
     public void insertCert(Cert cert){
         FileInputStream jks = FileUtils.getFis("C:/Users/vic/Desktop/wd_jks/"+cert.getCommonName()+".jks");
         FileInputStream pemCert = FileUtils.getFis("C:/Users/vic/Desktop/wd_jks/"+cert.getCommonName()+".cer");
@@ -41,31 +45,52 @@ public class CertController {
         certService.insertCert(cert);
     }
 
-    @GetMapping("deleteByCertNo")
-    public void deleteCertByCertNo(String certNo){
-        certService.deleteCertByCertNo(certNo);
+    @GetMapping(value = "deleteByCertNo", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData deleteCertByCertNo(@RequestParam("certNO") String certNo){
+        ResultData resultData = null;
+        try {
+            certService.deleteCertByCertNo(certNo);
+            resultData = ResultData.deleteSuccess();
+        }catch (Exception e){
+            resultData = new ResultData(ResultData.DATABASE_EXCEPTION, "删除失败");
+        }
+        return resultData;
     }
 
-    @GetMapping("deleteByUserId")
-    public void deleteCertByCertNo(Integer userId){
-        certService.deleteCertByUserId(userId);
+    @GetMapping(value = "deleteByUserId", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData deleteCertByCertNo(@RequestParam("userId") Integer userId){
+        ResultData resultData = null;
+        try {
+            certService.deleteCertByUserId(userId);
+            resultData = ResultData.deleteSuccess();
+        }catch (Exception e){
+            resultData = new ResultData(ResultData.DATABASE_EXCEPTION, "删除失败");
+        }
+        return resultData;
     }
 
-    @GetMapping("queryByCertNo")
-    public Cert queryCertByNo(String certNo){
-        Cert cert = new Cert();
-        cert =  certService.queryCert(certNo);
-        return cert;
+    @GetMapping(value = "queryByCertNo", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData queryCertByNo(@RequestParam("certNo") String certNo){
+        Cert cert = null;
+        ResultData resultData = null;
+        try {
+            cert =  certService.queryCert(certNo);
+            resultData = new ResultData(ResultData.CODE_SUCCESS, "查询成功", cert);
+        } catch (Exception e){
+            resultData = new ResultData(ResultData.DATABASE_EXCEPTION, "数据库异常");
+        }
+
+        return resultData;
     }
 
-    @GetMapping("queryAll")
+    @GetMapping(value = "queryAll", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Cert> queryAllCert(){
         List<Cert> certList = new ArrayList<>();
         certList = certService.selectAll();
         return certList;
     }
 
-    @PostMapping("update")
+    @PostMapping(value = "update", produces = MediaType.APPLICATION_JSON_VALUE)
     public void updateCert(Cert cert){
         certService.updateCert(cert);
     }
