@@ -10,8 +10,8 @@ import java.util.List;
 @Service()
 public class RepClientImpl implements RepClient {
     // 开发阶段方便测试，暂时使用固定的jks和chaincodeId，后续考虑其他解决方法
-    private final String chaincodeId = "dd1da6dd6a1687117dbd678c80dca340616acba6055ae8bce3e8d7dca5731553";
-    private final String host = "192.168.21.14:8081";
+    private final String chaincodeId = "444d52bf1cc5bc46652024f75557263bd4f7892b694ce7ddea711232f72db8ef";
+    private final String host = "192.168.21.14:8083";
     /*private final String jks = "jks/mykeystore_1.jks";
     private final String alias = "1";*/
 

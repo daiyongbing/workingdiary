@@ -1,11 +1,7 @@
-package com.iscas.workingdiary.util;
+package com.iscas.workingdiary.util.json;
 
-import com.iscas.workingdiary.util.exception.RuntimeFunctionException;
-import com.iscas.workingdiary.util.exception.RuntimeOtherException;
-import com.iscas.workingdiary.util.exception.RuntimeServiceException;
-import com.iscas.workingdiary.util.exception.RuntimeWebException;
+import com.iscas.workingdiary.util.exception.*;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.annotation.XmlElement;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,33 +21,75 @@ public class ResultData {
     public final static String CODE_OUT_TIME = "201";
 
     /**
-     * 500-业务逻辑错误
+     * 204-没有证书
+     */
+    public final static String NO_CERT = "204";
+
+    /**
+     * 205-未认证的证书
+     */
+    public final static String CERT_NOT_PROOF = "205";
+
+    /**
+     * 206-RepChain服务连接失败
+     */
+    public final static String BLOCKCHAIN_CONNECTION_FAILED = "206";
+
+    /**
+     * RepChain服务器错误
+     */
+    public final static String BLOCKCHAIN_SERVER_ERROR = "207";
+
+    /**
+     * 500-服务器错误
      */
     public final static String CODE_ERROR_SERVICE = "500";
+
+    /**
+     * 501-未实现功能
+     */
+    public final static String CODE_ERROR_FUNCTION = "501";
 
     /**
      * 502-网络异常
      */
     public final static String CODE_ERROR_WEB = "502";
+
+
     /**
-     * 503-未知其它
+     * 503-未知错误
      */
     public final static String CODE_ERROR_OTHER = "503";
 
     /**
-     *查询异常
+     * 504-数据库插入异常
+     */
+    public final static String DATABASE_INSERT_ERROR = "504";
+
+    /**
+     * 505-查询异常
      */
     public final static String CODE_ERROR_EXCEPTION = "505";
+
     /**
-     *参数有误
+     * 506-参数有误
      */
     public final static String CODE_ERROR_PARAM = "506";
 
     /**
-     *查询为空
+     * 507-查询为空
      */
     public final static String CODE_ERROR_NULL = "507";
 
+    /**
+     * 508-数据库异常
+     */
+    public final static String DATABASE_EXCEPTION = "508";
+
+    /**
+     * 509-用户已存在
+     */
+    public final static String CODE_ERROR_EXIST = "509";
 
 
 
@@ -67,7 +105,7 @@ public class ResultData {
         return new ResultData(CODE_SUCCESS, "新增成功");
     }
 
-    public static ResultData addUpdateSuccess() {
+    public static ResultData updateSuccess() {
         return new ResultData(CODE_SUCCESS, "更新成功");
     }
 
@@ -75,7 +113,7 @@ public class ResultData {
         return new ResultData(CODE_SUCCESS, "确定成功");
     }
 
-    public static ResultData addDeleteSuccess() {
+    public static ResultData deleteSuccess() {
         return new ResultData(CODE_SUCCESS, "删除成功");
     }
 
@@ -145,11 +183,11 @@ public class ResultData {
     /**
      * 501-功能不完善，无对应方法
      */
-    /*public ResultData(RuntimeFunctionException rex) {
+    public ResultData(RuntimeFunctionException rex) {
         super();
         this.code = CODE_ERROR_FUNCTION;
         this.message = rex.getMessage();
-    }*/
+    }
 
     /**
      * 502-网络异常
@@ -198,9 +236,19 @@ public class ResultData {
     }
 
     /**
+     * 207-RepChain服务异常
+     * @param rex
+     */
+    public ResultData(RepChainServerException rex){
+        super();
+        this.code = BLOCKCHAIN_SERVER_ERROR;
+        this.message = rex.getMessage();
+    }
+
+    /**
      * 结果编码
      */
-    @XmlElement(name = "code")
+    //@XmlElement(name = "code")
     private String code;
 
     /**
@@ -274,4 +322,13 @@ public class ResultData {
         }
         return ex.getMessage();
     }
+
+    /*@Override
+    public String toString() {
+        return "\"ResultData\":{" +
+                "\"code\":" + "\""+code + "\"," +
+                "\"message\":" + "\""+message + "\"," +
+                "\"datas\":" + datas +
+                '}';
+    }*/
 }

@@ -1,7 +1,7 @@
 package com.iscas.workingdiary.util.exception;
 
 /**
- * Created by adams on 2017/4/11.
+ * 应用服务器异常
  */
 public class RuntimeServiceException extends RuntimeException{
 

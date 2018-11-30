@@ -27,4 +27,7 @@ public interface CertService {
 
     // 查询所有证书
     List<Cert> selectAll();
+
+    // 验证证书
+    Cert verifyCert(Integer userId);
 }

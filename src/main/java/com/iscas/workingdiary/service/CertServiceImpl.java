@@ -46,4 +46,9 @@ public class CertServiceImpl implements CertService {
         return certMapper.selectAll();
     }
 
+    @Override
+    public Cert verifyCert( Integer userId) {
+        return certMapper.verifyCert(userId);
+    }
+
 }

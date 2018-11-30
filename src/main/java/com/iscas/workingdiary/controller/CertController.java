@@ -7,10 +7,13 @@ import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.util.FileUtils;
 import com.iscas.workingdiary.util.RepChainUtils;
-import com.sun.org.apache.regexp.internal.RE;
+import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +69,31 @@ public class CertController {
     public void updateCert(Cert cert){
         certService.updateCert(cert);
     }
+
+
+    @GetMapping(value = "verifyCert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object verifyCert(@RequestParam("userId") Integer userId){
+        ResultData resultData = null;
+        Cert cert = certService.verifyCert(userId);
+        if (cert != null){
+            switch (cert.getCertStatus()){
+                // 证书是否已上链，考虑到数据库的状态能被人为修改，最好是直接向RepChain请求验证
+                case 0:
+                    resultData = new ResultData(ResultData.CERT_NOT_PROOF, "未认证的用户证书");
+                    break;
+                case 1:
+                    resultData = new ResultData(ResultData.CODE_SUCCESS, "证书验证成功");
+                    break;
+                default:
+                    resultData = new ResultData(ResultData.CODE_ERROR_OTHER, "未知错误");
+            }
+        } else {
+            resultData = new ResultData(ResultData.NO_CERT,"没有证书");
+        }
+
+        return resultData;
+    }
+
 
     /********************************************以下接口针对区块链****************************************/
 

@@ -5,6 +5,16 @@
 
 <mapper namespace="com.iscas.workingdiary.mapper.UserMapper">
 
+    <resultMap id="user" type="com.iscas.workingdiary.bean.User">
+        <id column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_sex" property="userSex"/>
+        <result column="project_team" property="projectTeam"/>
+        <result column="user_position" property="userPosition"/>
+        <result column="cert_no" property="certNo"/>
+    </resultMap>
+
+
     <update id="updateUser" parameterType="com.iscas.workingdiary.bean.User">
         update t_user
         <set>
@@ -21,8 +31,8 @@
     </update>
 
 
-    <select id="userLogin" resultType="java.lang.String">
-        SELECT user_name
+    <select id="userLogin" resultMap="user">
+        SELECT*
         FROM t_user
         WHERE
             <if test="userName != null">user_name=#{userName}</if>

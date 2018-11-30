@@ -1,8 +1,5 @@
 package com.iscas.workingdiary.util.exception;
 
-/**
- * Created by adams on 2017/4/11.
- */
 public class RuntimeWebException extends RuntimeException{
 
     public RuntimeWebException() {

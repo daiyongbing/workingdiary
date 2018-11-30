@@ -9,14 +9,14 @@ import org.springframework.lang.Nullable;
  */
 public class User {
 
-
     private Integer userId;
     private String userName;
-    private String userSex = "male";
+    private String userSex;
     private String projectTeam;
     private String userPosition;
-    private String leader = "unknown";
-    private Integer role = 0;
+    private String leader;
+    private Integer role;
+    @JsonIgnore
     private String password;
     private String certNo;
 

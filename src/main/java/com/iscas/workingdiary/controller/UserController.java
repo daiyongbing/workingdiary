@@ -3,19 +3,11 @@ package com.iscas.workingdiary.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.service.UserService;
-import com.iscas.workingdiary.util.JsonResultUtils;
-import com.iscas.workingdiary.util.ResultData;
 import com.iscas.workingdiary.util.encrypt.AESCrypt;
+import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 用户管理类
@@ -31,46 +23,85 @@ public class UserController {
 
     // 用户注册
     @PostMapping(value = "register")
-    public Boolean register(@RequestBody User user){
+    public ResultData register(@RequestBody User user){
+        ResultData resultData = null;
         String encryptedPWD = AESCrypt.AESEncrypt(user.getPassword());
         user.setPassword(encryptedPWD);
-        System.out.println(user.toString());
-        userService.userRegister(user);
-        return true;
+        try{
+            userService.userRegister(user);
+            resultData = new ResultData(ResultData.CODE_SUCCESS, "插入成功");
+        } catch (Exception e){
+            resultData = new ResultData(ResultData.DATABASE_INSERT_ERROR,  "插入失败");
+        }
+        return resultData;
     }
 
-    @PostMapping(value = "validate")
-    public Boolean validate(@RequestBody JSONObject jsonObject){
-        Integer userId = Integer.parseInt(jsonObject.getString("userId"));
-        String result = userService.validate(userId);
-        if (result == null) return true;
-        else return false;
+    @GetMapping(value = "validate")
+    public ResultData validate(@RequestParam("userId") Integer userId){
+        ResultData resultData = null;
+        String result = null;
+        try {
+            result = userService.validate(userId);
+        } catch (Exception e){
+            resultData = new ResultData(ResultData.DATABASE_EXCEPTION,  "数据库异常");
+        }
+
+        if (result == null){
+            resultData = new ResultData(ResultData.CODE_SUCCESS,  "用户不存在");
+        } else {
+            resultData = new ResultData(ResultData.CODE_ERROR_EXIST,  "用户已存在");
+        }
+        return resultData;
     }
+
     // 用户登录
-    @PostMapping("login")
-    public Integer login(@RequestBody JSONObject object){
-        int result = 201;
+    @PostMapping(value = "login", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData login(@RequestBody JSONObject object){
         String userName = object.getString("userName");
         String password = object.getString("password");
         String cryptpwd = AESCrypt.AESEncrypt(password);
-        if (userService.userLogin(userName, cryptpwd) !=null ){
-            result = 200;
+        User user = null;
+        ResultData resultData = null;
+        try {
+            user = userService.userLogin(userName, cryptpwd);
+        } catch (Exception e){
+            resultData = new ResultData(ResultData.DATABASE_EXCEPTION,  "数据库异常");
         }
-        return result;
+        if ( user !=null ){
+            resultData = new ResultData(ResultData.CODE_SUCCESS,  "登录成功", user);
+        } else {
+            resultData = new ResultData(ResultData.CODE_ERROR_NULL,  "账户或密码错误");
+        }
+        return resultData;
     }
 
     // 删除用户
     @GetMapping("delete")
     //@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
-    public String deleteUserById(int userId){
-        userService.deleteUserById(userId);
-        return "OK";
+    public ResultData deleteUserById(@RequestParam("userId") Integer userId){
+        ResultData resultData = null;
+        try {
+            userService.deleteUserById(userId);
+            resultData = ResultData.deleteSuccess();
+        } catch (Exception e){
+            resultData = new ResultData(ResultData.DATABASE_EXCEPTION, "数据库异常");
+        }
+
+        return resultData;
     }
 
     // 更新用户
-    @PostMapping("update")
-    public User updateUserById(User user){
-        userService.updateById(user);
-        return user;
+    @PostMapping(value = "update", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData updateUserById(@RequestBody User user){
+        ResultData resultData = null;
+        String encryptedPWD = AESCrypt.AESEncrypt(user.getPassword());
+        user.setPassword(encryptedPWD);
+        try{
+            userService.updateById(user);
+            resultData = ResultData.updateSuccess();
+        } catch (Exception e){
+            resultData = new ResultData(ResultData.DATABASE_INSERT_ERROR,  "更新失败");
+        }
+        return resultData;
     }
 }

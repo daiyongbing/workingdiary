@@ -47,4 +47,10 @@
         SELECT* FROM t_cert
     </select>
 
+    <select id="verifyCert" resultType="com.iscas.workingdiary.bean.Cert">
+        SELECT * FROM t_cert
+        WHERE
+            <if test="userId != null">user_id=#{userId}</if>
+    </select>
+
 </mapper>

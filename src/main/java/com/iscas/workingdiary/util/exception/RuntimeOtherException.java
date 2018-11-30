@@ -1,7 +1,7 @@
 package com.iscas.workingdiary.util.exception;
 
 /**
- * Created by adams on 2017/4/11.
+ * 其他异常
  */
 public class RuntimeOtherException extends RuntimeException{
     public RuntimeOtherException() {
