@@ -40,4 +40,14 @@ public class FileUtils extends Thread {
         }
         return fileInputStream;
     }
+
+    public static String getFileExt(String fileName){
+        int index =  fileName.lastIndexOf(".");
+        String ext = fileName.substring(index);
+        return ext;
+    }
+
+    public static void main(String[] args){
+        System.out.println(getFileExt("gy.cer"));
+    }
 }

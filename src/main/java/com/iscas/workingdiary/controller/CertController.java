@@ -7,14 +7,18 @@ import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.util.FileUtils;
 import com.iscas.workingdiary.util.RepChainUtils;
+import com.iscas.workingdiary.util.encrypt.MD5Utils;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,6 +123,40 @@ public class CertController {
         return resultData;
     }
 
+    @PostMapping(value = "upload")
+    public ResultData uploadCert(@RequestParam("fileName") MultipartFile file){
+        ResultData resultData = null;
+        String fileName = file.getOriginalFilename();
+        String md5 = "";
+        if(file.isEmpty() || file.getSize()>1048576){ // 文件最大2M
+            resultData = new ResultData(ResultData.CODE_ERROR_PARAM, "文件最大为2M且不能为空");
+        } else {
+            try {
+                md5 = MD5Utils.bytesMD5(file.getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            String storeName = md5+FileUtils.getFileExt(fileName);
+            long size = file.getSize();
+            System.out.println(storeName + "-->" + size);
+
+            String path = "G:/workingdiary/uploadCert" ;
+            File dest = new File(path + "/" + storeName);
+            if(!dest.getParentFile().exists()){ //判断文件父目录是否存在
+                dest.getParentFile().mkdir();
+            }
+            try {
+                file.transferTo(dest); //保存文件
+                resultData = new ResultData(ResultData.CODE_SUCCESS, "success");
+            } catch (IllegalStateException e) {
+                resultData = new ResultData(ResultData.CODE_ERROR_EXCEPTION, "IllegalStateException");
+            } catch (IOException e) {
+                resultData = new ResultData(ResultData.CODE_ERROR_EXCEPTION, "IOException");
+            }
+        }
+
+        return resultData;
+    }
 
     /********************************************以下接口针对区块链****************************************/
 

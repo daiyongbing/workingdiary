@@ -91,6 +91,11 @@ public class ResultData {
      */
     public final static String CODE_ERROR_EXIST = "509";
 
+    /**
+     * 文件格式错误
+     */
+    public final static String FILE_EXT_ERROR = "510";
+
 
 
     public static ResultData addSuccess() {
@@ -239,11 +244,11 @@ public class ResultData {
      * 207-RepChain服务异常
      * @param rex
      */
-    public ResultData(RepChainServerException rex){
+    /*public ResultData(RepChainServerException rex){
         super();
         this.code = BLOCKCHAIN_SERVER_ERROR;
         this.message = rex.getMessage();
-    }
+    }*/
 
     /**
      * 结果编码
