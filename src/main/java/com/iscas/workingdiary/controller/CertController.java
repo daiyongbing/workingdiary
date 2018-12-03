@@ -3,6 +3,7 @@ package com.iscas.workingdiary.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.client.RepChainClient;
 import com.iscas.workingdiary.bean.Cert;
+import com.iscas.workingdiary.config.ConstantProperties;
 import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.util.FileUtils;
@@ -35,6 +36,9 @@ public class CertController {
 
     @Autowired
     private RepClient repClient;
+
+    @Autowired
+    ConstantProperties properties;
 
     /**
      * 插入mysql 直接存文件还是存地址？
@@ -139,11 +143,11 @@ public class CertController {
             String storeName = md5+FileUtils.getFileExt(fileName);
             long size = file.getSize();
             System.out.println(storeName + "-->" + size);
-
-            String path = "G:/workingdiary/uploadCert" ;
+            String path = properties.getCertPath();
             File dest = new File(path + "/" + storeName);
+            System.out.println(dest.getAbsolutePath());
             if(!dest.getParentFile().exists()){ //判断文件父目录是否存在
-                dest.getParentFile().mkdir();
+                dest.getParentFile().mkdirs();
             }
             try {
                 file.transferTo(dest); //保存文件

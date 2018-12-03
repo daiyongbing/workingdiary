@@ -32,7 +32,7 @@ public class WorkingDairyController {
 
         // 返回请求结果
 
-        String text = Base64Utils.enCode(jsonLog.toJSONString());
+        String text = Base64Utils.encode2String(jsonLog.toJSONString());
         String s = "{\n" +
                 "            \"userName\":\"daiyongbing\",\n" +
                 "            \"text\":"+ "\""+text+"\""+ "\n" +
