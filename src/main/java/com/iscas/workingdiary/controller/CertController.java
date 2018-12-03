@@ -2,12 +2,14 @@ package com.iscas.workingdiary.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.client.RepChainClient;
+import com.crypto.BitcoinUtils;
 import com.iscas.workingdiary.bean.Cert;
 import com.iscas.workingdiary.config.ConstantProperties;
 import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.util.FileUtils;
 import com.iscas.workingdiary.util.RepChainUtils;
+import com.iscas.workingdiary.util.cert.CertUtils;
 import com.iscas.workingdiary.util.encrypt.MD5Utils;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.KeyPair;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -161,6 +166,22 @@ public class CertController {
 
         return resultData;
     }
+
+    @PostMapping(value = "generate")
+    public ResultData generateCert(@RequestBody JSONObject jsonObject){
+        String[] certInfo= {jsonObject.getString("CN"), jsonObject.getString("OU"), jsonObject.getString("O"),
+                jsonObject.getString("C"), jsonObject.getString("L"), jsonObject.getString("ST")};
+        String password = jsonObject.getString("password");
+        CertUtils certUtils = new CertUtils();
+        KeyPair keyPair = certUtils.generateKeyPair();
+        X509Certificate certificate = certUtils.generateCert(certInfo, keyPair);
+        certUtils.generateJksWithCert(certificate, keyPair, password, properties.getCertPath(), "daiyongbing");
+        String addr = BitcoinUtils.calculateBitcoinAddress(certificate.getPublicKey().getEncoded());
+        certUtils.saveCertAsPEM(certificate, "C:/Users/Vic Dai/Desktop/daiyb.cer");
+        System.out.println(certUtils.getCertPEM(certificate));
+        return new ResultData(ResultData.CODE_SUCCESS, "success", addr);
+    }
+
 
     /********************************************以下接口针对区块链****************************************/
 
