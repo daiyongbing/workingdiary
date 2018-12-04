@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<CSpec>
+    <stype>1</stype>
+    <idPath></idPath>
+    <idName></idName>
+    <iptFunc></iptFunc>
+    <iptArgs>
+    </iptArgs>
+    <timeout>0</timeout>
+    <secureContext>string</secureContext>
+    <code>
+        <![CDATA[
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import rep.sc.contract._
+
+
+/**
+ * 用于提交工作日志的合约 -> 积分服务器端
+ * 增加了跨网跨链测试
+ */
+class Integral extends IContract{
+
+    val INTEGRAL = "INTEGRAL_"
+
+    implicit val formats = DefaultFormats
+
+    def init(ctx: ContractContext){
+        println(s"tid: $ctx.t.txid")
+    }
+
+  /**
+    * 积分操作接口，用于跨网跨链测试
+    */
+  def addIntegral(ctx: ContractContext, userName:String):Object = {
+    val integralAccount = INTEGRAL.concat(userName)
+    var oldIntegral = ctx.api.getVal(integralAccount)
+    if (oldIntegral == null || oldIntegral == None){
+      ctx.api.setVal(integralAccount, 1)
+    } else {
+      var integral:Integer = 1+oldIntegral.toString.toInt
+      ctx.api.setVal(integralAccount, integral)
+    }
+    "add integral success"
+  }
+
+
+  /**
+    * 积分查询
+    * 约定：积分账户 = INTEGRAL + Integral.userName
+    */
+    def queryIntegral(ctx: ContractContext, userName: String):Object = {
+        val integralAccount = INTEGRAL.concat(userName)
+        ctx.api.getVal(integralAccount).toString
+    }
+
+
+    /**
+    * 根据action,找到对应的method，并将传入的json字符串parse为method需要的传入参数
+    */
+    def onAction(ctx: ContractContext,action:String, sdata:String ):Object={
+        val json = parse(sdata)
+
+        action match {
+            // 跨网跨链测试
+            case "addIntegral" =>
+              println(s"addIntegral")
+              addIntegral(ctx, json.extract[String])
+
+            case "queryIntegral" =>
+                println(s"queryIntegral")
+                queryIntegral(ctx, json.extract[String])
+        }
+    }
+}
+]]>
+    </code>
+    <ctype>1</ctype>
+</CSpec>
