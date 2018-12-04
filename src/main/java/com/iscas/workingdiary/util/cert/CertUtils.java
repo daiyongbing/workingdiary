@@ -1,6 +1,7 @@
 package com.iscas.workingdiary.util.cert;
 
 import com.iscas.workingdiary.util.encrypt.Base64Utils;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
@@ -8,10 +9,8 @@ import org.bouncycastle.x509.X509V3CertificateGenerator;
 import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
+import java.security.cert.*;
 import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.InvalidKeySpecException;
@@ -86,6 +85,58 @@ public class CertUtils {
     }
 
     /**
+     * 将Certificate序列化为pem格式的文件
+     * @param certificate
+     * @param path
+     */
+    public void saveCertAsPEM(Certificate certificate, String path){
+        String encodedCert = null;
+        try {
+            encodedCert = Base64Utils.encode2String(certificate.getEncoded());
+            System.out.println(encodedCert);
+        } catch (CertificateEncodingException e) {
+            e.printStackTrace();
+        }
+        File file = new File(path);
+        try (RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw")) {
+            randomAccessFile.write("-----BEGIN CERTIFICATE-----\n".getBytes());
+            int i = 0;
+            for (; i<(encodedCert.length() - (encodedCert.length() % 64)); i+=64) {
+                randomAccessFile.write(encodedCert.substring(i, i + 64).getBytes());
+                randomAccessFile.write("\n".getBytes());
+            }
+            randomAccessFile.write(encodedCert.substring(i, encodedCert.length()).getBytes());
+            randomAccessFile.write("\n".getBytes());
+            randomAccessFile.write("-----END CERTIFICATE-----".getBytes());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 
+     * @param certificate
+     * @return
+     */
+    public String getCertPEM(Certificate certificate){
+        String encode = null;
+        try {
+            encode = Base64Utils.encode2String(certificate.getEncoded());
+        } catch (CertificateEncodingException e) {
+            e.printStackTrace();
+        }
+        StringBuffer stringBuffer =  new StringBuffer(encode);
+        int index;
+        for (index=64; index<stringBuffer.length(); index+=65){
+            stringBuffer.insert(index, "\n");
+        }
+        String pemCert = "-----BEGIN CERTIFICATE-----\r\n" + stringBuffer + "\r\n-----END CERTIFICATE-----\r\n";
+        return pemCert;
+    }
+
+    /**
      * 生成带密码的空jks
      * @param certInfo {cn,ou,o,c,l,st,starttime,endtime,serialnumber}
      * @param jks_password
@@ -135,11 +186,12 @@ public class CertUtils {
      * @param cert
      * @param keyPair
      * @param jks_password
-     * @param jks_path
+     * @param path
      * @param alias
      */
-    public void generateJksWithCert(X509Certificate cert, KeyPair keyPair, String jks_password, String jks_path, String alias){
+    public void generateJksWithCert(X509Certificate cert, KeyPair keyPair, String jks_password, String path, String alias){
         KeyStore keyStore;
+        String jks_path = path + "/" + alias + ".jks";
         File file = new File(jks_path);
         if (!file.getParentFile().exists()){
             file.getParentFile().mkdirs();
@@ -151,7 +203,7 @@ public class CertUtils {
             chain[0] = cert;
             keyStore.setCertificateEntry(alias, cert);
             keyStore.setKeyEntry(alias, keyPair.getPrivate(), jks_password.toCharArray(), chain);
-            keyStore.store(new FileOutputStream(jks_path+"/" + alias + ".jks"), jks_password.toCharArray());
+            keyStore.store(new FileOutputStream(jks_path), jks_password.toCharArray());
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
             e.printStackTrace();
         }

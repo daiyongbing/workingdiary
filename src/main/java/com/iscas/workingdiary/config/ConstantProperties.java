@@ -15,10 +15,10 @@ public class ConstantProperties {
     @Value("${repchain.port}")
     private String repchainPort;
 
-    @Value("${upload.cer}")
+    @Value("${cer.path}")
     private String certPath;
 
-    @Value("${upload.jks}")
+    @Value("${jks.path}")
     private String jksPath;
 
     public String getChaincodeId() {

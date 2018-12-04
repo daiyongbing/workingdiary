@@ -6,8 +6,8 @@ import java.security.cert.X509Certificate;
 public class CertUtilsTest {
 
     public static void main(String[] args){
-        String path = "F:/workingdiary/cert";
-        String[] info = { "daiyongbing", "ISCAS", "ISCAS", "CN", "GUIZHOU", "GUIYANG", "111111", "11111111", "1" };
+        String path = "G:/workingdiary/cert";
+        String[] info = { "daiyongbing", "ISCAS", "ISCAS", "CN", "GUIZHOU", "GUIYANG" };
         String jks_password = "123";
         CertUtils certUtils = new CertUtils();
         KeyPair keyPair = certUtils.generateKeyPair();  //生成KeyPair
