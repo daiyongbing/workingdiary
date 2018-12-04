@@ -10,6 +10,7 @@ import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.util.FileUtils;
 import com.iscas.workingdiary.util.RepChainUtils;
 import com.iscas.workingdiary.util.cert.CertUtils;
+import com.iscas.workingdiary.util.encrypt.Base64Utils;
 import com.iscas.workingdiary.util.encrypt.MD5Utils;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -132,39 +131,6 @@ public class CertController {
         return resultData;
     }
 
-    @PostMapping(value = "upload")
-    public ResultData uploadCert(@RequestParam("fileName") MultipartFile file){
-        ResultData resultData = null;
-        String fileName = file.getOriginalFilename();
-        String md5 = "";
-        if(file.isEmpty() || file.getSize()>1048576){ // 文件最大2M
-            resultData = new ResultData(ResultData.CODE_ERROR_PARAM, "文件最大为2M且不能为空");
-        } else {
-            try {
-                md5 = MD5Utils.bytesMD5(file.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            String storeName = md5+FileUtils.getFileExt(fileName);
-            long size = file.getSize();
-            System.out.println(storeName + "-->" + size);
-            String path = properties.getCertPath();
-            File dest = new File(path + "/" + storeName);
-            System.out.println(dest.getAbsolutePath());
-            if(!dest.getParentFile().exists()){ //判断文件父目录是否存在
-                dest.getParentFile().mkdirs();
-            }
-            try {
-                file.transferTo(dest); //保存文件
-                resultData = new ResultData(ResultData.CODE_SUCCESS, "success");
-            } catch (IllegalStateException e) {
-                resultData = new ResultData(ResultData.CODE_ERROR_EXCEPTION, "IllegalStateException");
-            } catch (IOException e) {
-                resultData = new ResultData(ResultData.CODE_ERROR_EXCEPTION, "IOException");
-            }
-        }
-        return resultData;
-    }
 
     @PostMapping(value = "generate")
     public ResultData generateCert(@RequestBody JSONObject jsonObject){
@@ -212,6 +178,81 @@ public class CertController {
             }
         }catch (Exception e){
             resultData = new ResultData(ResultData.DATABASE_INSERT_ERROR, "证书插入失败");
+        }
+        return resultData;
+    }
+
+    @PostMapping(value = "upload")
+    public ResultData uploadCert(@RequestParam("fileName") MultipartFile file){
+        ResultData resultData = null;
+        String fileName = file.getOriginalFilename();
+        String md5 = "";
+        if(file.isEmpty() || file.getSize()>1048576){ // 文件最大2M
+            resultData = new ResultData(ResultData.CODE_ERROR_PARAM, "文件最大为2M且不能为空");
+        } else {
+            try {
+                md5 = MD5Utils.bytesMD5(file.getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            String storeName = md5+FileUtils.getFileExt(fileName);
+            long size = file.getSize();
+            System.out.println(storeName + "-->" + size);
+            String path = properties.getCertPath();
+            File dest = new File(path + "/" + storeName);
+            System.out.println(dest.getAbsolutePath());
+            if(!dest.getParentFile().exists()){ //判断文件父目录是否存在
+                dest.getParentFile().mkdirs();
+            }
+            try {
+                file.transferTo(dest); //保存文件
+                resultData = new ResultData(ResultData.CODE_SUCCESS, "success");
+            } catch (IllegalStateException e) {
+                resultData = new ResultData(ResultData.CODE_ERROR_EXCEPTION, "IllegalStateException");
+            } catch (IOException e) {
+                resultData = new ResultData(ResultData.CODE_ERROR_EXCEPTION, "IOException");
+            }
+        }
+        return resultData;
+    }
+
+    @GetMapping(value = "download")
+    public ResultData downloadCert(HttpServletResponse response, HttpServletRequest request, @RequestParam("userId") Integer userId){
+        // 暂时使用参数，以后从session中获取
+        ResultData resultData = null;
+        X509Certificate certificate;
+        Cert certBean = null;
+        try {
+            certBean = certService.verifyCert(userId);  // 从数据库中获取证书
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        if (certBean == null){
+            resultData = new ResultData(ResultData.CODE_ERROR_NULL, "没有证书");
+        } else {
+            String pemCert = certBean.getPemCert();
+            String certString = Base64Utils.decode2String(pemCert);
+            response.setContentType("application/force-download");// 设置强制下载不打开
+            //response.addHeader("Content-Disposition", "attachment;fileName=" + certBean.getCommonName()+".cer");// 设置文件名
+            response.addHeader("Content-Disposition", "attachment;fileName=" + certBean.getCommonName()+".cer");// 设置文件名
+            OutputStream os = null;
+            try {
+                os = response.getOutputStream();
+                os.write(certString.getBytes());
+                os.flush();
+                resultData = new ResultData(ResultData.CODE_SUCCESS, "下载成功");
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (os != null){
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
         return resultData;
     }
