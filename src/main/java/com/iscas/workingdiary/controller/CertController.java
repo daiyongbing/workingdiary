@@ -163,23 +163,57 @@ public class CertController {
                 resultData = new ResultData(ResultData.CODE_ERROR_EXCEPTION, "IOException");
             }
         }
-
         return resultData;
     }
 
     @PostMapping(value = "generate")
     public ResultData generateCert(@RequestBody JSONObject jsonObject){
+        ResultData resultData;
         String[] certInfo= {jsonObject.getString("CN"), jsonObject.getString("OU"), jsonObject.getString("O"),
                 jsonObject.getString("C"), jsonObject.getString("L"), jsonObject.getString("ST")};
-        String password = jsonObject.getString("password");
+        String password = jsonObject.getString("password");  // 密码用于私钥加密和解密，不做保存，一旦忘记不可找回
         CertUtils certUtils = new CertUtils();
-        KeyPair keyPair = certUtils.generateKeyPair();
-        X509Certificate certificate = certUtils.generateCert(certInfo, keyPair);
-        certUtils.generateJksWithCert(certificate, keyPair, password, properties.getCertPath(), "daiyongbing");
-        String addr = BitcoinUtils.calculateBitcoinAddress(certificate.getPublicKey().getEncoded());
-        certUtils.saveCertAsPEM(certificate, "C:/Users/Vic Dai/Desktop/daiyb.cer");
-        System.out.println(certUtils.getCertPEM(certificate));
-        return new ResultData(ResultData.CODE_SUCCESS, "success", addr);
+        KeyPair keyPair = null;
+        X509Certificate certificate = null;
+        String addr = "";
+        String pemCert = "";
+        String certNo = "";
+        String encyptPrivateKey = "";
+        try {
+            keyPair = certUtils.generateKeyPair();
+            certificate = certUtils.generateCert(certInfo, keyPair);    // generate cert
+            addr = BitcoinUtils.calculateBitcoinAddress(certificate.getPublicKey().getEncoded());    //计算证书短地址
+            pemCert = certUtils.getCertPEM(certificate);     // 获取pemcert
+            certNo = MD5Utils.stringMD5(pemCert); //使用pemCert的MD5作为证书编号
+            encyptPrivateKey = certUtils.encryptPrivateKey(keyPair.getPrivate(), password);    //加密私钥
+        }catch (Exception e){
+            e.getMessage();
+        }
+
+        Cert cert = new Cert();
+        cert.setCertNo(certNo);
+        cert.setCertAddr(addr);
+        cert.setPemCert(pemCert);
+        cert.setCertLevel(0);
+        cert.setCertStatus(0);
+        cert.setCommonName(certInfo[0]);
+        cert.setPrivateKey(encyptPrivateKey);
+        cert.setUserId(1);
+
+        try {
+            Cert existCert = certService.verifyCert(cert.getUserId());
+            if (existCert != null){
+                resultData = new ResultData(ResultData.CODE_ERROR_EXIST, "证书已存在", existCert.getCertAddr());
+            }else {
+                certService.insertCert(cert);
+                certUtils.generateJksWithCert(certificate, keyPair, password, properties.getJksPath(), certInfo[0]);   //保存jks文件到服务器
+                certUtils.saveCertAsPEM(certificate, properties.getCertPath(), certInfo[0]); // 保存cer到服务器
+                resultData = new ResultData(ResultData.CODE_SUCCESS, "success", addr);
+            }
+        }catch (Exception e){
+            resultData = new ResultData(ResultData.DATABASE_INSERT_ERROR, "证书插入失败");
+        }
+        return resultData;
     }
 
 

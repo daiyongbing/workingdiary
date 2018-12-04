@@ -43,6 +43,27 @@ public final class AESCrypt {
         return base64Encoded;
     }
 
+    public static String encrypt2String(byte[] bytes, String encypt_password){
+        byte[] keyBytes = new byte[0];
+        try {
+            keyBytes = encypt_password.getBytes("utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
+        Cipher cipher = null;
+        byte[] aesEncrypted = null;
+        try {
+            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+            aesEncrypted = cipher.doFinal(bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String base64Encoded = Base64.getEncoder().encodeToString(aesEncrypted);
+        return base64Encoded;
+    }
+
     /**
      * AES解密算法
      * @param base64Str

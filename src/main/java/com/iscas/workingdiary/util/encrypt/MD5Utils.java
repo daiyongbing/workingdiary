@@ -15,8 +15,8 @@ public class MD5Utils {
 
     static {
         try {
-//			messagedigest = MessageDigest.getInstance("MD5");
-            messagedigest = MessageDigest.getInstance("SHA-1");
+			messagedigest = MessageDigest.getInstance("MD5");
+            //messagedigest = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {
             System.err.println("MD5FileUtil messagedigest初始化失败");
             e.printStackTrace();
@@ -37,6 +37,15 @@ public class MD5Utils {
         return bytesMD5(s.getBytes());
     }
 
+    /**
+     * 取stringMD5的中间16位
+     * @param source
+     * @return
+     */
+    public static String crypt16Byte(String source){
+        String md5 = stringMD5(source);
+        return md5.substring(8, 24);
+    }
 
     public static String bytesMD5(byte[] bytes) {
         messagedigest.update(bytes);
@@ -59,8 +68,12 @@ public class MD5Utils {
         return stringbuffer.toString();
     }
 
+
+
+
     public static void main(String[] args) throws IOException {
-        String filePath = "/Users/jjs/Desktop/13.jpg";
-        System.out.println("MD5：" + fileMD5(new File(filePath)));
+        String str = "12dcidfuiafornfgibfi3";
+        System.out.println("MD5：" + stringMD5(str));
+        System.out.println("16byte:"+crypt16Byte(str));
     }
 }

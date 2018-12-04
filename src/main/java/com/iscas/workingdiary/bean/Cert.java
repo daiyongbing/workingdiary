@@ -13,7 +13,7 @@ public class Cert {
     private int certStatus;
     private int certLevel;
     private String commonName;
-    private String jks;
+    private String privateKey;
 
     public String getCertNo() {
         return certNo;
@@ -71,11 +71,11 @@ public class Cert {
         this.commonName = commonName;
     }
 
-    public String getJks() {
-        return jks;
+    public String getPrivateKey() {
+        return privateKey;
     }
 
-    public void setJks(String jks) {
-        this.jks = jks;
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
     }
 }

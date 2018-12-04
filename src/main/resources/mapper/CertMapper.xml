@@ -13,15 +13,15 @@
         <result column="cert_status" property="certStatus"/>
         <result column="cert_level" property="certLevel"/>
         <result column="common_name" property="commonName"/>
-        <result column="jks" property="jks"/>
+        <result column="private_key" property="privateKey"/>
     </resultMap>
 
 
     <insert id="insertCert" parameterType="com.iscas.workingdiary.bean.Cert">
         INSERT INTO t_cert
-            (cert_no, user_id, pem_cert, cert_addr, cert_status, cert_level)
+            (cert_no, user_id, pem_cert, cert_addr, cert_status, cert_level, common_name, private_key)
         VALUES
-            (#{certNo}, #{userId}, #{pemCert}, #{certAddr}, #{certStatus}, #{certLevel})
+            (#{certNo}, #{userId}, #{pemCert}, #{certAddr}, #{certStatus}, #{certLevel}, #{commonName}, #{privateKey})
     </insert>
 
     <update id="updateCert" parameterType="com.iscas.workingdiary.bean.Cert">
@@ -49,7 +49,7 @@
             <if test="userId != null">user_id=#{userId}</if>
     </delete>
 
-    <select id="queryCert" parameterType="java.lang.String" resultType="cert">
+    <select id="queryCert" parameterType="java.lang.String" resultMap="cert">
         SELECT* FROM t_cert
         WHERE
             <if test="certNo != null">cert_no=#{certNo}</if>
@@ -59,7 +59,7 @@
         SELECT* FROM t_cert
     </select>
 
-    <select id="verifyCert" resultType="cert">
+    <select id="verifyCert" resultMap="cert">
         SELECT * FROM t_cert
         WHERE
             <if test="userId != null">user_id=#{userId}</if>

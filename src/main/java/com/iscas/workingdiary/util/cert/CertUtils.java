@@ -1,6 +1,8 @@
 package com.iscas.workingdiary.util.cert;
 
+import com.iscas.workingdiary.util.encrypt.AESCrypt;
 import com.iscas.workingdiary.util.encrypt.Base64Utils;
+import com.iscas.workingdiary.util.encrypt.MD5Utils;
 import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -89,15 +91,17 @@ public class CertUtils {
      * @param certificate
      * @param path
      */
-    public void saveCertAsPEM(Certificate certificate, String path){
+    public void saveCertAsPEM(Certificate certificate, String path, String certName){
         String encodedCert = null;
         try {
             encodedCert = Base64Utils.encode2String(certificate.getEncoded());
-            System.out.println(encodedCert);
         } catch (CertificateEncodingException e) {
             e.printStackTrace();
         }
-        File file = new File(path);
+        File file = new File(path+"/"+certName+".cer");
+        if (!file.getParentFile().exists()){
+            file.getParentFile().mkdirs();
+        }
         try (RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw")) {
             randomAccessFile.write("-----BEGIN CERTIFICATE-----\n".getBytes());
             int i = 0;
@@ -133,7 +137,7 @@ public class CertUtils {
             stringBuffer.insert(index, "\n");
         }
         String pemCert = "-----BEGIN CERTIFICATE-----\r\n" + stringBuffer + "\r\n-----END CERTIFICATE-----\r\n";
-        return pemCert;
+        return Base64Utils.encode2String(pemCert);
     }
 
     /**
@@ -173,8 +177,8 @@ public class CertUtils {
 
             X509Certificate[] chain = new X509Certificate[1];
             chain[0] = cert;
-            keyStore.setKeyEntry(commonName, keyPair.getPrivate(), jks_password.toCharArray(), chain);
             keyStore.setCertificateEntry(commonName, cert);
+            keyStore.setKeyEntry(commonName, keyPair.getPrivate(), jks_password.toCharArray(), chain);
             keyStore.store(new FileOutputStream(path+"/" + commonName + ".jks"), jks_password.toCharArray());
         } catch (Exception e) {
             e.printStackTrace();
@@ -209,6 +213,9 @@ public class CertUtils {
         }
     }
 
+    public String encryptPrivateKey(PrivateKey privateKey, String password){ ;
+        return AESCrypt.encrypt2String(privateKey.getEncoded(), MD5Utils.crypt16Byte(password));
+    }
 
     /**
      * 从字符串中提取证书
