@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.encrypt.AESCrypt;
+import com.iscas.workingdiary.util.exception.StateCode;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -29,9 +30,9 @@ public class UserController {
         user.setPassword(encryptedPWD);
         try{
             userService.userRegister(user);
-            resultData = new ResultData(ResultData.CODE_SUCCESS, "插入成功");
+            resultData = new ResultData(StateCode.SUCCESS, "插入成功");
         } catch (Exception e){
-            resultData = new ResultData(ResultData.DATABASE_INSERT_ERROR,  "插入失败");
+            resultData = new ResultData(StateCode.DB_INSERT_ERROR,  "插入失败");
         }
         return resultData;
     }
@@ -43,13 +44,13 @@ public class UserController {
         try {
             result = userService.validate(userId);
         } catch (Exception e){
-            resultData = new ResultData(ResultData.DATABASE_EXCEPTION,  "数据库异常");
+            resultData = new ResultData(StateCode.DB_QUERY_ERROR,  "数据库查询异常");
         }
 
         if (result == null){
-            resultData = new ResultData(ResultData.CODE_SUCCESS,  "用户不存在");
+            resultData = new ResultData(StateCode.DB_QUERY_NULL_ERROR,  "用户不存在");
         } else {
-            resultData = new ResultData(ResultData.CODE_ERROR_EXIST,  "用户已存在");
+            resultData = new ResultData(StateCode.DB_ALREADY_EXIST_ERROR,  "用户已存在");
         }
         return resultData;
     }
@@ -65,12 +66,12 @@ public class UserController {
         try {
             user = userService.userLogin(userName, cryptpwd);
         } catch (Exception e){
-            resultData = new ResultData(ResultData.DATABASE_EXCEPTION,  "数据库异常");
+            resultData = new ResultData(StateCode.DB_ERROR,  "数据库异常");
         }
         if ( user !=null ){
-            resultData = new ResultData(ResultData.CODE_SUCCESS,  "登录成功", user);
+            resultData = new ResultData(StateCode.SUCCESS,  "登录成功", user);
         } else {
-            resultData = new ResultData(ResultData.CODE_ERROR_NULL,  "账户或密码错误");
+            resultData = new ResultData(StateCode.DB_QUERY_NULL_ERROR,  "账户或密码错误");
         }
         return resultData;
     }
@@ -84,7 +85,7 @@ public class UserController {
             userService.deleteUserById(userId);
             resultData = ResultData.deleteSuccess();
         } catch (Exception e){
-            resultData = new ResultData(ResultData.DATABASE_EXCEPTION, "数据库异常");
+            resultData = new ResultData(StateCode.DB_DELETE_ERROR, "删除失败");
         }
 
         return resultData;
@@ -100,7 +101,7 @@ public class UserController {
             userService.updateById(user);
             resultData = ResultData.updateSuccess();
         } catch (Exception e){
-            resultData = new ResultData(ResultData.DATABASE_INSERT_ERROR,  "更新失败");
+            resultData = new ResultData(StateCode.DB_UPDATE_ERROR,  "更新失败");
         }
         return resultData;
     }

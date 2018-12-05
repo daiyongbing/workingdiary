@@ -10,120 +10,25 @@ import java.util.List;
 import java.util.Map;
 
 public class ResultData {
-    /**
-     * 200-成功
-     */
-    public final static String CODE_SUCCESS = "200";
-
-    /**
-     * 201 登录超时
-     */
-    public final static String CODE_OUT_TIME = "201";
-
-    /**
-     * 204-没有证书
-     */
-    public final static String NO_CERT = "204";
-
-    /**
-     * 205-未认证的证书
-     */
-    public final static String CERT_NOT_PROOF = "205";
-
-    /**
-     * 206-RepChain服务连接失败
-     */
-    public final static String BLOCKCHAIN_CONNECTION_FAILED = "206";
-
-    /**
-     * RepChain服务器错误
-     */
-    public final static String BLOCKCHAIN_SERVER_ERROR = "207";
-
-    /**
-     * 500-服务器错误
-     */
-    public final static String CODE_ERROR_SERVICE = "500";
-
-    /**
-     * 501-未实现功能
-     */
-    public final static String CODE_ERROR_FUNCTION = "501";
-
-    /**
-     * 502-网络异常
-     */
-    public final static String CODE_ERROR_WEB = "502";
-
-
-    /**
-     * 503-未知错误
-     */
-    public final static String CODE_ERROR_OTHER = "503";
-
-    /**
-     * 504-数据库插入异常
-     */
-    public final static String DATABASE_INSERT_ERROR = "504";
-
-    /**
-     * 505-查询异常
-     */
-    public final static String CODE_ERROR_EXCEPTION = "505";
-
-    /**
-     * 506-参数有误
-     */
-    public final static String CODE_ERROR_PARAM = "506";
-
-    /**
-     * 507-查询为空
-     */
-    public final static String CODE_ERROR_NULL = "507";
-
-    /**
-     * 508-数据库异常
-     */
-    public final static String DATABASE_EXCEPTION = "508";
-
-    /**
-     * 509-用户已存在
-     */
-    public final static String CODE_ERROR_EXIST = "509";
-
-    /**
-     * 文件格式错误
-     */
-    public final static String FILE_EXT_ERROR = "510";
-
-
 
     public static ResultData addSuccess() {
-        return new ResultData(CODE_SUCCESS, null);
-    }
-
-    public static ResultData addSuccess(String message) {
-        return new ResultData(CODE_SUCCESS, message);
-    }
-
-    public static ResultData addAddSuccess() {
-        return new ResultData(CODE_SUCCESS, "新增成功");
+        return new ResultData(StateCode.SUCCESS, "新增成功");
     }
 
     public static ResultData updateSuccess() {
-        return new ResultData(CODE_SUCCESS, "更新成功");
+        return new ResultData(StateCode.SUCCESS, "更新成功");
     }
 
-    public static ResultData addUpdateCheckSuccess() {
-        return new ResultData(CODE_SUCCESS, "确定成功");
+    public static ResultData checkSuccess() {
+        return new ResultData(StateCode.SUCCESS, "验证成功");
     }
 
     public static ResultData deleteSuccess() {
-        return new ResultData(CODE_SUCCESS, "删除成功");
+        return new ResultData(StateCode.SUCCESS, "删除成功");
     }
 
-    public static ResultData addOperationSuccess() {
-        return new ResultData(CODE_SUCCESS, "操作成功");
+    public static ResultData operationSuccess() {
+        return new ResultData(StateCode.SUCCESS, "操作成功");
     }
 
     public ResultData() {
@@ -145,7 +50,7 @@ public class ResultData {
 
     public ResultData(String message) {
         super();
-        this.code = CODE_SUCCESS;
+        this.code = StateCode.SUCCESS;
         this.message = message;
     }
 
@@ -154,7 +59,7 @@ public class ResultData {
      */
     public <T> ResultData(T entity) {
         super();
-        this.code = CODE_SUCCESS;
+        this.code = StateCode.SUCCESS;
         this.datas = entity;
     }
 
@@ -163,7 +68,7 @@ public class ResultData {
      */
     public ResultData(List<?> list) {
         super();
-        this.code = CODE_SUCCESS;
+        this.code = StateCode.SUCCESS;
         this.datas = list;
     }
 
@@ -172,7 +77,7 @@ public class ResultData {
      */
     public ResultData(Map<String, Object> map) {
         super();
-        this.code = CODE_SUCCESS;
+        this.code = StateCode.SUCCESS;
         this.datas = map;
     }
 
@@ -181,7 +86,7 @@ public class ResultData {
      */
     public ResultData(RuntimeServiceException rex) {
         super();
-        this.code = CODE_ERROR_SERVICE;
+        this.code = StateCode.SERVER_ERROR;
         this.message = rex.getMessage();
     }
 
@@ -190,7 +95,7 @@ public class ResultData {
      */
     public ResultData(RuntimeFunctionException rex) {
         super();
-        this.code = CODE_ERROR_FUNCTION;
+        this.code = StateCode.SERVER_FUNCTION_UNREALIZED_ERROR;
         this.message = rex.getMessage();
     }
 
@@ -199,16 +104,16 @@ public class ResultData {
      */
     public ResultData(RuntimeWebException rex) {
         super();
-        this.code = CODE_ERROR_WEB;
+        this.code = StateCode.SERVER_WEB_ERROR;
         this.message = rex.getMessage();
     }
 
     /**
-     * 503-未知其它
+     * 506-未知其它
      */
     public ResultData(RuntimeOtherException rex) {
         super();
-        this.code = CODE_ERROR_OTHER;
+        this.code = StateCode.SERVER_OTHER_UNKNOWN_ERROR;
         this.message = rex.getMessage();
     }
 
@@ -217,7 +122,7 @@ public class ResultData {
      */
     public ResultData(Exception ex) {
         super();
-        this.code = CODE_ERROR_OTHER;
+        this.code = StateCode.SERVER_OTHER_UNKNOWN_ERROR;
         this.message = getErrorMessage(ex);
         ex.printStackTrace();
     }
@@ -227,7 +132,7 @@ public class ResultData {
      */
     public ResultData(RuntimeException rex) {
         super();
-        this.code = CODE_ERROR_OTHER;
+        this.code = StateCode.SERVER_OTHER_UNKNOWN_ERROR;
         this.message = rex.getMessage();
     }
 
@@ -236,19 +141,19 @@ public class ResultData {
      */
     public ResultData(Throwable tx) {
         super();
-        this.code = CODE_ERROR_OTHER;
+        this.code = StateCode.SERVER_OTHER_UNKNOWN_ERROR;
         this.message = tx.getMessage();
     }
 
     /**
-     * 207-RepChain服务异常
+     * 600-RepChain服务异常
      * @param rex
      */
-    /*public ResultData(RepChainServerException rex){
+    public ResultData(RepChainServerException rex){
         super();
-        this.code = BLOCKCHAIN_SERVER_ERROR;
+        this.code = StateCode.REPCHAIN_SERVER_ERROR;
         this.message = rex.getMessage();
-    }*/
+    }
 
     /**
      * 结果编码
@@ -266,7 +171,6 @@ public class ResultData {
      */
     private Object datas;
 
-    // -------------------------- getter and setter -----------------------------
     public String getCode() {
         return code;
     }
@@ -328,12 +232,4 @@ public class ResultData {
         return ex.getMessage();
     }
 
-    /*@Override
-    public String toString() {
-        return "\"ResultData\":{" +
-                "\"code\":" + "\""+code + "\"," +
-                "\"message\":" + "\""+message + "\"," +
-                "\"datas\":" + datas +
-                '}';
-    }*/
 }
