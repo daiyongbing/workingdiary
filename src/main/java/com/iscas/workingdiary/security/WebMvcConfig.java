@@ -1,10 +1,13 @@
-package com.iscas.workingdiary.config;
+package com.iscas.workingdiary.security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
+@EnableWebMvc
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
@@ -15,4 +18,13 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
                 .maxAge(3600)
                 .allowCredentials(true);
     }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        //添加拦截器
+        registry.addInterceptor(new WebInterceptor())
+            .excludePathPatterns("/user/login")
+            .excludePathPatterns("/user/register");
+    }
+
 }

@@ -2,6 +2,7 @@ package com.iscas.workingdiary.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iscas.workingdiary.bean.User;
+import com.iscas.workingdiary.security.JWT;
 import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.encrypt.AESCrypt;
 import com.iscas.workingdiary.util.exception.StateCode;
@@ -73,7 +74,7 @@ public class UserController {
 
     // 用户登录
     @PostMapping(value = "login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData login(HttpServletRequest request, HttpServletResponse response, @RequestBody JSONObject object){
+    public ResultData login(HttpServletResponse response, @RequestBody JSONObject object){
         String userName = object.getString("userName");
         String password = object.getString("password");
         String cryptpwd = AESCrypt.AESEncrypt(password);
@@ -85,7 +86,8 @@ public class UserController {
             resultData = new ResultData(StateCode.DB_ERROR,  "数据库异常");
         }
         if ( user !=null ){
-
+            String token = JWT.getToken(user);
+            response.addHeader("token", token);
             resultData = new ResultData(StateCode.SUCCESS,  "登录成功", user);
         } else {
             resultData = new ResultData(StateCode.DB_QUERY_NULL_ERROR,  "账户或密码错误");
@@ -96,10 +98,13 @@ public class UserController {
     // 删除用户
     @GetMapping("delete")
     //@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
-    public ResultData deleteUserById(@RequestParam("userId") Integer userId){
+    public ResultData deleteUserById(HttpServletRequest request){
         ResultData resultData = null;
+        String token = request.getHeader("Authorization").substring(7);
         try {
-            userService.deleteUserById(userId);
+            String Id = JWT.checkToken(token).getIssuer();
+            String name = JWT.checkToken(token).getSubject();
+            //userService.deleteUserById(userId);
             resultData = ResultData.deleteSuccess();
         } catch (Exception e){
             resultData = new ResultData(StateCode.DB_DELETE_ERROR, "删除失败");
@@ -110,11 +115,15 @@ public class UserController {
 
     // 更新用户
     @PostMapping(value = "update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData updateUserById(@RequestBody User user){
+    public ResultData updateUserById(HttpServletResponse response, HttpServletRequest request, @RequestBody User user){
         ResultData resultData = null;
         String encryptedPWD = AESCrypt.AESEncrypt(user.getPassword());
         user.setPassword(encryptedPWD);
+        String token = request.getHeader("Authorization");
+        String userId;
         try{
+            userId = JWT.checkToken(token).getId();
+            System.out.println(userId);
             userService.updateById(user);
             resultData = ResultData.updateSuccess();
         } catch (Exception e){
