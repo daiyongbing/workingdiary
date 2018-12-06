@@ -1,6 +1,7 @@
 package com.iscas.workingdiary.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.springframework.lang.Nullable;
 
@@ -17,7 +18,6 @@ public class User {
     private String leader;
     private Integer roleId;
 
-    @JsonIgnore
     private String password;
     private String certNo;
 
@@ -77,10 +77,12 @@ public class User {
         this.roleId = roleId;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
 
+    @JsonProperty
     public void setPassword(String password) {
         this.password = password;
     }

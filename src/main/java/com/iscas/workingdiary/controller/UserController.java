@@ -2,11 +2,12 @@ package com.iscas.workingdiary.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iscas.workingdiary.bean.User;
-import com.iscas.workingdiary.security.JWT;
+import com.iscas.workingdiary.security.JWTHelper;
 import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.encrypt.AESCrypt;
 import com.iscas.workingdiary.util.exception.StateCode;
 import com.iscas.workingdiary.util.json.ResultData;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,7 +87,7 @@ public class UserController {
             resultData = new ResultData(StateCode.DB_ERROR,  "数据库异常");
         }
         if ( user !=null ){
-            String token = JWT.getToken(user);
+            String token = JWTHelper.getToken(user);
             response.addHeader("token", token);
             resultData = new ResultData(StateCode.SUCCESS,  "登录成功", user);
         } else {
@@ -96,15 +97,14 @@ public class UserController {
     }
 
     // 删除用户
-    @GetMapping("delete")
+    @GetMapping(value = "delete", produces = MediaType.APPLICATION_JSON_VALUE)
     //@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public ResultData deleteUserById(HttpServletRequest request){
         ResultData resultData = null;
         String token = request.getHeader("Authorization").substring(7);
         try {
-            String Id = JWT.checkToken(token).getIssuer();
-            String name = JWT.checkToken(token).getSubject();
-            //userService.deleteUserById(userId);
+            Integer userId = JWTHelper.checkToken(token).get("userId", Integer.class);
+            userService.deleteUserById(userId);
             resultData = ResultData.deleteSuccess();
         } catch (Exception e){
             resultData = new ResultData(StateCode.DB_DELETE_ERROR, "删除失败");
@@ -122,7 +122,7 @@ public class UserController {
         String token = request.getHeader("Authorization");
         String userId;
         try{
-            userId = JWT.checkToken(token).getId();
+            userId = JWTHelper.checkToken(token).getId();
             System.out.println(userId);
             userService.updateById(user);
             resultData = ResultData.updateSuccess();

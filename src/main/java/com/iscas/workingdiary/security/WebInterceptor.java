@@ -16,7 +16,7 @@ public class WebInterceptor extends HandlerInterceptorAdapter {
         //取得token
         String token = authorization.substring(7); //后续优化时替换成正则表达式
         try {
-            JWT.checkToken(token);
+            JWTHelper.checkToken(token);
             return true;
         } catch (Exception e) {
             throw new ServletException(e.getMessage());
