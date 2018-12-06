@@ -5,17 +5,18 @@
 
 <mapper namespace="com.iscas.workingdiary.mapper.UserMapper">
 
-    <resultMap id="user" type="com.iscas.workingdiary.bean.User">
+    <resultMap id="user" type="User">
         <id column="user_id" property="userId"/>
         <result column="user_name" property="userName"/>
         <result column="user_sex" property="userSex"/>
         <result column="project_team" property="projectTeam"/>
         <result column="user_position" property="userPosition"/>
         <result column="cert_no" property="certNo"/>
+        <result column="role_id" property="roleId"/>
     </resultMap>
 
 
-    <update id="updateUser" parameterType="com.iscas.workingdiary.bean.User">
+    <update id="updateUser" parameterType="User">
         update t_user
         <set>
             <if test="userName != null">user_name=#{userName},</if>
@@ -23,7 +24,7 @@
             <if test="projectTeam != null">project_team=#{projectTeam},</if>
             <if test="userPosition != null">user_position=#{userPosition},</if>
             <if test="leader != null">leader=#{leader},</if>
-            <if test="role != null">role=#{role},</if>
+            <if test="roleId != null">role_id=#{roleId},</if>
             <if test="password != null">password=#{password}</if>
         </set>
         WHERE
@@ -34,29 +35,53 @@
     <select id="userLogin" resultMap="user">
         SELECT*
         FROM t_user
-        WHERE
-            <if test="userName != null">user_name=#{userName}</if>
-        AND
-            <if test="password != null">password=#{password}</if>
+        <where>
+            <if test="userName != null and userName != ''">
+                user_name=#{userName}
+            </if>
+            <if test="password != null and password != ''">
+                and password=#{password}
+            </if>
+        </where>
     </select>
 
-    <insert id="insertUser" parameterType="com.iscas.workingdiary.bean.User">
+    <insert id="insertUser" parameterType="User">
         INSERT INTO t_user
-            (user_id, user_name, user_sex, project_team, user_position, leader, role, password,cert_no)
+            (user_id, user_name, user_sex, project_team, user_position, leader, role_id, password,cert_no)
         VALUES
-            (#{userId}, #{userName}, #{userSex}, #{projectTeam}, #{userPosition}, #{leader}, #{role}, #{password}, #{certNo})
+            (#{userId}, #{userName}, #{userSex}, #{projectTeam}, #{userPosition}, #{leader}, #{roleId}, #{password}, #{certNo})
     </insert>
     
     <delete id="deleteUser" parameterType="java.lang.Integer">
         DELETE FROM t_user
-        WHERE
-        <if test="userId != null">user_id = #{userId}</if>
+        <where>
+            <if test="userId != null and userId != ''">user_id = #{userId}</if>
+        </where>
     </delete>
 
-    <select id="validate" resultType="java.lang.String">
-        SELECT user_name
+    <select id="validate" parameterType="User" resultType="User">
+        SELECT*
         FROM t_user
-        WHERE
-        <if test="userId != null">user_id=#{userId}</if>
+        <where>
+            <if test="userId != null and userId != ''">
+                user_id=#{userId}
+            </if>
+            <if test="userName != null and userName != '' ">
+                or user_name=#{userName}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectOne" parameterType="User" resultMap="user">
+        SELECT*
+        FROM t_user
+        <where>
+            <if test="userName != null and userName != '' ">
+                and user_name=#{userName}
+            </if>
+            <if test="userId != null and userId != '' ">
+                and user_id=#{userId}
+            </if>
+        </where>
     </select>
 </mapper>

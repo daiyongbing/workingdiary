@@ -15,7 +15,8 @@ public class User {
     private String projectTeam;
     private String userPosition;
     private String leader;
-    private Integer role;
+    private Integer roleId;
+
     @JsonIgnore
     private String password;
     private String certNo;
@@ -68,12 +69,12 @@ public class User {
         this.leader = leader;
     }
 
-    public Integer getRole() {
-        return role;
+    public Integer getRoleId() {
+        return roleId;
     }
 
-    public void setRole(Integer role) {
-        this.role = role;
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
     }
 
     public String getPassword() {
@@ -101,7 +102,7 @@ public class User {
                 ", projectTeam='" + projectTeam + '\'' +
                 ", userPosition='" + userPosition + '\'' +
                 ", leader='" + leader + '\'' +
-                ", role=" + role +
+                ", roleId=" + roleId +
                 ", password='" + password + '\'' +
                 ", certNo='" + certNo + '\'' +
                 '}';

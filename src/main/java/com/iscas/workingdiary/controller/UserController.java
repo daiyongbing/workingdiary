@@ -8,7 +8,13 @@ import com.iscas.workingdiary.util.exception.StateCode;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * 用户管理类
@@ -22,42 +28,52 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // 用户注册
-    @PostMapping(value = "register")
+    /**
+     * 注册接口，没有验证用户是否已存在是因为在提交之前已经进行了异步验证
+     * @param user
+     * @return
+     */
+    @PostMapping(value = "register", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Transactional(rollbackFor = SQLException.class)
     public ResultData register(@RequestBody User user){
         ResultData resultData = null;
         String encryptedPWD = AESCrypt.AESEncrypt(user.getPassword());
         user.setPassword(encryptedPWD);
         try{
             userService.userRegister(user);
-            resultData = new ResultData(StateCode.SUCCESS, "插入成功");
+            resultData = new ResultData(StateCode.SUCCESS, "注册成功");
         } catch (Exception e){
-            resultData = new ResultData(StateCode.DB_INSERT_ERROR,  "插入失败");
+            e.printStackTrace();
+            resultData = new ResultData(StateCode.DB_INSERT_ERROR,  "注册失败");
         }
         return resultData;
     }
 
-    @GetMapping(value = "validate")
-    public ResultData validate(@RequestParam("userId") Integer userId){
+    /**
+     * 异步验证
+     * @param user
+     * @return
+     */
+    @GetMapping(value = "validate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData validate(@RequestBody User user){
         ResultData resultData = null;
-        String result = null;
         try {
-            result = userService.validate(userId);
+            List<User> checkUser = userService.validate(user);  //验证用户名和ID
+            if (checkUser == null){
+                resultData = new ResultData(StateCode.SUCCESS,  "验证成功");
+            } else {
+                resultData = new ResultData(StateCode.DB_ALREADY_EXIST_ERROR,  "用户已存在");
+            }
         } catch (Exception e){
-            resultData = new ResultData(StateCode.DB_QUERY_ERROR,  "数据库查询异常");
-        }
-
-        if (result == null){
-            resultData = new ResultData(StateCode.DB_QUERY_NULL_ERROR,  "用户不存在");
-        } else {
-            resultData = new ResultData(StateCode.DB_ALREADY_EXIST_ERROR,  "用户已存在");
+            e.printStackTrace();
+            resultData = new ResultData(StateCode.DB_QUERY_ERROR,  "数据库异常");
         }
         return resultData;
     }
 
     // 用户登录
     @PostMapping(value = "login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData login(@RequestBody JSONObject object){
+    public ResultData login(HttpServletRequest request, HttpServletResponse response, @RequestBody JSONObject object){
         String userName = object.getString("userName");
         String password = object.getString("password");
         String cryptpwd = AESCrypt.AESEncrypt(password);
@@ -69,6 +85,7 @@ public class UserController {
             resultData = new ResultData(StateCode.DB_ERROR,  "数据库异常");
         }
         if ( user !=null ){
+
             resultData = new ResultData(StateCode.SUCCESS,  "登录成功", user);
         } else {
             resultData = new ResultData(StateCode.DB_QUERY_NULL_ERROR,  "账户或密码错误");
@@ -105,4 +122,14 @@ public class UserController {
         }
         return resultData;
     }
+
+    /**
+     * 注销账户
+     */
+    public void  logOut(){}
+
+    /**
+     * 退出登录
+     */
+    public void logOff(){}
 }

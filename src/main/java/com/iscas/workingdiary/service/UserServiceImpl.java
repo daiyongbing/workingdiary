@@ -5,6 +5,7 @@ import com.iscas.workingdiary.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Service()
 public class UserServiceImpl implements UserService {
@@ -28,8 +29,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String validate(Integer userId) {
-        return userMapper.validate(userId);
+    public List<User> validate(User user) {
+        return userMapper.validate(user);
     }
 
     @Override

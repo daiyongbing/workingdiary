@@ -1,8 +1,12 @@
 package com.iscas.workingdiary.mapper;
 
 import com.iscas.workingdiary.bean.User;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface UserMapper {
@@ -14,5 +18,6 @@ public interface UserMapper {
 
     void deleteUser(@Param(value = "userId") Integer userId);
 
-    String validate(@Param(value = "userId") Integer userId);
+    List<User> validate(User user);
+
 }

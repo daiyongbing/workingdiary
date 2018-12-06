@@ -3,6 +3,8 @@ package com.iscas.workingdiary.service;
 import com.iscas.workingdiary.bean.User;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service()
 public interface UserService {
 
@@ -18,5 +20,5 @@ public interface UserService {
     // update user
     void updateById(User user);
 
-    String validate(Integer userId);
+    List<User> validate(User user);
 }

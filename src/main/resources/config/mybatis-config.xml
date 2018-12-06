@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <setting name="cacheEnabled" value="false"/>
+    </settings>
+    <typeAliases>
+        <typeAlias type="com.iscas.workingdiary.bean.User" alias="User"/>
+        <typeAlias type="com.iscas.workingdiary.bean.Cert" alias="Cert"/>
+        <typeAlias type="java.util.List" alias="List"/>
+        <typeAlias type="java.util.HashMap" alias="HashMap"/>
+        <typeAlias type="java.lang.String" alias="String"/>
+        <typeAlias type="java.lang.Integer" alias="Integer"/>
+    </typeAliases>
+
+
+</configuration>
