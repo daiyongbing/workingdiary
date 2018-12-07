@@ -4,11 +4,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * 用户实体类
  */
-public class User {
+public class User implements UserDetails, Serializable {
 
     private Integer userId;
     private String userName;
@@ -17,9 +23,46 @@ public class User {
     private String userPosition;
     private String leader;
     private Integer roleId;
-
     private String password;
     private String certNo;
+
+    private Set<? extends GrantedAuthority> authorities;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
+
 
     public Integer getUserId() {
         return userId;
@@ -77,12 +120,6 @@ public class User {
         this.roleId = roleId;
     }
 
-    @JsonIgnore
-    public String getPassword() {
-        return password;
-    }
-
-    @JsonProperty
     public void setPassword(String password) {
         this.password = password;
     }
@@ -95,18 +132,7 @@ public class User {
         this.certNo = certNo;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "userId=" + userId +
-                ", userName='" + userName + '\'' +
-                ", userSex='" + userSex + '\'' +
-                ", projectTeam='" + projectTeam + '\'' +
-                ", userPosition='" + userPosition + '\'' +
-                ", leader='" + leader + '\'' +
-                ", roleId=" + roleId +
-                ", password='" + password + '\'' +
-                ", certNo='" + certNo + '\'' +
-                '}';
+    public void setAuthorities(Set<? extends GrantedAuthority> authorities) {
+        this.authorities = authorities;
     }
 }
