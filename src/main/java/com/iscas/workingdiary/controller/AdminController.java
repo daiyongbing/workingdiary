@@ -2,7 +2,7 @@ package com.iscas.workingdiary.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iscas.workingdiary.bean.User;
-import com.iscas.workingdiary.security.JWTHelper;
+import com.iscas.workingdiary.jwtsecurity.JWTHelper;
 import com.iscas.workingdiary.service.AdminService;
 import com.iscas.workingdiary.util.exception.StateCode;
 import com.iscas.workingdiary.util.json.ResultData;

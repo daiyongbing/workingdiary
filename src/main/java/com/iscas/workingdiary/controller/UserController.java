@@ -2,12 +2,11 @@ package com.iscas.workingdiary.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iscas.workingdiary.bean.User;
-import com.iscas.workingdiary.security.JWTHelper;
+import com.iscas.workingdiary.jwtsecurity.JWTHelper;
 import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.encrypt.AESCrypt;
 import com.iscas.workingdiary.util.exception.StateCode;
 import com.iscas.workingdiary.util.json.ResultData;
-import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;

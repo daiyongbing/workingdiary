@@ -1,4 +1,4 @@
-package com.iscas.workingdiary.security;
+package com.iscas.workingdiary.jwtsecurity;
 
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 

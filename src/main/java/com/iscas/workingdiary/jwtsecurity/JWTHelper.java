@@ -1,4 +1,4 @@
-package com.iscas.workingdiary.security;
+package com.iscas.workingdiary.jwtsecurity;
 
 import com.iscas.workingdiary.bean.User;
 import io.jsonwebtoken.Claims;
@@ -7,7 +7,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 import javax.servlet.ServletException;
-import javax.xml.bind.DatatypeConverter;
 import java.util.Date;
 
 public class JWTHelper {
