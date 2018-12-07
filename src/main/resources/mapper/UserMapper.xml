@@ -19,16 +19,18 @@
     <update id="updateUser" parameterType="User">
         update t_user
         <set>
-            <if test="userName != null">user_name=#{userName},</if>
-            <if test="userSex != null">user_sex=#{userSex},</if>
-            <if test="projectTeam != null">project_team=#{projectTeam},</if>
-            <if test="userPosition != null">user_position=#{userPosition},</if>
-            <if test="leader != null">leader=#{leader},</if>
-            <if test="roleId != null">role_id=#{roleId},</if>
-            <if test="password != null">password=#{password}</if>
+            <if test="userName != null and userName != ''">user_name=#{userName},</if>
+            <if test="userSex != null and userSex != ''">user_sex=#{userSex},</if>
+            <if test="projectTeam != null and projectTeam != ''">project_team=#{projectTeam},</if>
+            <if test="userPosition != null and userPosition != ''">user_position=#{userPosition},</if>
+            <if test="leader != null and leader != ''">leader=#{leader},</if>
+            <if test="roleId != null roleId != ''">role_id=#{roleId},</if>
+            <if test="password != null and password != ''">password=#{password},</if>
+            <if test="certNo != null and certNo != ''">cert_no=#{certNo}</if>
         </set>
-        WHERE
-            <if test="userId != null">user_id=#{userId}</if>
+        <where>
+            <if test="userId != null and userId != ''">user_id=#{userId}</if>
+        </where>
     </update>
 
 

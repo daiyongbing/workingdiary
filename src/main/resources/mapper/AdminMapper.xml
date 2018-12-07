@@ -1,0 +1,45 @@
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.iscas.workingdiary.mapper.AdminMapper">
+
+    <resultMap id="user" type="User">
+        <id column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_sex" property="userSex"/>
+        <result column="project_team" property="projectTeam"/>
+        <result column="user_position" property="userPosition"/>
+        <result column="cert_no" property="certNo"/>
+        <result column="role_id" property="roleId"/>
+    </resultMap>
+
+    <delete id="deleteUser">
+        delete* from t_user
+        <where>
+            <if test="userName != null and userName != ''">
+                user_Name=#{userName}
+            </if>
+            <if test="userId != null and userId != ''">
+                and userId=#{userId}
+            </if>
+        </where>
+    </delete>
+
+    <update id="updateUser" parameterType="User">
+        update t_user
+        <set>
+            <if test="userName != null and userName != ''">user_name=#{userName},</if>
+            <if test="userSex != null and userSex != ''">user_sex=#{userSex},</if>
+            <if test="projectTeam != null and projectTeam != ''">project_team=#{projectTeam},</if>
+            <if test="userPosition != null and userPosition != ''">user_position=#{userPosition},</if>
+            <if test="leader != null and leader != ''">leader=#{leader},</if>
+            <if test="roleId != null roleId != ''">role_id=#{roleId},</if>
+            <if test="certNo != null and certNo != ''">cert_no=#{certNo}</if>
+        </set>
+        <where>
+            <if test="userId != null and userId != ''">user_id=#{userId}</if>
+        </where>
+    </update>
+
+</mapper>

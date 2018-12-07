@@ -113,6 +113,11 @@ public class StateCode {
      */
     public final static String SERVER_OTHER_UNKNOWN_ERROR = "506";
 
+    /**
+     * 507 权限不足
+     */
+    public final static String SERVER_NO_ACCESS_ERROR = "507";
+
 
     /********************************* 600系列：RepChain服务器相关的异常 ********************************/
 
