@@ -18,10 +18,11 @@ import java.io.IOException;
 public class MyAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
     @Override
-    public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
+    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
         ResponseBody responseBody = new ResponseBody();
         responseBody.setStatus("400");
         responseBody.setMessage("登录失败");
-        httpServletResponse.getWriter().write(JSON.toJSONString(responseBody));
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(JSON.toJSONString(responseBody));
     }
 }

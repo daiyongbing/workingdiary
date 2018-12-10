@@ -2,10 +2,10 @@ package com.iscas.workingdiary.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iscas.workingdiary.bean.User;
-import com.iscas.workingdiary.jwtsecurity.JWTHelper;
 import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.encrypt.AESCrypt;
 import com.iscas.workingdiary.util.exception.StateCode;
+import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Role;
@@ -40,7 +40,8 @@ public class UserController {
     @Transactional(rollbackFor = SQLException.class)
     public ResultData register(@RequestBody User user){
         ResultData resultData = null;
-        String encryptedPWD = AESCrypt.AESEncrypt(user.getPassword());
+        String p = user.getPassword();
+        String encryptedPWD = AESCrypt.AESEncrypt(p);
         user.setPassword(encryptedPWD);
         try{
             userService.userRegister(user);
@@ -88,8 +89,8 @@ public class UserController {
             resultData = new ResultData(StateCode.DB_ERROR,  "数据库异常");
         }
         if ( user !=null ){
-            String token = JWTHelper.getToken(user);
-            response.addHeader("token", token);
+            //String token = JWTTokenUtil.generateToken(user);
+            //response.addHeader("token", token);
             resultData = new ResultData(StateCode.SUCCESS,  "登录成功", user);
         } else {
             resultData = new ResultData(StateCode.DB_QUERY_NULL_ERROR,  "账户或密码错误");
@@ -104,7 +105,7 @@ public class UserController {
         ResultData resultData = null;
         String token = request.getHeader("Authorization").substring(7);
         try {
-            Integer userId = JWTHelper.checkToken(token).get("userId", Integer.class);
+            Integer userId = JWTTokenUtil.parseToken(token).get("userId", Integer.class);
             userService.deleteUserById(userId);
             resultData = ResultData.deleteSuccess();
         } catch (Exception e){
@@ -121,9 +122,9 @@ public class UserController {
         String encryptedPWD = AESCrypt.AESEncrypt(user.getPassword());
         user.setPassword(encryptedPWD);
         String token = request.getHeader("Authorization");
-        String userId;
+        Integer userId;
         try{
-            userId = JWTHelper.checkToken(token).getId();
+            userId = JWTTokenUtil.parseToken(token).get("userId", Integer.class);
             System.out.println(userId);
             userService.updateById(user);
             resultData = ResultData.updateSuccess();

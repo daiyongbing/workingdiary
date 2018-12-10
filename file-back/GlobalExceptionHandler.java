@@ -5,7 +5,7 @@ import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
+//@RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResultData handleException(Exception e) {

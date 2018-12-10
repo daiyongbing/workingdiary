@@ -17,10 +17,11 @@ import java.io.IOException;
 @Component
 public class MyAccessDeniedHandler implements AccessDeniedHandler {
     @Override
-    public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) throws IOException, ServletException {
+    public void handle(HttpServletRequest httpServletRequest, HttpServletResponse response, AccessDeniedException e) throws IOException, ServletException {
         ResponseBody responseBody = new ResponseBody();
         responseBody.setStatus("304");
         responseBody.setMessage("拒绝访问");
-        httpServletResponse.getWriter().write(JSON.toJSONString(responseBody));
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(JSON.toJSONString(responseBody));
     }
 }

@@ -14,10 +14,11 @@ import java.io.IOException;
 @Component
 public class MyAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
-    public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
         ResponseBody responseBody = new ResponseBody();
         responseBody.setStatus("000");
-        responseBody.setMessage("需要身份验证");
-        httpServletResponse.getWriter().write(JSON.toJSONString(responseBody));
+        responseBody.setMessage("未登录");
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(JSON.toJSONString(responseBody));
     }
 }

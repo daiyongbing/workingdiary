@@ -1,6 +1,7 @@
 package com.iscas.workingdiary.security;
 
 import com.iscas.workingdiary.bean.User;
+import com.iscas.workingdiary.bean.UserDetail;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,10 +14,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Component
-public class MyUserDetailsService implements UserDetailsService {
+public class UserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-        User userInfo = new User();
+        UserDetail userInfo = new UserDetail();
         userInfo.setUserName(userName);
         userInfo.setPassword(new BCryptPasswordEncoder().encode("123"));
 
@@ -24,6 +25,7 @@ public class MyUserDetailsService implements UserDetailsService {
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_ADMIN");
         authoritiesSet.add(authority);
         userInfo.setAuthorities(authoritiesSet);
+
         return userInfo;
     }
 }

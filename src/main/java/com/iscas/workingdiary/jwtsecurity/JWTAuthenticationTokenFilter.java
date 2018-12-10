@@ -1,6 +1,7 @@
 package com.iscas.workingdiary.jwtsecurity;
 
-import com.iscas.workingdiary.security.MyUserDetailsService;
+import com.iscas.workingdiary.security.UserDetailService;
+import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +20,7 @@ import java.io.IOException;
 public class JWTAuthenticationTokenFilter extends OncePerRequestFilter {
 
     @Autowired
-    MyUserDetailsService userDetailsService;
+    UserDetailService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -28,8 +29,7 @@ public class JWTAuthenticationTokenFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             final String authToken = authHeader.substring("Bearer ".length());
 
-            String username = JWTHelper.checkToken(authToken).get("userName", String.class);
-
+            String username = JWTTokenUtil.parseToken(authToken).getSubject(); //实际上获取的是subject，但是将subject设置为username
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 

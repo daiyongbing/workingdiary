@@ -32,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     MyAccessDeniedHandler accessDeniedHandler;
 
     @Autowired
-    MyUserDetailsService userDetailsService;
+    UserDetailService userDetailsService;
 
     @Autowired
     JWTAuthenticationTokenFilter jwtAuthenticationTokenFilter; // JWT 拦截器
@@ -55,9 +55,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .authorizeRequests()
+                .antMatchers("/user/login","/user/register")    //开放登录、注册接口
+                .permitAll()
 
                 .anyRequest()
-                .access("@rbacauthorityservice.hasPermission(request,authentication)") // RBAC 动态 url 认证
+                .access("@authorityService.hasPermission(request,authentication)") // RBAC 动态 url 认证
 
                 .and()
                 .formLogin()  //开启登录
@@ -69,6 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout()
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .permitAll();
+
 
         // 记住我
         http.rememberMe().rememberMeParameter("remember-me")

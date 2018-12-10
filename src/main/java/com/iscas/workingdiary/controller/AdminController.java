@@ -2,9 +2,9 @@ package com.iscas.workingdiary.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iscas.workingdiary.bean.User;
-import com.iscas.workingdiary.jwtsecurity.JWTHelper;
 import com.iscas.workingdiary.service.AdminService;
 import com.iscas.workingdiary.util.exception.StateCode;
+import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -37,7 +37,8 @@ public class AdminController {
         String userName = jsonObject.getString("userName");
         Integer userId = jsonObject.getInteger("userId");
         try {
-            Integer role = JWTHelper.checkToken(token).get("role", Integer.class);
+            //Integer role = JWTTokenUtil.parseToken(token).get("role", Integer.class);
+            Integer role = 0;
             if (role == 1){
                 adminService.deleteUser(userName, userId);
                 resultData = ResultData.deleteSuccess();
@@ -62,7 +63,8 @@ public class AdminController {
         ResultData resultData = null;
         String token = request.getHeader("Authorization").substring(7);
         try{
-            Integer role = JWTHelper.checkToken(token).get("role", Integer.class);
+            //Integer role = JWTTokenUtil.parseToken(token).get("role", Integer.class);
+            Integer role = 0;
             if (role == 1){
                 adminService.updateUser(user);
                 resultData = ResultData.updateSuccess();
