@@ -32,12 +32,10 @@ public class JWTTokenUtil {
         }
     }
 
-    public static String generateToken(UserDetail user) {
+    public static String generateToken(String subject, Claims claims) {
         return Jwts.builder()
-                .claim("userName", user.getUserName())
-                .claim("userId", user.getUserId())
-                .claim("role", user.getRoleId())
-                .setSubject(user.getUsername())
+                .setClaims(claims)
+                .setSubject(subject)
                 .setExpiration(new Date(System.currentTimeMillis() + expirationSeconds))
                 //.signWith(SignatureAlgorithm.RS256, privateKey)
                 .signWith(SignatureAlgorithm.ES256, privateKey) //ECDSASHA256加密算法，同时也是RepChain支持的证书加密算法

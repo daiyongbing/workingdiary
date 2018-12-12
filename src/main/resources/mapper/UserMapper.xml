@@ -61,19 +61,6 @@
         </where>
     </delete>
 
-    <select id="validate" parameterType="User" resultType="User">
-        SELECT*
-        FROM t_user
-        <where>
-            <if test="userId != null and userId != ''">
-                user_id=#{userId}
-            </if>
-            <if test="userName != null and userName != '' ">
-                or user_name=#{userName}
-            </if>
-        </where>
-    </select>
-
     <select id="selectOne" parameterType="User" resultMap="user">
         SELECT*
         FROM t_user
@@ -86,4 +73,25 @@
             </if>
         </where>
     </select>
+
+    <select id="findByUserName" parameterType="String" resultMap="user">
+        SELECT*
+        FROM t_user
+        <where>
+            <if test="userName != null and userName != '' ">
+                user_name=#{userName}
+            </if>
+        </where>
+    </select>
+
+    <select id="findByUserId" parameterType="Integer" resultMap="user">
+        SELECT*
+        FROM t_user
+        <where>
+            <if test="userId != null and userId != '' ">
+                user_id=#{userId}
+            </if>
+        </where>
+    </select>
+
 </mapper>

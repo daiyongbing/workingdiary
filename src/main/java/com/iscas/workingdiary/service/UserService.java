@@ -11,14 +11,13 @@ public interface UserService {
     // register
     void userRegister(User user);
 
-    //login in
-    User userLogin(String userName, String password);
-
     // delete user
     void deleteUserById(int userId);
 
     // update user
     void updateById(User user);
 
-    List<User> validate(User user);
+    User findUserByName(String userName);
+
+    User findUserById(Integer userId);
 }

@@ -7,9 +7,12 @@ import com.iscas.workingdiary.util.encrypt.AESCrypt;
 import com.iscas.workingdiary.util.exception.StateCode;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.ResultData;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Role;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +28,6 @@ import java.util.List;
 // @RestController = @Controller + @ResponseBody
 @RestController
 @RequestMapping("/user")
-@Role(value = 0)
 public class UserController {
 
     @Autowired
@@ -40,9 +42,6 @@ public class UserController {
     @Transactional(rollbackFor = SQLException.class)
     public ResultData register(@RequestBody User user){
         ResultData resultData = null;
-        String p = user.getPassword();
-        String encryptedPWD = AESCrypt.AESEncrypt(p);
-        user.setPassword(encryptedPWD);
         try{
             userService.userRegister(user);
             resultData = new ResultData(StateCode.SUCCESS, "注册成功");
@@ -54,15 +53,15 @@ public class UserController {
     }
 
     /**
-     * 异步验证
-     * @param user
+     * 验证用户名是否存在
+     * @param userName
      * @return
      */
-    @GetMapping(value = "validate", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData validate(@RequestBody User user){
+    @GetMapping(value = "existname", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData validate(@RequestParam String userName){
         ResultData resultData = null;
         try {
-            List<User> checkUser = userService.validate(user);  //验证用户名和ID
+            User checkUser = userService.findUserByName(userName);  //验证用户名
             if (checkUser == null){
                 resultData = new ResultData(StateCode.SUCCESS,  "验证成功");
             } else {
@@ -75,28 +74,28 @@ public class UserController {
         return resultData;
     }
 
-    // 用户登录
-    @PostMapping(value = "login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData login(HttpServletResponse response, @RequestBody JSONObject object){
-        String userName = object.getString("userName");
-        String password = object.getString("password");
-        String cryptpwd = AESCrypt.AESEncrypt(password);
-        User user = null;
+    /**
+     * 验证用户ID是否存在
+     * @param userId
+     * @return
+     */
+    @GetMapping(value = "existid", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData validate(@RequestParam Integer userId){
         ResultData resultData = null;
         try {
-            user = userService.userLogin(userName, cryptpwd);
+            User checkUser = userService.findUserById(userId);  //验证用户ID
+            if (checkUser == null){
+                resultData = new ResultData(StateCode.SUCCESS,  "验证成功");
+            } else {
+                resultData = new ResultData(StateCode.DB_ALREADY_EXIST_ERROR,  "用户ID已存在");
+            }
         } catch (Exception e){
-            resultData = new ResultData(StateCode.DB_ERROR,  "数据库异常");
-        }
-        if ( user !=null ){
-            //String token = JWTTokenUtil.generateToken(user);
-            //response.addHeader("token", token);
-            resultData = new ResultData(StateCode.SUCCESS,  "登录成功", user);
-        } else {
-            resultData = new ResultData(StateCode.DB_QUERY_NULL_ERROR,  "账户或密码错误");
+            e.printStackTrace();
+            resultData = new ResultData(StateCode.DB_QUERY_ERROR,  "数据库异常");
         }
         return resultData;
     }
+
 
     // 删除用户
     @GetMapping(value = "delete", produces = MediaType.APPLICATION_JSON_VALUE)

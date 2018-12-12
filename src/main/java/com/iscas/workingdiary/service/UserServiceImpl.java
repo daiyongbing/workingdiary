@@ -2,6 +2,8 @@ package com.iscas.workingdiary.service;
 
 import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.mapper.UserMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -13,14 +15,14 @@ public class UserServiceImpl implements UserService {
     @Resource
     UserMapper userMapper;
 
-    @Override
-    public void userRegister(User user) {
-        userMapper.insertUser(user);
-    }
+    @Autowired
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public User userLogin(String userName, String password) {
-        return userMapper.userLogin(userName, password);
+    public void userRegister(User user) {
+        // 加密密码
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userMapper.insertUser(user);
     }
 
     @Override
@@ -29,8 +31,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> validate(User user) {
-        return userMapper.validate(user);
+    public User findUserByName(String userName) {
+        return userMapper.findByUserName(userName);
+    }
+
+    @Override
+    public User findUserById(Integer userId) {
+        return userMapper.findByUserId(userId);
     }
 
     @Override

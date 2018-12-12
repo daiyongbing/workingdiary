@@ -12,12 +12,11 @@ import java.util.Map;
 public interface UserMapper {
     void updateUser(User user);
 
-    User userLogin(@Param(value = "userName") String userName, @Param(value = "password") String password);
-
     void insertUser(User user);
 
     void deleteUser(@Param(value = "userId") Integer userId);
 
-    List<User> validate(User user);
+    User findByUserName(@Param(value = "userName") String userName);
 
+    User findByUserId(@Param(value = "userId") Integer userId);
 }
