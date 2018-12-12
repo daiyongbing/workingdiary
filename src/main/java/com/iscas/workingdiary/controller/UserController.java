@@ -97,14 +97,11 @@ public class UserController {
     }
 
 
-    // 删除用户
+    // 注销账户（删除包括证书等所有信息）
     @GetMapping(value = "delete", produces = MediaType.APPLICATION_JSON_VALUE)
-    //@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public ResultData deleteUserById(HttpServletRequest request){
         ResultData resultData = null;
-        String token = request.getHeader("Authorization").substring(7);
         try {
-            Integer userId = JWTTokenUtil.parseToken(token).get("userId", Integer.class);
             userService.deleteUserById(userId);
             resultData = ResultData.deleteSuccess();
         } catch (Exception e){
@@ -118,13 +115,11 @@ public class UserController {
     @PostMapping(value = "update", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultData updateUserById(HttpServletResponse response, HttpServletRequest request, @RequestBody User user){
         ResultData resultData = null;
-        String encryptedPWD = AESCrypt.AESEncrypt(user.getPassword());
-        user.setPassword(encryptedPWD);
         String token = request.getHeader("Authorization");
-        Integer userId;
+        String userName;
         try{
-            userId = JWTTokenUtil.parseToken(token).get("userId", Integer.class);
-            System.out.println(userId);
+            userName = JWTTokenUtil.parseToken(token).get("userName", String.class);
+            System.out.println(userName);
             userService.updateById(user);
             resultData = ResultData.updateSuccess();
         } catch (Exception e){

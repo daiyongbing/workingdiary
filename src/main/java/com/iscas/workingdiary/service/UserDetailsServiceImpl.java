@@ -28,7 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if(user == null){
             throw new UsernameNotFoundException(username);
         }
-        String password = user.getPassword();
+        String password = user.getUserPassword();
         log.info("用户名:"+username+password);
         return new User(username, password, AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
     }

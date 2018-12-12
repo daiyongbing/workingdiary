@@ -13,6 +13,8 @@
         <result column="user_position" property="userPosition"/>
         <result column="cert_no" property="certNo"/>
         <result column="role_id" property="roleId"/>
+        <result column="register_time" property="registerTime"/>
+        <result column="user_password" property="userPassword"/>
     </resultMap>
 
 

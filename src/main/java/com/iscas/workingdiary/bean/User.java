@@ -3,6 +3,8 @@ package com.iscas.workingdiary.bean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.security.core.GrantedAuthority;
+
+import java.sql.Timestamp;
 import java.util.Collection;
 
 /**
@@ -17,8 +19,9 @@ public class User {
     private String userPosition;
     private String leader;
     private Integer roleId;
-    private String password;
     private String certNo;
+    private Timestamp registerTime;
+    private String userPassword;
 
     public Integer getUserId() {
         return userId;
@@ -76,21 +79,27 @@ public class User {
         this.roleId = roleId;
     }
 
-    @JsonIgnore
-    public String getPassword() {
-        return password;
-    }
-
-    @JsonProperty
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getCertNo() {
         return certNo;
     }
 
     public void setCertNo(String certNo) {
         this.certNo = certNo;
+    }
+
+    public Timestamp getRegisterTime() {
+        return registerTime;
+    }
+
+    public void setRegisterTime(Timestamp registerTime) {
+        this.registerTime = registerTime;
+    }
+
+    public String getUserPassword() {
+        return userPassword;
+    }
+
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
     }
 }

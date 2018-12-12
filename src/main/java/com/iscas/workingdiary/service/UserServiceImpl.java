@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void userRegister(User user) {
         // 加密密码
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        user.setUserPassword(bCryptPasswordEncoder.encode(user.getUserPassword()));
         userMapper.insertUser(user);
     }
 

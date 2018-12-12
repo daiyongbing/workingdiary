@@ -39,11 +39,11 @@ public class JWTLoginFilter extends UsernamePasswordAuthenticationFilter {
             User user = new ObjectMapper()
                     .readValue(request.getInputStream(), User.class);
             log.info("用户输入的用户名:"+user.getUserName());
-            log.info("用户输入的密码:"+user.getPassword());
+            log.info("用户输入的密码:"+user.getUserPassword());
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             user.getUserName(),
-                            user.getPassword(),
+                            user.getUserPassword(),
                             new ArrayList<>())
             );
         } catch (IOException e) {

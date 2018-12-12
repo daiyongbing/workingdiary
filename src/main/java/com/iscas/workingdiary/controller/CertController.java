@@ -51,8 +51,8 @@ public class CertController {
      */
     @PostMapping(value = "insert", produces = MediaType.APPLICATION_JSON_VALUE)
     public void insertCert(Cert cert){
-        FileInputStream jks = FileUtils.getFis("C:/Users/vic/Desktop/wd_jks/"+cert.getCommonName()+".jks");
-        FileInputStream pemCert = FileUtils.getFis("C:/Users/vic/Desktop/wd_jks/"+cert.getCommonName()+".cer");
+       /* FileInputStream jks = FileUtils.getFis("C:/Users/vic/Desktop/wd_jks/"+cert.getCommonName()+".jks");
+        FileInputStream pemCert = FileUtils.getFis("C:/Users/vic/Desktop/wd_jks/"+cert.getCommonName()+".cer");*/
         //cert.setJks(jks);
         //cert.setPemCert(pemCert);
         certService.insertCert(cert);
@@ -161,11 +161,8 @@ public class CertController {
         cert.setCertNo(certNo);
         cert.setCertAddr(addr);
         cert.setPemCert(pemCert);
-        cert.setCertLevel(0);
-        cert.setCertStatus(0);
-        cert.setCommonName(certInfo[0]);
-        cert.setPrivateKey(encyptPrivateKey);
-        cert.setUserId(1);
+        cert.setCertLevel("0");
+        cert.setCertStatus("0");
 
         try {
             Cert existCert = certService.verifyCert(cert.getUserId());

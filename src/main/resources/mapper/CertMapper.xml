@@ -7,13 +7,12 @@
 
     <resultMap id="cert" type="com.iscas.workingdiary.bean.Cert">
         <id column="cert_no" property="certNo"/>
-        <result column="user_id" property="userId"/>
         <result column="pem_cert" property="pemCert"/>
         <result column="cert_addr" property="certAddr"/>
         <result column="cert_status" property="certStatus"/>
         <result column="cert_level" property="certLevel"/>
-        <result column="common_name" property="commonName"/>
-        <result column="private_key" property="privateKey"/>
+        <result column="jks_string" property="jksString"/>
+        <result column="create_time" property="createTime"/>
     </resultMap>
 
 

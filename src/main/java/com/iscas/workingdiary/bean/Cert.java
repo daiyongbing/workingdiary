@@ -1,19 +1,19 @@
 package com.iscas.workingdiary.bean;
 
 import java.io.FileInputStream;
+import java.sql.Timestamp;
 
 /**
  * 证书实体类
  */
 public class Cert {
     private String certNo;
-    private int userId;
     private String pemCert;
     private String certAddr;
-    private int certStatus;
-    private int certLevel;
-    private String commonName;
-    private String privateKey;
+    private String certStatus;
+    private String certLevel;
+    private String jksString;
+    private Timestamp createTime;
 
     public String getCertNo() {
         return certNo;
@@ -21,14 +21,6 @@ public class Cert {
 
     public void setCertNo(String certNo) {
         this.certNo = certNo;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
     }
 
     public String getPemCert() {
@@ -47,35 +39,35 @@ public class Cert {
         this.certAddr = certAddr;
     }
 
-    public int getCertStatus() {
+    public String getCertStatus() {
         return certStatus;
     }
 
-    public void setCertStatus(int certStatus) {
+    public void setCertStatus(String certStatus) {
         this.certStatus = certStatus;
     }
 
-    public int getCertLevel() {
+    public String getCertLevel() {
         return certLevel;
     }
 
-    public void setCertLevel(int certLevel) {
+    public void setCertLevel(String certLevel) {
         this.certLevel = certLevel;
     }
 
-    public String getCommonName() {
-        return commonName;
+    public String getJksString() {
+        return jksString;
     }
 
-    public void setCommonName(String commonName) {
-        this.commonName = commonName;
+    public void setJksString(String jksString) {
+        this.jksString = jksString;
     }
 
-    public String getPrivateKey() {
-        return privateKey;
+    public Timestamp getCreateTime() {
+        return createTime;
     }
 
-    public void setPrivateKey(String privateKey) {
-        this.privateKey = privateKey;
+    public void setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
     }
 }
