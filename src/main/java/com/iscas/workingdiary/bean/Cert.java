@@ -12,8 +12,25 @@ public class Cert {
     private String certAddr;
     private String certStatus;
     private String certLevel;
-    private String jksString;
+    private String privateKey;
+    private String commonName;
     private Timestamp createTime;
+
+    public String getCommonName() {
+        return commonName;
+    }
+
+    public void setCommonName(String commonName) {
+        this.commonName = commonName;
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
 
     public String getCertNo() {
         return certNo;
@@ -53,14 +70,6 @@ public class Cert {
 
     public void setCertLevel(String certLevel) {
         this.certLevel = certLevel;
-    }
-
-    public String getJksString() {
-        return jksString;
-    }
-
-    public void setJksString(String jksString) {
-        this.jksString = jksString;
     }
 
     public Timestamp getCreateTime() {

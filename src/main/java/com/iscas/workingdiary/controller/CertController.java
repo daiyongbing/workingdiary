@@ -45,19 +45,6 @@ public class CertController {
     @Autowired
     ConstantProperties properties;
 
-    /**
-     * 插入mysql 直接存文件还是存地址？
-     * @param cert
-     */
-    @PostMapping(value = "insert", produces = MediaType.APPLICATION_JSON_VALUE)
-    public void insertCert(Cert cert){
-       /* FileInputStream jks = FileUtils.getFis("C:/Users/vic/Desktop/wd_jks/"+cert.getCommonName()+".jks");
-        FileInputStream pemCert = FileUtils.getFis("C:/Users/vic/Desktop/wd_jks/"+cert.getCommonName()+".cer");*/
-        //cert.setJks(jks);
-        //cert.setPemCert(pemCert);
-        certService.insertCert(cert);
-    }
-
     @GetMapping(value = "deleteByCertNo", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultData deleteCertByCertNo(@RequestParam("certNO") String certNo){
         ResultData resultData = null;
@@ -98,7 +85,7 @@ public class CertController {
 
     @GetMapping(value = "queryAll", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Cert> queryAllCert(){
-        List<Cert> certList = new ArrayList<>();
+        List<Cert> certList;
         certList = certService.selectAll();
         return certList;
     }
@@ -116,10 +103,10 @@ public class CertController {
         if (cert != null){
             switch (cert.getCertStatus()){
                 // 证书是否已上链，考虑到数据库的状态能被人为修改，最好是直接向RepChain请求验证
-                case 0:
+                case "0":
                     resultData = new ResultData(StateCode.DB_CERT_NOT_PROOF, "未认证的用户证书");
                     break;
-                case 1:
+                case "1":
                     resultData = new ResultData(StateCode.SUCCESS, "证书验证成功");
                     break;
                 default:
@@ -163,17 +150,13 @@ public class CertController {
         cert.setPemCert(pemCert);
         cert.setCertLevel("0");
         cert.setCertStatus("0");
+        cert.setPrivateKey(encyptPrivateKey);
 
         try {
-            Cert existCert = certService.verifyCert(cert.getUserId());
-            if (existCert != null){
-                resultData = new ResultData(StateCode.DB_ALREADY_EXIST_ERROR, "证书已存在", existCert.getCertAddr());
-            }else {
                 certService.insertCert(cert);
                 certUtils.generateJksWithCert(certificate, keyPair, password, properties.getJksPath(), certInfo[0]);   //保存jks文件到服务器
                 certUtils.saveCertAsPEM(certificate, properties.getCertPath(), certInfo[0]); // 保存cer到服务器
                 resultData = new ResultData(StateCode.SUCCESS, "success", addr);
-            }
         }catch (Exception e){
             resultData = new ResultData(StateCode.DB_INSERT_ERROR, "证书插入失败");
         }

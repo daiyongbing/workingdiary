@@ -11,19 +11,20 @@
         <result column="cert_addr" property="certAddr"/>
         <result column="cert_status" property="certStatus"/>
         <result column="cert_level" property="certLevel"/>
-        <result column="jks_string" property="jksString"/>
+        <result column="private_key" property="privateKey"/>
+        <result column="common_name" property="commonName"/>
         <result column="create_time" property="createTime"/>
     </resultMap>
 
 
-    <insert id="insertCert" parameterType="com.iscas.workingdiary.bean.Cert">
+    <insert id="insertCert" parameterType="Cert">
         INSERT INTO t_cert
-            (cert_no, user_id, pem_cert, cert_addr, cert_status, cert_level, common_name, private_key)
+            (cert_no, pem_cert, cert_addr, cert_status, cert_level, private_key)
         VALUES
-            (#{certNo}, #{userId}, #{pemCert}, #{certAddr}, #{certStatus}, #{certLevel}, #{commonName}, #{privateKey})
+            (#{certNo},#{pemCert}, #{certAddr}, #{certStatus}, #{certLevel},#{privateKey})
     </insert>
 
-    <update id="updateCert" parameterType="com.iscas.workingdiary.bean.Cert">
+    <update id="updateCert" parameterType="Cert">
         update t_cert
         <set>
             <if test="userId != null">user_id=#{userId},</if>

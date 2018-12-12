@@ -101,6 +101,7 @@ public class UserController {
     @GetMapping(value = "delete", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultData deleteUserById(HttpServletRequest request){
         ResultData resultData = null;
+        String userId = request.getParameter("userId");
         try {
             userService.deleteUserById(userId);
             resultData = ResultData.deleteSuccess();

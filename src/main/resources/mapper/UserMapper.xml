@@ -14,7 +14,6 @@
         <result column="cert_no" property="certNo"/>
         <result column="role_id" property="roleId"/>
         <result column="register_time" property="registerTime"/>
-        <result column="user_password" property="userPassword"/>
     </resultMap>
 
 
@@ -56,7 +55,7 @@
             (#{userId}, #{userName}, #{userSex}, #{projectTeam}, #{userPosition}, #{leader}, #{roleId}, #{password}, #{certNo})
     </insert>
     
-    <delete id="deleteUser" parameterType="java.lang.Integer">
+    <delete id="deleteUser" parameterType="String">
         DELETE FROM t_user
         <where>
             <if test="userId != null and userId != ''">user_id = #{userId}</if>

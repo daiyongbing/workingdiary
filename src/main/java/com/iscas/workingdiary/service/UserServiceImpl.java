@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void userRegister(User user) {
         // 加密密码
-        user.setUserPassword(bCryptPasswordEncoder.encode(user.getUserPassword()));
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userMapper.insertUser(user);
     }
 
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUserById(int userId) {
+    public void deleteUserById(String userId) {
         userMapper.deleteUser(userId);
     }
 

@@ -14,7 +14,7 @@ public interface UserMapper {
 
     void insertUser(User user);
 
-    void deleteUser(@Param(value = "userId") Integer userId);
+    void deleteUser(@Param(value = "userId") String userId);
 
     User findByUserName(@Param(value = "userName") String userName);
 

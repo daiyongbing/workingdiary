@@ -21,7 +21,7 @@ public class User {
     private Integer roleId;
     private String certNo;
     private Timestamp registerTime;
-    private String userPassword;
+    private String password;
 
     public Integer getUserId() {
         return userId;
@@ -95,11 +95,14 @@ public class User {
         this.registerTime = registerTime;
     }
 
-    public String getUserPassword() {
-        return userPassword;
+    @JsonIgnore
+    public String getPassword() {
+        return password;
     }
 
-    public void setUserPassword(String userPassword) {
-        this.userPassword = userPassword;
+    @JsonProperty
+    public void setPassword(String password) {
+        this.password = password;
     }
+
 }
