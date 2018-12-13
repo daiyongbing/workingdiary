@@ -16,21 +16,25 @@
         <result column="register_time" property="registerTime"/>
     </resultMap>
 
+    <resultMap id="customUserDetails" type="com.iscas.workingdiary.bean.CustomUserDetails">
+        <id column="user_name" property="username"/>
+        <id column="password" property="password"/>
+        <collection property="authorities" ofType="java.lang.Object" javaType="java.util.Set">
+            <id column="role_name" property="roleName"/>
+        </collection>
+    </resultMap>
 
-    <update id="updateUser" parameterType="User">
+    <update id="updateByName" parameterType="User">
         update t_user
         <set>
-            <if test="userName != null and userName != ''">user_name=#{userName},</if>
             <if test="userSex != null and userSex != ''">user_sex=#{userSex},</if>
             <if test="projectTeam != null and projectTeam != ''">project_team=#{projectTeam},</if>
             <if test="userPosition != null and userPosition != ''">user_position=#{userPosition},</if>
             <if test="leader != null and leader != ''">leader=#{leader},</if>
-            <if test="roleId != null roleId != ''">role_id=#{roleId},</if>
-            <if test="password != null and password != ''">password=#{password},</if>
             <if test="certNo != null and certNo != ''">cert_no=#{certNo}</if>
         </set>
         <where>
-            <if test="userId != null and userId != ''">user_id=#{userId}</if>
+            <if test="userName != null and userName != ''">user_name=#{userName}</if>
         </where>
     </update>
 
@@ -75,7 +79,20 @@
         </where>
     </select>
 
-    <select id="findByUserName" parameterType="String" resultMap="user">
+    <!-- 仅用于用户登录验证和鉴权，返回CustomUserDetails-->
+    <select id="findByUserName" parameterType="String" resultMap="customUserDetails">
+        SELECT u.user_name, u.password, r.role_name
+        FROM t_user u
+        JOIN t_role r
+        ON u.role_id=r.role_id
+        <where>
+            <if test="userName != null and userName != '' ">
+                u.user_name=#{userName}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByUserName" parameterType="String" resultMap="user">
         SELECT*
         FROM t_user
         <where>
@@ -85,7 +102,8 @@
         </where>
     </select>
 
-    <select id="findByUserId" parameterType="Integer" resultMap="user">
+
+    <select id="findByUserId" parameterType="String" resultMap="user">
         SELECT*
         FROM t_user
         <where>

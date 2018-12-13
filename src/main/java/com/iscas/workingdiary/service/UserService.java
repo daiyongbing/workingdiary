@@ -14,10 +14,9 @@ public interface UserService {
     // delete user
     void deleteUserById(String userId);
 
-    // update user
-    void updateById(User user);
+    User selectUserByName(String userName);
 
-    User findUserByName(String userName);
+    User findUserById(String userId);
 
-    User findUserById(Integer userId);
+    void updateByName(User user);
 }

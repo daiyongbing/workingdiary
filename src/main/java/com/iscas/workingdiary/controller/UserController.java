@@ -8,8 +8,11 @@ import com.iscas.workingdiary.util.exception.StateCode;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.apache.ibatis.annotations.Param;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Role;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -29,6 +32,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+    private Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private UserService userService;
@@ -45,6 +49,9 @@ public class UserController {
         try{
             userService.userRegister(user);
             resultData = new ResultData(StateCode.SUCCESS, "注册成功");
+        } catch (DuplicateKeyException de){
+            log.error(de.getMessage());
+            resultData = new ResultData(StateCode.DB_ALREADY_EXIST_ERROR, "该用户已存在，请勿重复注册");
         } catch (Exception e){
             e.printStackTrace();
             resultData = new ResultData(StateCode.DB_INSERT_ERROR,  "注册失败");
@@ -57,11 +64,11 @@ public class UserController {
      * @param userName
      * @return
      */
-    @GetMapping(value = "existname", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData validate(@RequestParam String userName){
-        ResultData resultData = null;
+    @GetMapping(value = "checkname", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData checkUserName(@RequestParam String userName){
+        ResultData resultData;
         try {
-            User checkUser = userService.findUserByName(userName);  //验证用户名
+            User checkUser = userService.selectUserByName(userName);  //验证用户名
             if (checkUser == null){
                 resultData = new ResultData(StateCode.SUCCESS,  "验证成功");
             } else {
@@ -79,9 +86,9 @@ public class UserController {
      * @param userId
      * @return
      */
-    @GetMapping(value = "existid", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData validate(@RequestParam Integer userId){
-        ResultData resultData = null;
+    @GetMapping(value = "checkid", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData checkUserId(@RequestParam String userId){
+        ResultData resultData;
         try {
             User checkUser = userService.findUserById(userId);  //验证用户ID
             if (checkUser == null){
@@ -95,6 +102,33 @@ public class UserController {
         }
         return resultData;
     }
+
+    /**
+     * 用户更新资料（不更新注册时间和密码）
+     * @param response
+     * @param request
+     * @param user
+     * @return
+     */
+    @PostMapping(value = "update", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData updateUserByName(HttpServletResponse response, HttpServletRequest request, @RequestBody User user){
+        ResultData resultData;
+        String token = request.getHeader("Authorization");
+        String userName;
+        try{
+            userName = JWTTokenUtil.parseToken(token).getSubject();
+            user.setUserName(userName);
+            log.info("subject -> "+userName);
+            userService.updateByName(user);
+            resultData = ResultData.updateSuccess();
+        } catch (Exception e){
+            e.printStackTrace();
+            resultData = new ResultData(StateCode.DB_UPDATE_ERROR,  "更新失败");
+        }
+        return resultData;
+    }
+
+
 
 
     // 注销账户（删除包括证书等所有信息）
@@ -111,24 +145,6 @@ public class UserController {
 
         return resultData;
     }
-
-    // 更新用户
-    @PostMapping(value = "update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData updateUserById(HttpServletResponse response, HttpServletRequest request, @RequestBody User user){
-        ResultData resultData = null;
-        String token = request.getHeader("Authorization");
-        String userName;
-        try{
-            userName = JWTTokenUtil.parseToken(token).get("userName", String.class);
-            System.out.println(userName);
-            userService.updateById(user);
-            resultData = ResultData.updateSuccess();
-        } catch (Exception e){
-            resultData = new ResultData(StateCode.DB_UPDATE_ERROR,  "更新失败");
-        }
-        return resultData;
-    }
-
     /**
      * 注销账户
      */

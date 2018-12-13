@@ -65,10 +65,10 @@ public class JWTLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        response.setContentType("application/json;charset=UTF-8");
         ResponseBody responseBody = new ResponseBody();
         responseBody.setMessage("用户名或密码错误");
         responseBody.setStatus("201");
-        response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(JSON.toJSONString(responseBody));
     }
 }

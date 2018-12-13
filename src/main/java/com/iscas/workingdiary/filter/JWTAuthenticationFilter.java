@@ -1,12 +1,13 @@
 package com.iscas.workingdiary.filter;
 
+import com.alibaba.fastjson.JSON;
+import com.iscas.workingdiary.bean.ResponseBody;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.Claims;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -26,31 +27,31 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        response.setContentType("application/json;char-set=utf8");
         String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            chain.doFilter(request, response);
+        ResponseBody responseBody = new ResponseBody();
+        if (authHeader == null) { // 未提供Token
+            responseBody.setStatus("403");
+            responseBody.setMessage("no token");
+            response.getWriter().write(JSON.toJSONString(responseBody));
             return;
         }
-
-        UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
-
+        if (!authHeader.startsWith("Bearer ")) {
+            responseBody.setStatus("403");
+            responseBody.setMessage("error token format");
+            response.getWriter().write(JSON.toJSONString(responseBody));
+            return;
+        }
+        Claims claims = JWTTokenUtil.parseToken(authHeader);
+        if (claims == null){
+            responseBody.setStatus("403");
+            responseBody.setMessage("invalid token");
+            response.getWriter().write(JSON.toJSONString(responseBody));
+            return;
+        }
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(claims.getSubject(), null, new ArrayList<>());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(request, response);
 
-    }
-
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token != null) {
-            // parse the token.
-            String user = JWTTokenUtil.parseToken(token.replace("Bearer ", "")).getSubject();
-
-            if (user != null) {
-                return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
-            }
-            return null;
-        }
-        return null;
     }
 }

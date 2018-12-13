@@ -1,8 +1,8 @@
 package com.iscas.workingdiary.util.jjwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -41,14 +41,12 @@ public class JWTTokenUtil {
     }
 
     public static Claims parseToken(String token) {
-        Claims claims = null;
         try {
-            claims = Jwts.parser()
+            return Jwts.parser()
                     .setSigningKey(publicKey)
-                    .parseClaimsJws(token).getBody();
-
-        } catch (Exception e) {
+                    .parseClaimsJws(token.replace("Bearer ", "")).getBody();
+        } catch (MalformedJwtException | ExpiredJwtException | SignatureException e){    //token格式异常
+            return null;
         }
-        return claims;
     }
 }

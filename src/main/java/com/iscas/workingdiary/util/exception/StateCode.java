@@ -118,6 +118,16 @@ public class StateCode {
      */
     public final static String SERVER_NO_ACCESS_ERROR = "507";
 
+    /**
+     * 508 JWT token过期异常
+     */
+    public final static String SERVER_TOKEN_EXPIRED_ERROR = "508";
+
+    /**
+     * 509 JWT 错误格式异常
+     */
+    public final static String SERVER_TOKEN_MALFORMED_ERROR = "509";
+
 
     /********************************* 600系列：RepChain服务器相关的异常 ********************************/
 

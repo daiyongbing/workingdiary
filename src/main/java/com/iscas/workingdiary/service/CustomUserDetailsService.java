@@ -1,9 +1,11 @@
 package com.iscas.workingdiary.service;
 
+import com.iscas.workingdiary.bean.CustomUserDetails;
 import com.iscas.workingdiary.mapper.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,11 +14,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Collection;
 import java.util.Collections;
 
-
+/**
+ * 登录验证
+ */
 @Component
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
     private Logger log = LoggerFactory.getLogger(getClass());
     @Resource
     private UserMapper userMapper;
@@ -24,13 +29,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        com.iscas.workingdiary.bean.User user = userMapper.findByUserName(username);
-        if(user == null){
+        CustomUserDetails userDetails = userMapper.findByUserName(username);
+        if(userDetails == null){
             throw new UsernameNotFoundException(username);
         }
-        String password = user.getPassword();
-        log.info("用户名:"+username+password);
-        return new User(username, password, AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
+        String password = userDetails.getPassword();
+        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+        log.info(username+":"+authorities);
+        //return new User(username, password, AuthorityUtils.commaSeparatedStringToAuthorityList(userDetails.getAuthorities()));
+        return new User(username, password, authorities);
     }
 
 }
