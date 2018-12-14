@@ -6,6 +6,7 @@ import com.iscas.workingdiary.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,6 +25,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    private JWTLoginFilter jwtLoginFilter() throws Exception{
+        return new JWTLoginFilter(authenticationManager());
+    }
+
+    private JWTAuthenticationFilter jwtAuthenticationFilter() throws Exception{
+        return new JWTAuthenticationFilter(authenticationManager());
+    }
+
     public WebSecurityConfig(CustomUserDetailsService userDetailService, BCryptPasswordEncoder cryptPasswordEncoder) {
         this.userDetailsService = userDetailService;
         this.bCryptPasswordEncoder = cryptPasswordEncoder;
@@ -31,7 +40,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable().authorizeRequests()
+        http.cors().and()
+                .httpBasic()
+                .and()
+                .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/user/register").permitAll() //开放注册接口和验证接口
                 .antMatchers(HttpMethod.GET, "/user/checkname","/user/checkid", "/swagger-ui.html").permitAll() //开发验证接口
                 .anyRequest().authenticated() //所有接口都必须经过身份验证
@@ -39,8 +51,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/admin").hasRole("ADMIN") // 只有管理员能访问/admin/**
 
                 .and()
-                .addFilter(new JWTLoginFilter(authenticationManager()))
-                .addFilter(new JWTAuthenticationFilter(authenticationManager()));
+                .addFilter(jwtLoginFilter())
+                .addFilter(jwtAuthenticationFilter())
+                .csrf().disable();
     }
 
     @Override

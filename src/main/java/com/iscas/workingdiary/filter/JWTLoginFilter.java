@@ -2,16 +2,19 @@ package com.iscas.workingdiary.filter;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iscas.workingdiary.bean.CustomUserDetails;
 import com.iscas.workingdiary.bean.ResponseBody;
 import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -23,6 +26,7 @@ import java.util.ArrayList;
 /**
  * 验证用户名密码正确后，生成一个token，并将token返回给客户端
  */
+
 public class JWTLoginFilter extends UsernamePasswordAuthenticationFilter {
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -36,14 +40,14 @@ public class JWTLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
-            User user = new ObjectMapper()
-                    .readValue(request.getInputStream(), User.class);
-            log.info("用户输入的用户名:"+user.getUserName());
-            log.info("用户输入的密码:"+user.getPassword());
+            CustomUserDetails userDetails = new ObjectMapper()
+                    .readValue(request.getInputStream(), CustomUserDetails.class);
+            log.info("用户输入的用户名:"+userDetails.getUsername());
+            log.info("用户输入的密码:"+userDetails.getPassword());
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            user.getUserName(),
-                            user.getPassword(),
+                            userDetails.getPassword(),
+                            userDetails.getPassword(),
                             new ArrayList<>())
             );
         } catch (IOException e) {
