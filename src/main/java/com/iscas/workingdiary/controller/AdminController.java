@@ -1,8 +1,14 @@
 package com.iscas.workingdiary.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.client.RepChainClient;
+import com.iscas.workingdiary.bean.Cert;
 import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.service.AdminService;
+import com.iscas.workingdiary.service.CertService;
+import com.iscas.workingdiary.service.RepClient;
+import com.iscas.workingdiary.util.RepChainUtils;
+import com.iscas.workingdiary.util.encrypt.Base64Utils;
 import com.iscas.workingdiary.util.exception.StateCode;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.ResultData;
@@ -13,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * 所有接口必须要有管理员权限
@@ -20,10 +27,14 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
+    @Autowired
+    private RepClient repClient;
 
     @Autowired
     private AdminService adminService;
 
+    @Autowired
+    private CertService certService;
     /**
      * 删除用户
      * @param request
@@ -74,6 +85,40 @@ public class AdminController {
         } catch (Exception e){
             resultData = new ResultData(StateCode.DB_UPDATE_ERROR,  "更新失败");
         }
+        return resultData;
+    }
+
+    /**
+     * 证书入链
+     * @param object
+     * @return
+     */
+    @PostMapping(value = "sign", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResultData signCertByAdmin(@RequestBody JSONObject object){
+        ResultData resultData = null;
+        Integer userId = object.getInteger("userId");
+        String userInfo = object.getJSONObject("userInfo").toJSONString();
+        String base64Info = Base64Utils.encode2String(userInfo);
+        Cert cert = null;
+        try {
+            cert = certService.verifyCert(userId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        JSONObject jsonObject = new JSONObject();
+        if (cert == null){
+            resultData = new ResultData(StateCode.DB_CERT_NOT_EXIST, "该用户没有上传证书");
+        } else {
+            String pemCert = cert.getPemCert();
+            jsonObject.put(pemCert, base64Info);
+        }
+        RepChainClient repChainClient = repClient.getRepClient();
+        List<String> argsList = repClient.getParamList(jsonObject);
+        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"certProof", argsList);
+        JSONObject signResult = repChainClient.postTranByString(hexTransaction);
+
+        resultData = new ResultData(StateCode.SUCCESS, "success", signResult.getString("err"));
+
         return resultData;
     }
 }

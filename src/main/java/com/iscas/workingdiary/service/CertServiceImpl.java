@@ -51,4 +51,9 @@ public class CertServiceImpl implements CertService {
         return certMapper.verifyCert(userId);
     }
 
+    @Override
+    public String getPemCert(String userName) {
+        return certMapper.getPemCert(userName);
+    }
+
 }

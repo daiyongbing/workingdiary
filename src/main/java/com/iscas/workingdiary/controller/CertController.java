@@ -13,6 +13,7 @@ import com.iscas.workingdiary.util.cert.CertUtils;
 import com.iscas.workingdiary.util.encrypt.Base64Utils;
 import com.iscas.workingdiary.util.encrypt.MD5Utils;
 import com.iscas.workingdiary.util.exception.StateCode;
+import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -165,7 +166,7 @@ public class CertController {
 
     @PostMapping(value = "upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultData uploadCert(@RequestParam("fileName") MultipartFile file){
-        ResultData resultData = null;
+        ResultData resultData;
         String fileName = file.getOriginalFilename();
         String md5 = "";
         if(file.isEmpty() || file.getSize()>1048576){ // 文件最大2M
@@ -198,77 +199,38 @@ public class CertController {
     }
 
     @GetMapping(value = "download", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData downloadCert(HttpServletResponse response, HttpServletRequest request, @RequestParam("userId") Integer userId){
-        // 暂时使用参数，以后从session中获取
-        ResultData resultData = null;
-        X509Certificate certificate;
-        Cert certBean = null;
+    public void downloadCert(HttpServletResponse response, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        String userName = JWTTokenUtil.parseToken(token).getSubject();
+        String pemCert = null;
         try {
-            certBean = certService.verifyCert(userId);  // 从数据库中获取证书
+            pemCert = certService.getPemCert(userName);  // 从数据库中获取证书
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        if (certBean == null){
-            resultData = new ResultData(StateCode.DB_CERT_NOT_EXIST, "没有证书");
-        } else {
-            String pemCert = certBean.getPemCert();
-            String certString = Base64Utils.decode2String(pemCert);
-            //response.setContentType("application/force-download");// 设置强制下载不打开
-            response.setContentType("application/json");
-            //response.addHeader("Content-Disposition", "attachment;fileName=" + certBean.getCommonName()+".cer");// 设置文件名
-            response.addHeader("Content-Disposition", "attachment;fileName=" + certBean.getCommonName()+".cer");// 设置文件名
-            OutputStream os = null;
+        if (pemCert == null){
             try {
-                os = response.getOutputStream();
+                response.setCharacterEncoding("UTF-8");
+                response.setStatus(307);
+                response.getWriter().write("该用户没有证书");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            String certString = Base64Utils.decode2String(pemCert);
+            response.setContentType("application/x-download");
+            response.addHeader("Content-Disposition", "attachment;fileName=" + userName+".cer");// 设置文件名
+            try(OutputStream os = response.getOutputStream()) {
                 os.write(certString.getBytes());
                 os.flush();
-                resultData = new ResultData(StateCode.SUCCESS, "下载成功");
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                if (os != null){
-                    try {
-                        os.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
         }
-        return resultData;
     }
 
 
-    @PostMapping(value = "sign", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData signCertByAdmin(@RequestBody JSONObject object){
-        ResultData resultData = null;
-        Integer userId = object.getInteger("userId");
-        String userInfo = object.getJSONObject("userInfo").toJSONString();
-        String base64Info = Base64Utils.encode2String(userInfo);
-        Cert cert = null;
-        try {
-            cert = certService.verifyCert(userId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        JSONObject jsonObject = new JSONObject();
-        if (cert == null){
-            resultData = new ResultData(StateCode.DB_CERT_NOT_EXIST, "该用户没有上传证书");
-        } else {
-            String pemCert = cert.getPemCert();
-            jsonObject.put(pemCert, base64Info);
-        }
-        RepChainClient repChainClient = repClient.getRepClient();
-        List<String> argsList = repClient.getParamList(jsonObject);
-        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"certProof", argsList);
-        JSONObject signResult = repChainClient.postTranByString(hexTransaction);
-
-        resultData = new ResultData(StateCode.SUCCESS, "success", signResult.getString("err"));
-
-
-        return resultData;
-    }
     /********************************************以下接口针对区块链****************************************/
 
     @PostMapping("signCert")

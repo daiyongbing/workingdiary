@@ -59,10 +59,11 @@
         SELECT* FROM t_cert
     </select>
 
-    <select id="verifyCert" resultMap="cert">
-        SELECT * FROM t_cert
-        WHERE
-            <if test="userId != null">user_id=#{userId}</if>
+    <select id="getPemCert" parameterType="String" resultType="String">
+        SELECT pem_cert FROM t_cert
+        <where>
+            <if test="userName != null and userName != ''">user_name=#{userName}</if>
+        </where>
     </select>
 
 </mapper>

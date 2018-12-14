@@ -5,12 +5,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.IOException;
+
 import static org.junit.Assert.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -55,7 +60,10 @@ public class CertControllerTest {
     }
 
     @Test
-    public void uploadCert() {
+    public void uploadCert() throws Exception {
+        mockMvc.perform(fileUpload("/cert/upload")
+                .file(new MockMultipartFile("fileName", "RESTful API拦截顺序.jpg", "multipart/form-data","this is a test".getBytes()))
+        ).andExpect(status().isOk());
     }
 
     @Test

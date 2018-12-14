@@ -2,17 +2,25 @@ package com.iscas.workingdiary.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.core.GrantedAuthority;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Collection;
 
 /**
  * 用户实体类
  */
-public class User {
-
+public class User implements Serializable {
+    @NotBlank(message = "ID不能为空")
     private Integer userId;
+    @NotBlank(message = "用户名不能为空")
     private String userName;
     private String userSex;
     private String projectTeam;
@@ -21,6 +29,9 @@ public class User {
     private Integer roleId;
     private String certNo;
     private Timestamp registerTime;
+    @NotBlank(message = "密码不能为空")
+    @Min(value = 6, message = "密码至少6位")
+    @Max(value = 15, message = "密码至多15位")
     private String password;
 
     public Integer getUserId() {

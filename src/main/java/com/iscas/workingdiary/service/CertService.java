@@ -30,4 +30,6 @@ public interface CertService {
 
     // 验证证书
     Cert verifyCert(Integer userId);
+
+    String getPemCert(String userName);
 }

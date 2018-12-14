@@ -17,10 +17,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -44,7 +46,10 @@ public class UserController {
      */
     @PostMapping(value = "register", produces = MediaType.APPLICATION_JSON_VALUE)
     @Transactional(rollbackFor = SQLException.class)
-    public ResultData register(@RequestBody User user){
+    public ResultData register(@Valid @RequestBody User user, BindingResult error){
+        if (error.hasErrors()){
+            System.out.println(error.getAllErrors());
+        }
         ResultData resultData = null;
         try{
             userService.userRegister(user);

@@ -3,6 +3,7 @@ package com.iscas.workingdiary.security;
 import com.iscas.workingdiary.filter.JWTAuthenticationFilter;
 import com.iscas.workingdiary.filter.JWTLoginFilter;
 import com.iscas.workingdiary.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -16,8 +17,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public WebSecurityConfig(CustomUserDetailsService userDetailService, BCryptPasswordEncoder cryptPasswordEncoder) {
@@ -29,7 +33,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/user/register").permitAll() //开放注册接口和验证接口
-                .antMatchers(HttpMethod.GET, "/user/checkname","/user/checkid").permitAll() //开发验证接口
+                .antMatchers(HttpMethod.GET, "/user/checkname","/user/checkid", "/swagger-ui.html").permitAll() //开发验证接口
                 .anyRequest().authenticated() //所有接口都必须经过身份验证
 
                 .antMatchers("/admin").hasRole("ADMIN") // 只有管理员能访问/admin/**
