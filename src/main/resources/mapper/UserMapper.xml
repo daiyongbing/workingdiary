@@ -19,7 +19,8 @@
     <resultMap id="customUserDetails" type="com.iscas.workingdiary.bean.CustomUserDetails">
         <id column="user_name" property="username"/>
         <id column="password" property="password"/>
-        <collection property="authorities" ofType="java.lang.Object" javaType="java.util.Set">
+        <collection property="roles" ofType="com.iscas.workingdiary.bean.Role">
+            <id column="role_id" property="roleId"/>
             <id column="role_name" property="roleName"/>
         </collection>
     </resultMap>
@@ -83,7 +84,7 @@
     <select id="findByUserName" parameterType="String" resultMap="customUserDetails">
         SELECT u.user_name, u.password, r.role_name
         FROM t_user u
-        JOIN t_role r
+        LEFT JOIN t_role r
         ON u.role_id=r.role_id
         <where>
             <if test="userName != null and userName != '' ">

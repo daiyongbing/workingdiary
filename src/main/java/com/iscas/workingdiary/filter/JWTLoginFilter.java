@@ -46,7 +46,7 @@ public class JWTLoginFilter extends UsernamePasswordAuthenticationFilter {
             log.info("用户输入的密码:"+userDetails.getPassword());
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            userDetails.getPassword(),
+                            userDetails.getUsername(),
                             userDetails.getPassword(),
                             new ArrayList<>())
             );
@@ -59,11 +59,12 @@ public class JWTLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication auth) throws IOException, ServletException {
         String token = JWTTokenUtil.generateToken(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername(), null);
-        response.addHeader("Authorization", "Bearer " + token);
-        ResponseBody responseBody = new ResponseBody();
-        responseBody.setStatus("200");
-        responseBody.setMessage("登录成功");
         response.setContentType("application/json;charset=UTF-8");
+        //response.addHeader("Authorization", "Bearer " + token);
+        ResponseBody responseBody = new ResponseBody();
+        responseBody.setJwtToken("Bearer " + token);
+        responseBody.setMessage("登录成功");
+        responseBody.setStatus("200");
         response.getWriter().write(JSON.toJSONString(responseBody));
     }
 

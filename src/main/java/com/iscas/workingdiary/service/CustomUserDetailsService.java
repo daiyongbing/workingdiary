@@ -29,6 +29,20 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
+      /*  CustomUserDetails userInfo = new CustomUserDetails();
+        userInfo.setUsername(username);
+        userInfo.setPassword(new BCryptPasswordEncoder().encode("123"));
+
+        Set authoritiesSet = new HashSet();
+        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_ADMIN");
+        authoritiesSet.add(authority);
+        userInfo.setAuthorities(authoritiesSet);
+        return userInfo;*/
+
+        log.info("loadUserByUsername -> username:"+username);
+        if (username == null || username == ""){
+            return null;
+        }
         CustomUserDetails userDetails = userMapper.findByUserName(username);
         if(userDetails == null){
             throw new UsernameNotFoundException(username);
