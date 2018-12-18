@@ -3,6 +3,7 @@ package com.iscas.workingdiary.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.client.RepChainClient;
 import com.iscas.workingdiary.bean.Cert;
+import com.iscas.workingdiary.bean.Diary;
 import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.service.AdminService;
 import com.iscas.workingdiary.service.CertService;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,65 +40,14 @@ public class AdminController {
 
     @Autowired
     private CertService certService;
-    /**
-     * 删除用户
-     * @param request
-     * @return
-     */
-    @PostMapping(value = "delete", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Transactional(rollbackFor = SQLException.class)
-    public ResultData deleteUserById(HttpServletRequest request, @RequestBody JSONObject jsonObject){
-        ResultData resultData = null;
-        String token = request.getHeader("Authorization").substring(7);
-        String userName = jsonObject.getString("userName");
-        Integer userId = jsonObject.getInteger("userId");
-        try {
-            //Integer role = JWTTokenUtil.parseToken(token).get("role", Integer.class);
-            Integer role = 0;
-            if (role == 1){
-                adminService.deleteUser(userName, userId);
-                resultData = ResultData.deleteSuccess();
-            } else {
-                resultData = new ResultData(StateCode.SERVER_NO_ACCESS_ERROR, "权限不足，请登录管理员账户操作");
-            }
-        } catch (Exception e){
-            resultData = new ResultData(StateCode.DB_DELETE_ERROR, "删除失败");
-        }
-        return resultData;
-    }
 
-    /**
-     * 更新用户信息
-     * @param
-     * @param request
-     * @param user
-     * @return
-     */
-    @PostMapping(value = "update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData updateUserById(HttpServletRequest request, @RequestBody User user){
-        ResultData resultData = null;
-        String token = request.getHeader("Authorization").substring(7);
-        try{
-            //Integer role = JWTTokenUtil.parseToken(token).get("role", Integer.class);
-            Integer role = 0;
-            if (role == 1){
-                adminService.updateUser(user);
-                resultData = ResultData.updateSuccess();
-            } else {
-                resultData = new ResultData(StateCode.SERVER_NO_ACCESS_ERROR, "权限不足，请登录管理员账户操作");
-            }
-        } catch (Exception e){
-            resultData = new ResultData(StateCode.DB_UPDATE_ERROR,  "更新失败");
-        }
-        return resultData;
-    }
 
     /**
      * 证书入链
      * @param object
      * @return
      */
-    @PostMapping(value = "sign", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "signcert", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultData signCertByAdmin(@RequestBody JSONObject object){
         ResultData resultData = null;
         Integer userId = object.getInteger("userId");
@@ -123,5 +74,35 @@ public class AdminController {
         resultData = new ResultData(StateCode.SUCCESS, "success", signResult.getString("err"));
 
         return resultData;
+    }
+
+    /**
+     * 查看用户列表
+     * @return
+     */
+    @GetMapping(value = "userlist")
+    public List<User> selectAll(){
+        List<User> userList = null;
+        return userList;
+    }
+
+    /**
+     * 重置用户密码
+     * @return
+     */
+    @PostMapping(value = "resetpwd" )
+    public ResultData resetPassword(){
+        ResultData resultData = null;
+
+        return resultData;
+    }
+
+    /**
+     * 查询用户日志
+     * @return
+     */
+    @PostMapping(value = "userdiary")
+    public List<Diary> selectDiary(){
+        return new ArrayList<>();
     }
 }

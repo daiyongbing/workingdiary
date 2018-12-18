@@ -18,15 +18,16 @@ import java.util.Collection;
  * 用户实体类
  */
 public class User implements Serializable {
+    private static final long serialVersionUID = 4872220708207206444L;
     @NotBlank(message = "ID不能为空")
-    private Integer userId;
+    private String userId;
     @NotBlank(message = "用户名不能为空")
     private String userName;
     private String userSex;
     private String projectTeam;
     private String userPosition;
     private String leader;
-    private Integer roleId;
+    private String roleId;
     private String certNo;
     private Timestamp registerTime;
     @NotBlank(message = "密码不能为空")
@@ -34,11 +35,11 @@ public class User implements Serializable {
     @Max(value = 15, message = "密码至多15位")
     private String password;
 
-    public Integer getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -82,11 +83,11 @@ public class User implements Serializable {
         this.leader = leader;
     }
 
-    public Integer getRoleId() {
+    public String getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Integer roleId) {
+    public void setRoleId(String roleId) {
         this.roleId = roleId;
     }
 

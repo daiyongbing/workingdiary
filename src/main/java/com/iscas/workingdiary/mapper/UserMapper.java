@@ -1,6 +1,7 @@
 package com.iscas.workingdiary.mapper;
 
 import com.iscas.workingdiary.bean.CustomUserDetails;
+import com.iscas.workingdiary.bean.Integral;
 import com.iscas.workingdiary.bean.User;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
@@ -28,4 +29,12 @@ public interface UserMapper {
     void updateByName(User user);
 
     User selectByUserName(@Param(value = "userName") String userName);
+
+    void deleteUserByName(@Param("userName") String userName);
+
+    void modifyPassword(@Param("userName") String userName, @Param("password") String newPassword);
+
+    Integer selectTotalIntegral(@Param("userName") String userName);
+
+    List<Integral> selectIntegralList(@Param("userName") String userName);
 }

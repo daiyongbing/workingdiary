@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.iscas.workingdiary.mapper.DiaryMapper">
+
+    <resultMap id="diary" type="com.iscas.workingdiary.bean.Diary">
+        <id property="diaryId" column="diary_id"/>
+        <id property="userName" column="user_name"/>
+        <id property="diaryText" column="diary_text"/>
+        <id property="txId" column="tx_id"/>
+        <id property="createTime" column="create_time" javaType="java.sql.Timestamp"/>
+    </resultMap>
+
+    <delete id="deleteDiaryByName" parameterType="String">
+        delete* from t_cert
+        <where>
+            <if test="userName != null and userName != ''">
+                user_name=#{userName}
+            </if>
+        </where>
+    </delete>
+
+</mapper>

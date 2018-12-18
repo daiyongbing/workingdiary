@@ -16,7 +16,7 @@ public interface CertMapper {
 
     void deleteCertByCertNo(@Param("certNo") String certNo);
 
-    void deleteCertByUserId(@Param("userId") Integer userId);
+    void deleteCertByName(@Param("userName") String userName);
 
     Cert queryCert(@Param("certNo") String CertNo);
 

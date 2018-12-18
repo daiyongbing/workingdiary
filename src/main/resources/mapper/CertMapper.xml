@@ -6,6 +6,7 @@
 <mapper namespace="com.iscas.workingdiary.mapper.CertMapper">
 
     <resultMap id="cert" type="com.iscas.workingdiary.bean.Cert">
+        <id column="user_name" property="userName"/>
         <id column="cert_no" property="certNo"/>
         <result column="pem_cert" property="pemCert"/>
         <result column="cert_addr" property="certAddr"/>
@@ -13,15 +14,15 @@
         <result column="cert_level" property="certLevel"/>
         <result column="private_key" property="privateKey"/>
         <result column="common_name" property="commonName"/>
-        <result column="create_time" property="createTime"/>
+        <result column="create_time" property="createTime" javaType="java.sql.Timestamp"/>
     </resultMap>
 
 
     <insert id="insertCert" parameterType="Cert">
         INSERT INTO t_cert
-            (cert_no, pem_cert, cert_addr, cert_status, cert_level, private_key)
+            (user_name, cert_no, pem_cert, cert_addr, cert_status, cert_level, private_key, common_name,create_time)
         VALUES
-            (#{certNo},#{pemCert}, #{certAddr}, #{certStatus}, #{certLevel},#{privateKey})
+            (#{userName}, #{certNo},#{pemCert}, #{certAddr}, #{certStatus}, #{certLevel},#{privateKey},#{commonName},#{createTime})
     </insert>
 
     <update id="updateCert" parameterType="Cert">
@@ -43,10 +44,10 @@
             <if test="certNo != null">cert_no=#{certNo}</if>
     </delete>
     
-    <delete id="deleteCertByUserId" parameterType="java.lang.Integer">
+    <delete id="deleteCertByName" parameterType="String">
         DELETE FROM t_cert
         WHERE
-            <if test="userId != null">user_id=#{userId}</if>
+            <if test="userName != null and userName != ''">user_name=#{userName}</if>
     </delete>
 
     <select id="queryCert" parameterType="java.lang.String" resultMap="cert">

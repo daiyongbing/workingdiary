@@ -1,7 +1,8 @@
-package com.iscas.workingdiary.service;
+package com.iscas.workingdiary.service.impl;
 
 import com.iscas.workingdiary.bean.Cert;
 import com.iscas.workingdiary.mapper.CertMapper;
+import com.iscas.workingdiary.service.CertService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,8 +25,8 @@ public class CertServiceImpl implements CertService {
     }
 
     @Override
-    public void deleteCertByUserId(Integer userId) {
-        certMapper.deleteCertByUserId(userId);
+    public void deleteCertByName(String userName) {
+        certMapper.deleteCertByName(userName);
     }
 
 

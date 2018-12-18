@@ -114,4 +114,23 @@
         </where>
     </select>
 
+    <update id="modifyPassword">
+        update t_user
+        <set>
+            <if test="password != null and password != ''">password=#{password}</if>
+        </set>
+        where
+            user_name=#{userName}
+    </update>
+
+    <select id="selectTotalIntegral" parameterType="String" resultType="Integer">
+        SELECT SUM(score) FROM t_integral
+        WHERE user_name=#{userName};
+    </select>
+
+    <select id="selectIntegralList" parameterType="String" resultType="com.iscas.workingdiary.bean.Integral">
+        select* from t_integral
+        WHERE user_name=#{userName};
+    </select>
+
 </mapper>

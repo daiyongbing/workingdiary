@@ -1,0 +1,21 @@
+{
+  "user":{
+    "userName":"test5",
+    "userId":"5",
+    "userSex":"female",
+    "projectTeam":"区块链实验室",
+    "userPosition":"研发",
+    "roleId":"0",
+    "password":"123"
+  },
+
+  "certInfo":{
+    "CN":"daiyongbing",
+    "OU":"ISCAS",
+    "O":"ISCAS",
+    "C":"CN",
+    "L":"GUIYANG",
+    "ST":"GUIZHOU",
+    "cPassword":"123"
+  }
+}

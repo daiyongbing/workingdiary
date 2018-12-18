@@ -1,7 +1,8 @@
-package com.iscas.workingdiary.service;
+package com.iscas.workingdiary.service.impl;
 
 import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.mapper.AdminMapper;
+import com.iscas.workingdiary.service.AdminService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

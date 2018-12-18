@@ -19,7 +19,12 @@ public class WorkingDairyController {
     @Autowired
     private RepClient repClient;
 
-    @PostMapping(value = "postWorkingDiary", produces = "application/json;charset=UTF-8")
+    /**
+     * 上传日志
+     * @param jsonLog
+     * @return
+     */
+    @PostMapping(value = "pushdairy", produces = "application/json;charset=UTF-8")
     public JSONObject postWorkingDairyWithSign(@RequestBody JSONObject jsonLog){
         //  pseudocode
         // 获得用户ID
@@ -45,21 +50,16 @@ public class WorkingDairyController {
 
     }
 
-    @GetMapping(value = "queryWorkingDiary")
+    /**
+     * 查询日志
+     * @param diaryKey
+     * @return
+     */
+    @GetMapping(value = "listdiary")
     public JSONObject queryWorkingDairy(@RequestParam("diaryKey")  String diaryKey){
         RepChainClient repChainClient = repClient.getRepClient();
         List<String> argsList = repClient.getParamList(diaryKey);
         String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"queryWorkingDiary", argsList);
         return repChainClient.postTranByString(hexTransaction);
     }
-
-    @GetMapping(value = "queryIntegral")
-    public JSONObject queryIntegral(@RequestParam("userName") String userName){
-        RepChainClient repChainClient = repClient.getRepClient();
-        List<String> argsList = repClient.getParamList(userName);
-        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"queryIntegral", argsList);
-        return repChainClient.postTranByString(hexTransaction);
-    }
-
-
 }

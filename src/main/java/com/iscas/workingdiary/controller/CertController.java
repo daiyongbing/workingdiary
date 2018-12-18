@@ -46,6 +46,11 @@ public class CertController {
     @Autowired
     ConstantProperties properties;
 
+    /**
+     * 删除证书（根据证书编号）
+     * @param certNo
+     * @return
+     */
     @GetMapping(value = "deleteByCertNo", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultData deleteCertByCertNo(@RequestParam("certNO") String certNo){
         ResultData resultData = null;
@@ -62,7 +67,7 @@ public class CertController {
     public ResultData deleteCertByCertNo(@RequestParam("userId") Integer userId){
         ResultData resultData = null;
         try {
-            certService.deleteCertByUserId(userId);
+            //certService.deleteCertByUserId(userId);
             resultData = ResultData.deleteSuccess();
         }catch (Exception e){
             resultData = new ResultData(StateCode.DB_DELETE_ERROR, "删除失败");
@@ -70,6 +75,11 @@ public class CertController {
         return resultData;
     }
 
+    /**
+     * 查询证书（根据证书编号）
+     * @param certNo
+     * @return
+     */
     @GetMapping(value = "queryByCertNo", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultData queryCertByNo(@RequestParam("certNo") String certNo){
         Cert cert = null;
@@ -84,6 +94,10 @@ public class CertController {
         return resultData;
     }
 
+    /**
+     * 查询所有证书
+     * @return
+     */
     @GetMapping(value = "queryAll", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Cert> queryAllCert(){
         List<Cert> certList;
@@ -91,12 +105,21 @@ public class CertController {
         return certList;
     }
 
+    /**
+     * 更新证书
+     * @param cert
+     */
     @PostMapping(value = "update", produces = MediaType.APPLICATION_JSON_VALUE)
     public void updateCert(Cert cert){
         certService.updateCert(cert);
     }
 
 
+    /**
+     * 验证证书
+     * @param userId
+     * @return
+     */
     @GetMapping(value = "verifyCert", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object verifyCert(@RequestParam("userId") Integer userId){
         ResultData resultData = null;
@@ -121,6 +144,11 @@ public class CertController {
     }
 
 
+    /**
+     * 在线生成证书
+     * @param jsonObject
+     * @return
+     */
     @PostMapping(value = "generate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultData generateCert(@RequestBody JSONObject jsonObject){
         ResultData resultData;
@@ -164,6 +192,11 @@ public class CertController {
         return resultData;
     }
 
+    /**
+     * 上传证书
+     * @param file
+     * @return
+     */
     @PostMapping(value = "upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultData uploadCert(@RequestParam("fileName") MultipartFile file){
         ResultData resultData;
@@ -198,6 +231,11 @@ public class CertController {
         return resultData;
     }
 
+    /**
+     * 下载证书
+     * @param response
+     * @param request
+     */
     @GetMapping(value = "download", produces = MediaType.APPLICATION_JSON_VALUE)
     public void downloadCert(HttpServletResponse response, HttpServletRequest request){
         String token = request.getHeader("Authorization");
@@ -230,6 +268,23 @@ public class CertController {
         }
     }
 
+    /**
+     * 替换证书
+     * @param request
+     * @param response
+     * @param object
+     * @return
+     */
+    @PostMapping(value = "replace")
+    public ResultData replaceCert(HttpServletRequest request, HttpServletResponse response, @RequestBody JSONObject object){
+        ResultData resultData = null;
+
+
+        return resultData;
+    }
+
+
+
 
     /********************************************以下接口针对区块链****************************************/
 
@@ -249,11 +304,11 @@ public class CertController {
         return repChainClient.postTranByString(hexTransaction);
     }
 
-    @PostMapping("replace")
+    /*@PostMapping(value = "replace")
     public JSONObject replaceCert(@RequestBody JSONObject data){
         RepChainClient repChainClient = repClient.getRepClient();
         List<String> argsList = repClient.getParamList(data);
         String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"replaceCert", argsList);
         return repChainClient.postTranByString(hexTransaction);
-    }
+    }*/
 }

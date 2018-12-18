@@ -1,7 +1,8 @@
-package com.iscas.workingdiary.service;
+package com.iscas.workingdiary.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.client.RepChainClient;
+import com.iscas.workingdiary.service.RepClient;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

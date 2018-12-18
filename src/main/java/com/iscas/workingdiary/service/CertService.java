@@ -16,8 +16,8 @@ public interface CertService {
     // 从数据库中删除证书(根据证书编号)
     void deleteCertByCertNo(String certNo);
 
-    // 从数据库中删除证书（根据用户id）
-    void deleteCertByUserId(Integer user_id);
+    // 从数据库中删除证书（根据用户名）
+    void deleteCertByName(String userName);
 
     // 更新数据库证书
     void updateCert(Cert cert);

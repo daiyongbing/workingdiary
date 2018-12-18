@@ -7,6 +7,7 @@ import java.sql.Timestamp;
  * 证书实体类
  */
 public class Cert {
+    private String userName;
     private String certNo;
     private String pemCert;
     private String certAddr;
@@ -15,6 +16,14 @@ public class Cert {
     private String privateKey;
     private String commonName;
     private Timestamp createTime;
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
     public String getCommonName() {
         return commonName;
