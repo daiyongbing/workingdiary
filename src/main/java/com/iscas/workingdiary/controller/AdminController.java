@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,45 +45,53 @@ public class AdminController {
 
     /**
      * 证书入链
-     * @param object
+     * @param pramJson
      * @return
      */
     @PostMapping(value = "signcert", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData signCertByAdmin(@RequestBody JSONObject object){
+    public ResultData signCertByAdmin(HttpServletRequest request, HttpServletResponse response, @RequestBody JSONObject pramJson){
         ResultData resultData = null;
-        Integer userId = object.getInteger("userId");
-        String userInfo = object.getJSONObject("userInfo").toJSONString();
-        String base64Info = Base64Utils.encode2String(userInfo);
         Cert cert = null;
+        JSONObject jsonObject = new JSONObject();
+        String certNO = pramJson.getString("certNO");
         try {
-            cert = certService.verifyCert(userId);
+            cert = certService.queryCert(certNO);
         }catch (Exception e){
             e.printStackTrace();
         }
-        JSONObject jsonObject = new JSONObject();
         if (cert == null){
             resultData = new ResultData(StateCode.DB_CERT_NOT_EXIST, "该用户没有上传证书");
         } else {
             String pemCert = cert.getPemCert();
-            jsonObject.put(pemCert, base64Info);
+            String certInfo = cert.getCertInfo();
+            jsonObject.put(pemCert, certInfo);
         }
         RepChainClient repChainClient = repClient.getRepClient();
         List<String> argsList = repClient.getParamList(jsonObject);
         String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"certProof", argsList);
         JSONObject signResult = repChainClient.postTranByString(hexTransaction);
 
-        resultData = new ResultData(StateCode.SUCCESS, "success", signResult.getString("err"));
-
+        String addr = signResult.getString("result");
+        cert.setCertAddr(addr);
+        cert.setCertStatus("1");
+        certService.updateCert(cert);
+        resultData = new ResultData(StateCode.SUCCESS, "success");
         return resultData;
     }
 
     /**
-     * 查看用户列表
+     * 查看用户列表(分页查询所有用户)
      * @return
      */
     @GetMapping(value = "userlist")
     public List<User> selectAll(){
         List<User> userList = null;
+        try {
+            userList = adminService.selectAllUser();
+        } catch (Exception e){
+            e.printStackTrace();
+            new Exception("系统错误");
+        }
         return userList;
     }
 
@@ -91,9 +100,16 @@ public class AdminController {
      * @return
      */
     @PostMapping(value = "resetpwd" )
-    public ResultData resetPassword(){
+    public ResultData resetPassword(HttpServletRequest request, HttpServletResponse response, @RequestBody JSONObject userNameJson){
         ResultData resultData = null;
-
+        String userName = userNameJson.getString("userName");
+        try {
+            adminService.resetPassword(userName);
+            resultData = ResultData.updateSuccess();
+        } catch (Exception e){
+            e.printStackTrace();
+            resultData = new ResultData(StateCode.DB_UPDATE_ERROR, "系统错误");
+        }
         return resultData;
     }
 
@@ -101,8 +117,15 @@ public class AdminController {
      * 查询用户日志
      * @return
      */
-    @PostMapping(value = "userdiary")
-    public List<Diary> selectDiary(){
-        return new ArrayList<>();
+    @GetMapping(value = "userdiary")
+    public List<Diary> selectDiaryByName(HttpServletRequest request, HttpServletResponse response, @RequestParam String userName){
+        List<Diary> diaryList = null;
+        try {
+            diaryList = adminService.selectDiaryByName(userName);
+        }catch (Exception e){
+            e.printStackTrace();
+            new Exception("系统错误");
+        }
+        return diaryList;
     }
 }

@@ -1,6 +1,7 @@
 package com.iscas.workingdiary.service.impl;
 
 import com.iscas.workingdiary.bean.Cert;
+import com.iscas.workingdiary.bean.Diary;
 import com.iscas.workingdiary.bean.Integral;
 import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.mapper.CertMapper;
@@ -55,10 +56,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void destoryAccount(String userName) {
+    public void destoryAccount(String userName){
         try {
             certMapper.deleteCertByName(userName);
             diaryMapper.deleteDiaryByName(userName);
+            userMapper.deleteIntegralByName(userName);
             userMapper.deleteUserByName(userName);
         }catch (Exception e){
             e.printStackTrace();
@@ -78,6 +80,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Integral> queryIntegralList(String userName) {
         return userMapper.selectIntegralList(userName);
+    }
+
+    @Override
+    public void pushDairy(Diary diary, Integral integral) {
+        diaryMapper.insertDiary(diary);
+        userMapper.insertIntegral(integral);
+    }
+
+    @Override
+    public List<Diary> queryDiaryList(String userName) {
+        return diaryMapper.selectDiaryByName(userName);
     }
 
     @Override

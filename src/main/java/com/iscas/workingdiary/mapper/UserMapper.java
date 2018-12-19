@@ -37,4 +37,8 @@ public interface UserMapper {
     Integer selectTotalIntegral(@Param("userName") String userName);
 
     List<Integral> selectIntegralList(@Param("userName") String userName);
+
+    void deleteIntegralByName(@Param("userName") String userName);
+
+    void insertIntegral(Integral integral);
 }

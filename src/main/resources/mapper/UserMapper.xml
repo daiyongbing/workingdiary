@@ -60,11 +60,9 @@
             (#{userId}, #{userName}, #{userSex}, #{projectTeam}, #{userPosition}, #{leader}, #{roleId}, #{password}, #{certNo})
     </insert>
     
-    <delete id="deleteUser" parameterType="String">
+    <delete id="deleteUserByName" parameterType="String">
         DELETE FROM t_user
-        <where>
-            <if test="userId != null and userId != ''">user_id = #{userId}</if>
-        </where>
+        where user_name=#{userName};
     </delete>
 
     <select id="selectOne" parameterType="User" resultMap="user">
@@ -132,5 +130,16 @@
         select* from t_integral
         WHERE user_name=#{userName};
     </select>
+
+    <delete id="deleteIntegralByName" parameterType="String">
+        delete from t_integral
+        where user_name=#{userName};
+    </delete>
+
+    <insert id="insertIntegral" parameterType="com.iscas.workingdiary.bean.Integral">
+        insert into t_integral
+        (id, user_name, diary_id, tx_id, score, gain_time)
+        value (#{id}, #{userName}, #{dairyId}, #{txid}, #{score}, #{gainTime})
+    </insert>
 
 </mapper>

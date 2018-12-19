@@ -1,5 +1,6 @@
 package com.iscas.workingdiary.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.client.RepChainClient;
 import com.crypto.BitcoinUtils;
@@ -15,9 +16,11 @@ import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.RepChainUtils;
 import com.iscas.workingdiary.util.cert.CertUtils;
 import com.iscas.workingdiary.util.encrypt.AESCrypt;
+import com.iscas.workingdiary.util.encrypt.Base64Utils;
 import com.iscas.workingdiary.util.encrypt.MD5Utils;
 import com.iscas.workingdiary.util.exception.StateCode;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
+import com.iscas.workingdiary.util.json.JsonResult;
 import com.iscas.workingdiary.util.json.ResultData;
 import com.sun.org.apache.regexp.internal.RE;
 import org.apache.ibatis.annotations.Param;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
@@ -94,6 +98,7 @@ public class UserController {
 
         cert.setCertNo(certNo);
         cert.setPemCert(pemCert);
+        cert.setCertInfo(Base64Utils.encode2String(JSON.toJSONString(certinfo)));
         cert.setCertLevel("0");
         cert.setCertStatus("0");
         cert.setPrivateKey(encyptPrivateKey);
@@ -277,38 +282,33 @@ public class UserController {
     }
 
 
-    public JSONObject queryIntegralFromRepChain(){
-        String userName = "";
-        RepChainClient repChainClient = repClient.getRepClient();
-        List<String> argsList = repClient.getParamList(userName);
-        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"queryIntegral", argsList);
-        return repChainClient.postTranByString(hexTransaction);
-    }
 
     /**
-     * 注销账户（删除包括证书等所有信息）
+     * 注销账户（删除包括证书等所有信息,谨慎操作！！！）
      * @param request
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     @PostMapping(value = "destoryaccount", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData deleteUserById(HttpServletRequest request, HttpServletResponse response, @RequestParam String password){
+    public void destoryAccount(HttpServletRequest request, HttpServletResponse response, @RequestBody JSONObject jsonObject){
         ResultData resultData;
-        String encrypted = bCryptPasswordEncoder.encode(password);
         String token = request.getHeader("Authorization");
         String userName = JWTTokenUtil.parseToken(token).getSubject();
+        String rawPassword = jsonObject.getString("password");
         try {
             User user = userService.selectUserByName(userName);
-            if (user.getPassword().equals(encrypted)){
+            if (bCryptPasswordEncoder.matches(rawPassword, user.getPassword())){
                 userService.destoryAccount(userName);
-                resultData = ResultData.deleteSuccess();
+                resultData = new ResultData(StateCode.SUCCESS, "删除成功");
             } else {
-                resultData = new ResultData(StateCode.DB_DELETE_ERROR, "密码错误");
+                resultData = new ResultData(StateCode.DB_DELETE_ERROR, "密码校验失败");
             }
         } catch (Exception e){
+            e.printStackTrace();
             resultData = new ResultData(StateCode.DB_DELETE_ERROR, "删除失败");
         }
 
-        return resultData;
+        JsonResult.resultJson(response, request, resultData);
     }
 
 
@@ -316,5 +316,15 @@ public class UserController {
      * 退出登录
      */
     public void  logOut(){}
+
+
+
+    public JSONObject queryIntegralFromRepChain(){
+        String userName = "";
+        RepChainClient repChainClient = repClient.getRepClient();
+        List<String> argsList = repClient.getParamList(userName);
+        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"queryIntegral", argsList);
+        return repChainClient.postTranByString(hexTransaction);
+    }
 
 }

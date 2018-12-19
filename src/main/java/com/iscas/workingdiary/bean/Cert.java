@@ -10,6 +10,7 @@ public class Cert {
     private String userName;
     private String certNo;
     private String pemCert;
+    private String certInfo;
     private String certAddr;
     private String certStatus;
     private String certLevel;
@@ -55,6 +56,14 @@ public class Cert {
 
     public void setPemCert(String pemCert) {
         this.pemCert = pemCert;
+    }
+
+    public String getCertInfo() {
+        return certInfo;
+    }
+
+    public void setCertInfo(String certInfo) {
+        this.certInfo = certInfo;
     }
 
     public String getCertAddr() {

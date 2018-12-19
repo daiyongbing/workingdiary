@@ -9,6 +9,7 @@
         <id column="user_name" property="userName"/>
         <id column="cert_no" property="certNo"/>
         <result column="pem_cert" property="pemCert"/>
+        <result column="cert_info" property="certInfo"/>
         <result column="cert_addr" property="certAddr"/>
         <result column="cert_status" property="certStatus"/>
         <result column="cert_level" property="certLevel"/>
@@ -20,9 +21,9 @@
 
     <insert id="insertCert" parameterType="Cert">
         INSERT INTO t_cert
-            (user_name, cert_no, pem_cert, cert_addr, cert_status, cert_level, private_key, common_name,create_time)
+            (user_name, cert_no, pem_cert, cert_info, cert_addr, cert_status, cert_level, private_key, common_name,create_time)
         VALUES
-            (#{userName}, #{certNo},#{pemCert}, #{certAddr}, #{certStatus}, #{certLevel},#{privateKey},#{commonName},#{createTime})
+            (#{userName}, #{certNo},#{pemCert}, #{certInfo}, #{certAddr}, #{certStatus}, #{certLevel},#{privateKey},#{commonName},#{createTime})
     </insert>
 
     <update id="updateCert" parameterType="Cert">
@@ -30,6 +31,7 @@
         <set>
             <if test="userId != null">user_id=#{userId},</if>
             <if test="pemCert != null">pem_cert=#{pemCert},</if>
+            <if test="certInfo != null">cert_info=#{certInfo},</if>
             <if test="certAddr != null">cert_addr=#{certAddr},</if>
             <if test="certStatus != null">cert_status=#{certStatus},</if>
             <if test="certLevel != null">cert_level=#{certLevel}</if>
@@ -46,14 +48,15 @@
     
     <delete id="deleteCertByName" parameterType="String">
         DELETE FROM t_cert
-        WHERE
-            <if test="userName != null and userName != ''">user_name=#{userName}</if>
+        WHERE user_name=#{userName};
     </delete>
 
     <select id="queryCert" parameterType="java.lang.String" resultMap="cert">
         SELECT* FROM t_cert
-        WHERE
-            <if test="certNo != null">cert_no=#{certNo}</if>
+        <where>
+            <if test="certNo != null and certNo != ''">cert_no=#{certNo}</if>
+        </where>
+
     </select>
 
     <select id="selectAll" resultType="java.util.List">
@@ -62,6 +65,13 @@
 
     <select id="getPemCert" parameterType="String" resultType="String">
         SELECT pem_cert FROM t_cert
+        <where>
+            <if test="userName != null and userName != ''">user_name=#{userName}</if>
+        </where>
+    </select>
+
+    <select id="getCertByName" parameterType="String" resultMap="cert">
+        select from t_cert
         <where>
             <if test="userName != null and userName != ''">user_name=#{userName}</if>
         </where>

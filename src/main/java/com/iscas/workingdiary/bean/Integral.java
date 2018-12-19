@@ -8,7 +8,7 @@ public class Integral implements Serializable {
     private int id;
     private String userName;
     private String diaryId;
-    private String tx_id;
+    private String txid;
     private Integer score;
     private Timestamp gainTime;
 
@@ -36,12 +36,12 @@ public class Integral implements Serializable {
         this.diaryId = diaryId;
     }
 
-    public String getTx_id() {
-        return tx_id;
+    public String getTxid() {
+        return txid;
     }
 
-    public void setTx_id(String tx_id) {
-        this.tx_id = tx_id;
+    public void setTxid(String txid) {
+        this.txid = txid;
     }
 
     public Integer getScore() {

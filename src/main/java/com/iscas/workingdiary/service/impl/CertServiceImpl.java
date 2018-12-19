@@ -37,9 +37,7 @@ public class CertServiceImpl implements CertService {
 
     @Override
     public Cert queryCert(String certNo) {
-        Cert cert = new Cert();
-        cert =  certMapper.queryCert(certNo);
-        return cert;
+        return certMapper.queryCert(certNo);
     }
 
     @Override
@@ -48,13 +46,13 @@ public class CertServiceImpl implements CertService {
     }
 
     @Override
-    public Cert verifyCert( Integer userId) {
-        return certMapper.verifyCert(userId);
+    public String getPemCert(String userName) {
+        return certMapper.getPemCert(userName);
     }
 
     @Override
-    public String getPemCert(String userName) {
-        return certMapper.getPemCert(userName);
+    public Cert getCertByName(String userName) {
+        return certMapper.getCertByName(userName);
     }
 
 }

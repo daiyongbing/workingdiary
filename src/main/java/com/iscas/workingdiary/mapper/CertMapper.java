@@ -25,4 +25,6 @@ public interface CertMapper {
     Cert verifyCert(@Param("userId") Integer userId);
 
     String getPemCert(@Param("userName") String userName);
+
+    Cert getCertByName(@Param("userName") String userName);
 }

@@ -1,6 +1,7 @@
 package com.iscas.workingdiary.service;
 
 import com.iscas.workingdiary.bean.Cert;
+import com.iscas.workingdiary.bean.Diary;
 import com.iscas.workingdiary.bean.Integral;
 import com.iscas.workingdiary.bean.User;
 import org.springframework.stereotype.Service;
@@ -29,4 +30,8 @@ public interface UserService {
     Integer queryTotalIntegral(String userName);
 
     List<Integral> queryIntegralList(String userName);
+
+    void pushDairy(Diary diary, Integral integral);
+
+    List<Diary> queryDiaryList(String userName);
 }

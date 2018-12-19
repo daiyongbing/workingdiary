@@ -10,8 +10,10 @@
         <result column="user_sex" property="userSex"/>
         <result column="project_team" property="projectTeam"/>
         <result column="user_position" property="userPosition"/>
+        <result column="leader" property="leader"/>
         <result column="cert_no" property="certNo"/>
         <result column="role_id" property="roleId"/>
+        <result column="register_time" property="registerTime"/>
     </resultMap>
 
     <delete id="deleteUser">
@@ -41,5 +43,21 @@
             <if test="userId != null and userId != ''">user_id=#{userId}</if>
         </where>
     </update>
+
+    <update id="resetPassword">
+        update t_user
+        <set>
+            <if test="crypted != null and crypted != ''">password=#{crypted}</if>
+        </set>
+        <where>
+            <if test="userName != null and userName != ''">user_name=#{userName}</if>
+        </where>
+    </update>
+
+
+    <select id="selectAll" resultMap="user">
+        select* from t_user;
+    </select>
+
 
 </mapper>

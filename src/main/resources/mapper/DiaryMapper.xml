@@ -14,12 +14,21 @@
     </resultMap>
 
     <delete id="deleteDiaryByName" parameterType="String">
-        delete* from t_cert
-        <where>
-            <if test="userName != null and userName != ''">
-                user_name=#{userName}
-            </if>
-        </where>
+        delete from t_diary
+        where user_name=#{userName};
     </delete>
+
+    <select id="selectDiaryByName" parameterType="String" resultMap="diary">
+        select* from t_diary
+        <where>
+            <if test="userName != null and userName != ''">user_name=#{userName}</if>
+        </where>
+    </select>
+
+    <insert id="insertDiary" parameterType="com.iscas.workingdiary.bean.Diary">
+        insert into t_diary
+        (diary_id, user_name, diary_text, tx_id, create_time)
+        value (#{diaryId}, #{userName}, #{diaryText}, #{txid}, #{createTime})
+    </insert>
 
 </mapper>

@@ -120,7 +120,7 @@ public class CertController {
      * @param userId
      * @return
      */
-    @GetMapping(value = "verifyCert", produces = MediaType.APPLICATION_JSON_VALUE)
+   /* @GetMapping(value = "verifyCert", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object verifyCert(@RequestParam("userId") Integer userId){
         ResultData resultData = null;
         Cert cert = certService.verifyCert(userId);
@@ -141,7 +141,7 @@ public class CertController {
         }
 
         return resultData;
-    }
+    }*/
 
 
     /**
