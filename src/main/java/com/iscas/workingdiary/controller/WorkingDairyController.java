@@ -1,6 +1,5 @@
 package com.iscas.workingdiary.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.client.RepChainClient;
 import com.iscas.workingdiary.bean.Cert;
@@ -11,7 +10,7 @@ import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.RepChainUtils;
 import com.iscas.workingdiary.util.encrypt.Base64Utils;
-import com.iscas.workingdiary.util.exception.StateCode;
+import com.iscas.workingdiary.bean.ResponseStatus;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +57,7 @@ public class WorkingDairyController {
         }
         // 证书异常，终止上链请求
         if (cert == null || "0".equals(cert.getCertStatus())){
-            resultData = new ResultData(StateCode.DB_CERT_NOT_EXIST, "没有证书");
+            resultData = new ResultData(ResponseStatus.DB_CERT_NOT_EXIST, "没有证书");
         } else {
             // 正常可用，构建参数提交给区块链，处理异常
             JSONObject jsonObject = new JSONObject();
@@ -91,7 +90,7 @@ public class WorkingDairyController {
             //插入数据库
             try {
                 userService.pushDairy(diary, integral);
-                resultData = new ResultData(StateCode.SUCCESS, "上传成功");
+                resultData = new ResultData(ResponseStatus.SUCCESS, "上传成功");
             } catch (Exception e){
                 e.printStackTrace();
             }

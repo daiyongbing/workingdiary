@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
 public class JsonResult {
     public static void resultJson(HttpServletResponse response, HttpServletRequest request, ResultData resultData){
         response.setContentType("application/json; charset=utf-8");
-        response.setStatus(Integer.parseInt(resultData.getCode()));
+        response.setStatus(resultData.getCode());
         try {
             response.getWriter().write(JSON.toJSONString(resultData));
         } catch (IOException e) {

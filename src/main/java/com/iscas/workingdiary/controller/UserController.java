@@ -3,48 +3,37 @@ package com.iscas.workingdiary.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.client.RepChainClient;
-import com.crypto.BitcoinUtils;
 import com.iscas.workingdiary.bean.Cert;
 import com.iscas.workingdiary.bean.CertInfo;
 import com.iscas.workingdiary.bean.Integral;
 import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.config.ConstantProperties;
-import com.iscas.workingdiary.mapper.CertMapper;
 import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.RepChainUtils;
 import com.iscas.workingdiary.util.cert.CertUtils;
-import com.iscas.workingdiary.util.encrypt.AESCrypt;
 import com.iscas.workingdiary.util.encrypt.Base64Utils;
 import com.iscas.workingdiary.util.encrypt.MD5Utils;
-import com.iscas.workingdiary.util.exception.StateCode;
+import com.iscas.workingdiary.bean.ResponseStatus;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.JsonResult;
 import com.iscas.workingdiary.util.json.ResultData;
-import com.sun.org.apache.regexp.internal.RE;
-import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Role;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.io.IOException;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -134,13 +123,13 @@ public class UserController {
             }
             user.setRegisterTime(new Timestamp(System.currentTimeMillis()));
             userService.userRegister(user, cert);
-            resultData = new ResultData(StateCode.SUCCESS, "注册成功");
+            resultData = new ResultData(ResponseStatus.SUCCESS, "注册成功");
         } catch (DuplicateKeyException de){
             log.error(de.getMessage());
-            resultData = new ResultData(StateCode.DB_ALREADY_EXIST_ERROR, "该用户已存在，请勿重复注册");
+            resultData = new ResultData(ResponseStatus.DB_ALREADY_EXIST_ERROR, "该用户已存在，请勿重复注册");
         } catch (Exception e){
             e.printStackTrace();
-            resultData = new ResultData(StateCode.DB_INSERT_ERROR,  "注册失败");
+            resultData = new ResultData(ResponseStatus.DB_INSERT_ERROR,  "注册失败");
         }
         return resultData;
     }
@@ -156,13 +145,13 @@ public class UserController {
         try {
             User checkUser = userService.selectUserByName(userName);  //验证用户名
             if (checkUser == null){
-                resultData = new ResultData(StateCode.SUCCESS,  "用户名可用");
+                resultData = new ResultData(ResponseStatus.SUCCESS,  "用户名可用");
             } else {
-                resultData = new ResultData(StateCode.DB_ALREADY_EXIST_ERROR,  "用户已存在");
+                resultData = new ResultData(ResponseStatus.DB_ALREADY_EXIST_ERROR,  "用户已存在");
             }
         } catch (Exception e){
             e.printStackTrace();
-            resultData = new ResultData(StateCode.DB_QUERY_ERROR,  "数据库异常");
+            resultData = new ResultData(ResponseStatus.DB_QUERY_ERROR,  "数据库异常");
         }
         return resultData;
     }
@@ -178,13 +167,13 @@ public class UserController {
         try {
             User checkUser = userService.findUserById(userId);  //验证用户ID
             if (checkUser == null){
-                resultData = new ResultData(StateCode.SUCCESS,  "ID可用");
+                resultData = new ResultData(ResponseStatus.SUCCESS,  "ID可用");
             } else {
-                resultData = new ResultData(StateCode.DB_ALREADY_EXIST_ERROR,  "用户ID已存在");
+                resultData = new ResultData(ResponseStatus.DB_ALREADY_EXIST_ERROR,  "用户ID已存在");
             }
         } catch (Exception e){
             e.printStackTrace();
-            resultData = new ResultData(StateCode.DB_QUERY_ERROR,  "数据库异常");
+            resultData = new ResultData(ResponseStatus.DB_QUERY_ERROR,  "数据库异常");
         }
         return resultData;
     }
@@ -209,7 +198,7 @@ public class UserController {
             resultData = ResultData.updateSuccess();
         } catch (Exception e){
             e.printStackTrace();
-            resultData = new ResultData(StateCode.DB_UPDATE_ERROR,  "更新失败");
+            resultData = new ResultData(ResponseStatus.DB_UPDATE_ERROR,  "更新失败");
         }
         return resultData;
     }
@@ -230,10 +219,10 @@ public class UserController {
             User user = userService.selectUserByName(userName);
             if (user.getPassword().equals(bCryptPasswordEncoder.encode(oldPassword))){
                 userService.modifyPassword(userName, newPassword);
-                resultData = new ResultData(StateCode.SUCCESS, "密码修改成功");
+                resultData = new ResultData(ResponseStatus.SUCCESS, "密码修改成功");
             }
         }catch (Exception e){
-            resultData = new ResultData(StateCode.DB_ERROR, "系统错误");
+            resultData = new ResultData(ResponseStatus.DB_ERROR, "系统错误");
         }
         return resultData;
     }
@@ -255,10 +244,10 @@ public class UserController {
             }
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("totalIntegral", totalIntegral);
-            resultData = new ResultData(StateCode.SUCCESS,"success", jsonObject);
+            resultData = new ResultData(ResponseStatus.SUCCESS,"success", jsonObject);
         }catch (Exception e){
             e.printStackTrace();
-            resultData = new ResultData(StateCode.DB_ERROR,"查询失败");
+            resultData = new ResultData(ResponseStatus.DB_ERROR,"查询失败");
         }
         return resultData;
     }
@@ -299,13 +288,13 @@ public class UserController {
             User user = userService.selectUserByName(userName);
             if (bCryptPasswordEncoder.matches(rawPassword, user.getPassword())){
                 userService.destoryAccount(userName);
-                resultData = new ResultData(StateCode.SUCCESS, "删除成功");
+                resultData = new ResultData(ResponseStatus.SUCCESS, "删除成功");
             } else {
-                resultData = new ResultData(StateCode.DB_DELETE_ERROR, "密码校验失败");
+                resultData = new ResultData(ResponseStatus.DB_DELETE_ERROR, "密码校验失败");
             }
         } catch (Exception e){
             e.printStackTrace();
-            resultData = new ResultData(StateCode.DB_DELETE_ERROR, "删除失败");
+            resultData = new ResultData(ResponseStatus.DB_DELETE_ERROR, "删除失败");
         }
 
         JsonResult.resultJson(response, request, resultData);

@@ -1,6 +1,8 @@
-package com.iscas.workingdiary.util.exception;
+package com.iscas.workingdiary.exception;
 
 public class RuntimeWebException extends RuntimeException{
+
+    private static final long serialVersionUID = 4068183781296431113L;
 
     public RuntimeWebException() {
         super();

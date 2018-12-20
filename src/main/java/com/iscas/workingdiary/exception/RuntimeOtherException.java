@@ -1,4 +1,4 @@
-package com.iscas.workingdiary.util.exception;
+package com.iscas.workingdiary.exception;
 
 /**
  * 其他异常

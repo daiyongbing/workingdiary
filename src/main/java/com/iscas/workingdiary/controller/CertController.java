@@ -12,7 +12,7 @@ import com.iscas.workingdiary.util.RepChainUtils;
 import com.iscas.workingdiary.util.cert.CertUtils;
 import com.iscas.workingdiary.util.encrypt.Base64Utils;
 import com.iscas.workingdiary.util.encrypt.MD5Utils;
-import com.iscas.workingdiary.util.exception.StateCode;
+import com.iscas.workingdiary.bean.ResponseStatus;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -58,7 +56,7 @@ public class CertController {
             certService.deleteCertByCertNo(certNo);
             resultData = ResultData.deleteSuccess();
         }catch (Exception e){
-            resultData = new ResultData(StateCode.DB_DELETE_ERROR, "删除失败");
+            resultData = new ResultData(ResponseStatus.DB_DELETE_ERROR, "删除失败");
         }
         return resultData;
     }
@@ -70,7 +68,7 @@ public class CertController {
             //certService.deleteCertByUserId(userId);
             resultData = ResultData.deleteSuccess();
         }catch (Exception e){
-            resultData = new ResultData(StateCode.DB_DELETE_ERROR, "删除失败");
+            resultData = new ResultData(ResponseStatus.DB_DELETE_ERROR, "删除失败");
         }
         return resultData;
     }
@@ -86,9 +84,9 @@ public class CertController {
         ResultData resultData = null;
         try {
             cert =  certService.queryCert(certNo);
-            resultData = new ResultData(StateCode.SUCCESS, "查询成功", cert);
+            resultData = new ResultData(ResponseStatus.SUCCESS, "查询成功", cert);
         } catch (Exception e){
-            resultData = new ResultData(StateCode.DB_QUERY_ERROR, "查询失败");
+            resultData = new ResultData(ResponseStatus.DB_QUERY_ERROR, "查询失败");
         }
 
         return resultData;
@@ -185,9 +183,9 @@ public class CertController {
                 certService.insertCert(cert);
                 certUtils.generateJksWithCert(certificate, keyPair, password, properties.getJksPath(), certInfo[0]);   //保存jks文件到服务器
                 certUtils.saveCertAsPEM(certificate, properties.getCertPath(), certInfo[0]); // 保存cer到服务器
-                resultData = new ResultData(StateCode.SUCCESS, "success", addr);
+                resultData = new ResultData(ResponseStatus.SUCCESS, "success", addr);
         }catch (Exception e){
-            resultData = new ResultData(StateCode.DB_INSERT_ERROR, "证书插入失败");
+            resultData = new ResultData(ResponseStatus.DB_INSERT_ERROR, "证书插入失败");
         }
         return resultData;
     }
@@ -198,12 +196,13 @@ public class CertController {
      * @return
      */
     @PostMapping(value = "upload", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData uploadCert(@RequestParam("fileName") MultipartFile file){
+    public ResultData uploadCert(HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file){
+        String authHeader = request.getHeader("");
         ResultData resultData;
         String fileName = file.getOriginalFilename();
         String md5 = "";
         if(file.isEmpty() || file.getSize()>1048576){ // 文件最大2M
-            resultData = new ResultData(StateCode.SERVER_PARAM_ERROR, "文件最大为2M且不能为空");
+            resultData = new ResultData(ResponseStatus.SERVER_PARAM_ERROR, "文件最大为2M且不能为空");
         } else {
             try {
                 md5 = MD5Utils.bytesMD5(file.getBytes());
@@ -221,11 +220,11 @@ public class CertController {
             }
             try {
                 file.transferTo(dest); //保存文件
-                resultData = new ResultData(StateCode.SUCCESS, "success");
+                resultData = new ResultData(ResponseStatus.SUCCESS, "success");
             } catch (IllegalStateException e) {
-                resultData = new ResultData(StateCode.SERVER_ERROR, "IllegalStateException");
+                resultData = new ResultData(ResponseStatus.SERVER_ERROR, "IllegalStateException");
             } catch (IOException e) {
-                resultData = new ResultData(StateCode.SERVER_ERROR, "IOException");
+                resultData = new ResultData(ResponseStatus.SERVER_ERROR, "IOException");
             }
         }
         return resultData;

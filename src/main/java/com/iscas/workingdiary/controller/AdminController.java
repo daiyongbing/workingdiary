@@ -9,21 +9,15 @@ import com.iscas.workingdiary.service.AdminService;
 import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.util.RepChainUtils;
-import com.iscas.workingdiary.util.encrypt.Base64Utils;
-import com.iscas.workingdiary.util.exception.StateCode;
-import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
+import com.iscas.workingdiary.bean.ResponseStatus;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Role;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,7 +54,7 @@ public class AdminController {
             e.printStackTrace();
         }
         if (cert == null){
-            resultData = new ResultData(StateCode.DB_CERT_NOT_EXIST, "该用户没有上传证书");
+            resultData = new ResultData(ResponseStatus.DB_CERT_NOT_EXIST, "该用户没有上传证书");
         } else {
             String pemCert = cert.getPemCert();
             String certInfo = cert.getCertInfo();
@@ -75,7 +69,7 @@ public class AdminController {
         cert.setCertAddr(addr);
         cert.setCertStatus("1");
         certService.updateCert(cert);
-        resultData = new ResultData(StateCode.SUCCESS, "success");
+        resultData = new ResultData(ResponseStatus.SUCCESS, "success");
         return resultData;
     }
 
@@ -108,7 +102,7 @@ public class AdminController {
             resultData = ResultData.updateSuccess();
         } catch (Exception e){
             e.printStackTrace();
-            resultData = new ResultData(StateCode.DB_UPDATE_ERROR, "系统错误");
+            resultData = new ResultData(ResponseStatus.DB_UPDATE_ERROR, "系统错误");
         }
         return resultData;
     }

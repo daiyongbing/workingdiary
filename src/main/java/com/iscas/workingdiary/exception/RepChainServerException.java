@@ -1,4 +1,4 @@
-package com.iscas.workingdiary.util.exception;
+package com.iscas.workingdiary.exception;
 
 /**
  * RepChain服务器异常
