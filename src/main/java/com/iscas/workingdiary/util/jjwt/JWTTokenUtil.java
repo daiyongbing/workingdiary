@@ -3,6 +3,7 @@ package com.iscas.workingdiary.util.jjwt;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -41,12 +42,8 @@ public class JWTTokenUtil {
     }
 
     public static Claims parseToken(String token) {
-        try {
             return Jwts.parser()
                     .setSigningKey(publicKey)
                     .parseClaimsJws(token.replace("Bearer ", "")).getBody();
-        } catch (MalformedJwtException | ExpiredJwtException | SignatureException e){    //token格式异常
-            return null;
-        }
     }
 }

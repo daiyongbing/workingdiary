@@ -21,6 +21,9 @@ public class ConstantProperties {
     @Value("${jks.path}")
     private String jksPath;
 
+    @Value("${http.header.authorization}")
+    private String authorization;
+
     public String getChaincodeId() {
         return chaincodeId;
     }
@@ -59,6 +62,14 @@ public class ConstantProperties {
 
     public void setJksPath(String jksPath) {
         this.jksPath = jksPath;
+    }
+
+    public String getAuthorization() {
+        return authorization;
+    }
+
+    public void setAuthorization(String authorization) {
+        this.authorization = authorization;
     }
 
 }
