@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * 实现token的校验功能
+ * 实现token的校验功能，特别注意，当Authorization为null时一定要放行，否则所有的接口都会被拦截下来导致访问任何接口都需要token
  */
 
 @Component
@@ -36,34 +36,32 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         logger.info("JWTAuthenticationFilter -> doFilterInternal");
         final String authHeader = request.getHeader("Authorization");
-        if (authHeader == null) {
-            JWTTokenExceptionHandler.noAuthorizationException(response);
-            return;
-        }
-        if (!authHeader.startsWith("Bearer ")) {
-            JWTTokenExceptionHandler.invalidAuthFormatException(response);
-            return;
-        }
-        try {
-            String username = JWTTokenUtil.parseToken(authHeader).getSubject();
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-                if (userDetails != null) {
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+        if (authHeader != null){
+            if (!authHeader.startsWith("Bearer ")) {
+                JWTTokenExceptionHandler.invalidAuthFormatException(response);
+                return;
             }
-        } catch (ExpiredJwtException e) {
-            JWTTokenExceptionHandler.expiredAuthorizationException(response);
-            return;
-        } catch (SignatureException e){
-            JWTTokenExceptionHandler.invalidAuthorizationException(response);
-        } catch (MalformedJwtException e){
-            JWTTokenExceptionHandler.invalidAuthorizationException(response);
-            return;
+            try {
+                String username = JWTTokenUtil.parseToken(authHeader).getSubject();
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                    if (userDetails != null) {
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                }
+            } catch (ExpiredJwtException e) {
+                JWTTokenExceptionHandler.expiredAuthorizationException(response);
+                return;
+            } catch (SignatureException e){
+                JWTTokenExceptionHandler.invalidAuthorizationException(response);
+            } catch (MalformedJwtException e){
+                JWTTokenExceptionHandler.invalidAuthorizationException(response);
+                return;
+            }
         }
         chain.doFilter(request, response);
     }

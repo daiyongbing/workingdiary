@@ -51,11 +51,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     JWTAuthenticationFilter jwtAuthenticationTokenFilter; // JWT 拦截器
 
-   /* public WebSecurityConfig(CustomUserDetailsService userDetailService, BCryptPasswordEncoder cryptPasswordEncoder) {
-        this.userDetailsService = userDetailService;
-        this.bCryptPasswordEncoder = cryptPasswordEncoder;
-    }*/
-
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
@@ -63,35 +58,29 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // 去掉 CSRF
+        //禁用CSRF
         http.csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 使用 JWT，关闭token
+                // 使用JWT，关闭session
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
 
-                .httpBasic().authenticationEntryPoint(authenticationEntryPoint)
-                .and()
+                // 开启http登录验证
+                //.httpBasic()//.authenticationEntryPoint(authenticationEntryPoint)
+
+                //.and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/user/register").permitAll() //开放注册接口和验证接口
-                .antMatchers(HttpMethod.GET, "/user/checkname","/user/checkid", "/swagger-ui.html").permitAll() //开发验证接口
+                .antMatchers(HttpMethod.POST, "/user/register").permitAll() //开放注册接口
+                .antMatchers(HttpMethod.GET, "/user/checkname","/user/checkid", "/swagger-ui.html").permitAll() //开放验证接口
                 .antMatchers("/admin").hasRole("ADMIN") // 只有管理员能访问/admin/**
-                .anyRequest().authenticated() //所有接口都必须经过身份验证
-                .and()
-
-                .authorizeRequests()
-
                 .anyRequest()
                 .access("@rbacauthorityservice.hasPermission(request,authentication)") // RBAC 动态 url 认证
-
-               /*
-               // 表单登录时启用，REST api忽略此项
-                .and()
-                .formLogin()
-                .successHandler(authenticationSuccessHandler)
-                .failureHandler(authenticationFailureHandler)*/
+                //.authenticated() //所有接口都必须经过身份验证
 
                 .and()
-                .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilter(jwtLoginFilter(authenticationManager()))
+                //.addFilterAfter(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .csrf().disable();
     }
 }
