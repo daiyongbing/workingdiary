@@ -19,7 +19,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse response, AccessDeniedException e) throws IOException, ServletException {
         ResponseBody responseBody = new ResponseBody();
-        responseBody.setStatus("304");
+        responseBody.setCode(304);
         responseBody.setMessage("拒绝访问");
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(JSON.toJSONString(responseBody));

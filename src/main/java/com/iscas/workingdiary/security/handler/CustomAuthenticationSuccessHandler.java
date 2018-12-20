@@ -20,7 +20,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         ResponseBody responseBody = new ResponseBody();
 
-        responseBody.setStatus("200");
+        responseBody.setCode(200);
         responseBody.setMessage("登录成功");
         /*UserDetail userDetails = (UserDetail) authentication.getPrincipal().;
         String jwtToken = JWTTokenUtil.generateToken(userDetails);

@@ -5,11 +5,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.io.Serializable;
 
-@JsonPropertyOrder({"status","message","jwtToken","result"})
+@JsonPropertyOrder({"code","message","jwtToken","result"})
 public class ResponseBody implements Serializable {
     private static final long serialVersionUID = -5319014441208372654L;
-    @JsonProperty("status")
-    private String status;
+
+    @JsonProperty("code")
+    private int code;
     @JsonProperty("message")
     private String message;
     @JsonProperty("result")
@@ -17,12 +18,13 @@ public class ResponseBody implements Serializable {
     @JsonProperty("jwtToken")
     private String jwtToken;
 
-    public String getStatus() {
-        return status;
+
+    public int getCode() {
+        return code;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setCode(int code) {
+        this.code = code;
     }
 
     public String getMessage() {

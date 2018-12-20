@@ -21,6 +21,7 @@ public class JWTTokenExceptionHandler {
         response.setContentType("application/json;charset=UTF-8");
         ResponseBody responseBody = new ResponseBody();
         responseBody.setMessage("No Authorization");
+        responseBody.setCode(401);
         response.getWriter().write(JSON.toJSONString(responseBody));
     }
 
@@ -33,6 +34,7 @@ public class JWTTokenExceptionHandler {
         response.setStatus(ResponseStatus.CLIENT_JWTTOKEN_NULL_ERROR);
         response.setContentType("application/json;charset=UTF-8");
         ResponseBody responseBody = new ResponseBody();
+        responseBody.setCode(401);
         responseBody.setMessage("Invalid Authorization");
         try {
             response.getWriter().write(JSON.toJSONString(responseBody));
@@ -50,6 +52,7 @@ public class JWTTokenExceptionHandler {
         response.setContentType("application/json;charset=UTF-8");
         ResponseBody responseBody = new ResponseBody();
         responseBody.setMessage("not Bearer token");
+        responseBody.setCode(401);
         try {
             response.getWriter().write(JSON.toJSONString(responseBody));
         } catch (IOException e) {
@@ -66,6 +69,7 @@ public class JWTTokenExceptionHandler {
         response.setContentType("application/json;charset=UTF-8");
         ResponseBody responseBody = new ResponseBody();
         responseBody.setMessage("Expired Authorization");
+        responseBody.setCode(401);
         try {
             response.getWriter().write(JSON.toJSONString(responseBody));
         } catch (IOException e) {

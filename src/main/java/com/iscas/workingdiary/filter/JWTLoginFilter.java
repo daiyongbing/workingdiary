@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iscas.workingdiary.bean.CustomUserDetails;
 import com.iscas.workingdiary.bean.ResponseBody;
-import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
@@ -58,22 +59,24 @@ public class JWTLoginFilter extends UsernamePasswordAuthenticationFilter {
     // 用户成功登录后生成token返回给前端
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication auth) throws IOException, ServletException {
-        String token = JWTTokenUtil.generateToken(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername(), null);
+        //SecurityContextHolder.getContext().setAuthentication(auth);
+        String token = JWTTokenUtil.generateToken(((User)auth.getPrincipal()).getUsername(), null);
         response.setContentType("application/json;charset=UTF-8");
-        //response.addHeader("Authorization", "Bearer " + token);
+        response.setStatus(200);
         ResponseBody responseBody = new ResponseBody();
         responseBody.setJwtToken("Bearer " + token);
         responseBody.setMessage("登录成功");
-        responseBody.setStatus("200");
+        responseBody.setCode(200);
         response.getWriter().write(JSON.toJSONString(responseBody));
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(201);
         ResponseBody responseBody = new ResponseBody();
         responseBody.setMessage("用户名或密码错误");
-        responseBody.setStatus("201");
+        responseBody.setCode(201);
         response.getWriter().write(JSON.toJSONString(responseBody));
     }
 }
