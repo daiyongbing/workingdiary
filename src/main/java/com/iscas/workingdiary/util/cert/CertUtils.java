@@ -87,11 +87,53 @@ public class CertUtils {
     }
 
     /**
-     * 将Certificate序列化为pem格式的文件
+     * 将Certificate转换成pem字符串
+     * @param certificate
+     * @return
+     */
+    public String getPemFromCertificate(Certificate certificate){
+        String encode = null;
+        try {
+            encode = Base64Utils.encode2String(certificate.getEncoded());
+        } catch (CertificateEncodingException e) {
+            e.printStackTrace();
+        }
+        StringBuffer stringBuffer =  new StringBuffer(encode);
+        int index;
+        for (index=64; index<stringBuffer.length(); index+=65){
+            stringBuffer.insert(index, "\n");
+        }
+        String pemCert = "-----BEGIN CERTIFICATE-----\r\n" + stringBuffer + "\r\n-----END CERTIFICATE-----\r\n";
+        return pemCert;
+    }
+
+    /**
+     * 反序列化证书
+     * @param pemcert
+     * @return
+     */
+    public static Certificate getCertByPem (String pemcert) {
+        CertificateFactory cf = null;
+        try {
+            cf = CertificateFactory.getInstance("X.509");
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        }
+        Certificate cert = null;
+        try {
+            cert = cf.generateCertificate(new ByteArrayInputStream(pemcert.getBytes()));
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        }
+        return cert;
+    }
+
+    /**
+     * 将Certificate序列化为pem格式后保存到文件系统文件
      * @param certificate
      * @param path
      */
-    public void saveCertAsPEM(Certificate certificate, String path, String certName){
+    public void savePemCertAsFile(Certificate certificate, String path, String certName){
         String encodedCert = null;
         try {
             encodedCert = Base64Utils.encode2String(certificate.getEncoded());
@@ -119,26 +161,6 @@ public class CertUtils {
         }
     }
 
-    /**
-     * 
-     * @param certificate
-     * @return
-     */
-    public String getCertPEM(Certificate certificate){
-        String encode = null;
-        try {
-            encode = Base64Utils.encode2String(certificate.getEncoded());
-        } catch (CertificateEncodingException e) {
-            e.printStackTrace();
-        }
-        StringBuffer stringBuffer =  new StringBuffer(encode);
-        int index;
-        for (index=64; index<stringBuffer.length(); index+=65){
-            stringBuffer.insert(index, "\n");
-        }
-        String pemCert = "-----BEGIN CERTIFICATE-----\r\n" + stringBuffer + "\r\n-----END CERTIFICATE-----\r\n";
-        return Base64Utils.encode2String(pemCert);
-    }
 
     /**
      * 生成带密码的空jks
@@ -213,9 +235,39 @@ public class CertUtils {
         }
     }
 
-    public String encryptPrivateKey(PrivateKey privateKey, String password){ ;
-        return AESCrypt.encrypt2String(privateKey.getEncoded(), MD5Utils.crypt16Byte(password));
+    /**
+     * 加密私钥
+     * @param privateKey
+     * @param password
+     * @return
+     */
+    public static String encryptPrivateKey(PrivateKey privateKey, String password){ ;
+        byte[] bytes = AESCrypt.encrypt2Bytes(privateKey.getEncoded(), MD5Utils.crypt16Byte(password));
+        return Base64Utils.encode2String(bytes);
     }
+
+    public static PrivateKey decryptPrivateKey(String encryptPrivateKey, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        byte[] aesEncryptedKey = Base64Utils.decode2Bytes(encryptPrivateKey);
+        byte[] privateKeyBytes = AESCrypt.decrypt2bytes(aesEncryptedKey, MD5Utils.crypt16Byte(password));
+        return loadPrivateKey(privateKeyBytes, ALGORITHM_CURVE_SECP256K1);
+
+    }
+
+    /**
+     * 读取私钥
+     * @param encodedKey
+     * @param algorithm
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
+    public static PrivateKey loadPrivateKey(byte[] encodedKey,  String algorithm)
+            throws NoSuchAlgorithmException, InvalidKeySpecException{
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encodedKey);
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+        return keyFactory.generatePrivate(keySpec);
+    }
+
 
     /**
      * 从字符串中提取证书
@@ -353,20 +405,6 @@ public class CertUtils {
         return keyFactory.generatePublic(keySpec);
     }
 
-    /**
-     * 读取私钥
-     * @param encodedKey
-     * @param algorithm
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeySpecException
-     */
-    public static PrivateKey loadPrivateKey(byte[] encodedKey,  String algorithm)
-            throws NoSuchAlgorithmException, InvalidKeySpecException{
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encodedKey);
-        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
-        return keyFactory.generatePrivate(keySpec);
-    }
 
     /**
      * readBytes代码
@@ -422,24 +460,5 @@ public class CertUtils {
     }
 
 
-    /**
-     * 反序列化证书
-     * @param pemcert
-     * @return
-     */
-    public static Certificate getCertByPem (String pemcert) {
-        CertificateFactory cf = null;
-        try {
-            cf = CertificateFactory.getInstance("X.509");
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        }
-        Certificate cert = null;
-        try {
-            cert = cf.generateCertificate(new ByteArrayInputStream(pemcert.getBytes()));
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        }
-        return cert;
-    }
+
 }

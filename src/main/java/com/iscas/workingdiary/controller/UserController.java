@@ -11,7 +11,8 @@ import com.iscas.workingdiary.config.ConstantProperties;
 import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.service.UserService;
-import com.iscas.workingdiary.util.RepChainUtils;
+import com.iscas.workingdiary.util.repchain.CustomRepChainClient;
+import com.iscas.workingdiary.util.repchain.RepChainUtils;
 import com.iscas.workingdiary.util.cert.CertUtils;
 import com.iscas.workingdiary.util.encrypt.Base64Utils;
 import com.iscas.workingdiary.util.encrypt.MD5Utils;
@@ -31,6 +32,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -78,7 +81,7 @@ public class UserController {
             keyPair = certUtils.generateKeyPair();
             certificate = certUtils.generateCert(certInfo, keyPair);    // generate cert
             //addr = BitcoinUtils.calculateBitcoinAddress(certificate.getPublicKey().getEncoded());    //计算证书短地址,避免计算错误不在此计算，认证时由RepChain计算返回
-            pemCert = certUtils.getCertPEM(certificate);     // 获取pemcert
+            pemCert = Base64Utils.encode2String(certUtils.getPemFromCertificate(certificate));     // 获取pemcert
             certNo = MD5Utils.stringMD5(pemCert); //使用pemCert的MD5作为证书编号
             encyptPrivateKey = certUtils.encryptPrivateKey(keyPair.getPrivate(), password);    //加密私钥
         }catch (Exception e){
@@ -95,7 +98,7 @@ public class UserController {
         cert.setCreateTime(new Timestamp(System.currentTimeMillis()));
         try {
             certUtils.generateJksWithCert(certificate, keyPair, password, properties.getJksPath(), certInfo[0]);   //保存jks文件到服务器
-            certUtils.saveCertAsPEM(certificate, properties.getCertPath(), certInfo[0]); // 保存cer到服务器
+            certUtils.savePemCertAsFile(certificate, properties.getCertPath(), certInfo[0]); // 保存cer到服务器
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -310,9 +313,12 @@ public class UserController {
 
     public JSONObject queryIntegralFromRepChain(){
         String userName = "";
+        Certificate certificate = null;
+        PrivateKey privateKey = null;
         RepChainClient repChainClient = repClient.getRepClient();
+        CustomRepChainClient customRepChainClient = repClient.getCustomRepClient(certificate,privateKey);
         List<String> argsList = repClient.getParamList(userName);
-        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"queryIntegral", argsList);
+        String hexTransaction = RepChainUtils.createHexTransaction(customRepChainClient, repClient.getChaincodeId(),"queryIntegral", argsList);
         return repChainClient.postTranByString(hexTransaction);
     }
 

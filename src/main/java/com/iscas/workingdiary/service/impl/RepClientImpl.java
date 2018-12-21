@@ -1,31 +1,37 @@
 package com.iscas.workingdiary.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.client.Client;
 import com.client.RepChainClient;
+import com.iscas.workingdiary.config.ConstantProperties;
 import com.iscas.workingdiary.service.RepClient;
+import com.iscas.workingdiary.util.repchain.CustomRepChainClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service()
 public class RepClientImpl implements RepClient {
-    // 开发阶段方便测试，暂时使用固定的jks和chaincodeId，后续考虑其他解决方法
-    private final String chaincodeId = "ba9aa936765c3f2582387ed53684665e8307613741f7ed82e74ef2233a466e35";
-    private final String host = "192.168.21.14:8081";
+    @Autowired
+    private ConstantProperties properties;
+    private final String chaincodeId = properties.getChaincodeId();
+    private final String host = properties.getRepchainHost();
     private final String jks = "jks/mykeystore_1.jks";
     private final String alias = "1";
-
-    /*private final String jks = "userjks/daiyongbing.jks";
-    private final String alias = "daiyongbing";*/
-
-   /*private final String jks = "userjks/hujing.jks";
-    private final String alias = "hujing";*/
     private final String jkspwd = "123";
 
     @Override
     public RepChainClient getRepClient() {
         return  new RepChainClient(host,jks,jkspwd, alias);
+    }
+
+    @Override
+    public CustomRepChainClient getCustomRepClient(Certificate cert, PrivateKey privateKey) {
+        return new CustomRepChainClient(this.host, cert, privateKey);
     }
 
     public String getChaincodeId() {

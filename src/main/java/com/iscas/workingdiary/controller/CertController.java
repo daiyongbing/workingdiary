@@ -8,7 +8,8 @@ import com.iscas.workingdiary.config.ConstantProperties;
 import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.util.FileUtils;
-import com.iscas.workingdiary.util.RepChainUtils;
+import com.iscas.workingdiary.util.repchain.CustomRepChainClient;
+import com.iscas.workingdiary.util.repchain.RepChainUtils;
 import com.iscas.workingdiary.util.cert.CertUtils;
 import com.iscas.workingdiary.util.encrypt.Base64Utils;
 import com.iscas.workingdiary.util.encrypt.MD5Utils;
@@ -164,7 +165,7 @@ public class CertController {
             keyPair = certUtils.generateKeyPair();
             certificate = certUtils.generateCert(certInfo, keyPair);    // generate cert
             addr = BitcoinUtils.calculateBitcoinAddress(certificate.getPublicKey().getEncoded());    //计算证书短地址
-            pemCert = certUtils.getCertPEM(certificate);     // 获取pemcert
+            pemCert = Base64Utils.encode2String(certUtils.getPemFromCertificate(certificate));     // 获取pemcert
             certNo = MD5Utils.stringMD5(pemCert); //使用pemCert的MD5作为证书编号
             encyptPrivateKey = certUtils.encryptPrivateKey(keyPair.getPrivate(), password);    //加密私钥
         }catch (Exception e){
@@ -182,7 +183,7 @@ public class CertController {
         try {
                 certService.insertCert(cert);
                 certUtils.generateJksWithCert(certificate, keyPair, password, properties.getJksPath(), certInfo[0]);   //保存jks文件到服务器
-                certUtils.saveCertAsPEM(certificate, properties.getCertPath(), certInfo[0]); // 保存cer到服务器
+                certUtils.savePemCertAsFile(certificate, properties.getCertPath(), certInfo[0]); // 保存cer到服务器
                 resultData = new ResultData(ResponseStatus.SUCCESS, "success", addr);
         }catch (Exception e){
             resultData = new ResultData(ResponseStatus.DB_INSERT_ERROR, "证书插入失败");
@@ -290,16 +291,18 @@ public class CertController {
     @PostMapping("signCert")
     public JSONObject signCert(@RequestBody JSONObject param){
         RepChainClient repChainClient = repClient.getRepClient();
+        CustomRepChainClient customRepChainClient = repClient.getCustomRepClient(null, null);
         List<String> argsList = repClient.getParamList(param);
-        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"certProof", argsList);
+        String hexTransaction = RepChainUtils.createHexTransaction(customRepChainClient, repClient.getChaincodeId(),"certProof", argsList);
         return repChainClient.postTranByString(hexTransaction);
     }
 
     @GetMapping(value = "destroy")
     public JSONObject destroyCert(@RequestParam("certAddr") String addr){
         RepChainClient repChainClient = repClient.getRepClient();
+        CustomRepChainClient customRepChainClient = repClient.getCustomRepClient(null, null);
         List<String> argsList = repClient.getParamList(addr);
-        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"destroyCert", argsList);
+        String hexTransaction = RepChainUtils.createHexTransaction(customRepChainClient, repClient.getChaincodeId(),"destroyCert", argsList);
         return repChainClient.postTranByString(hexTransaction);
     }
 

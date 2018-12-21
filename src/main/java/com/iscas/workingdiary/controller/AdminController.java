@@ -8,7 +8,8 @@ import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.service.AdminService;
 import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.service.RepClient;
-import com.iscas.workingdiary.util.RepChainUtils;
+import com.iscas.workingdiary.util.repchain.CustomRepChainClient;
+import com.iscas.workingdiary.util.repchain.RepChainUtils;
 import com.iscas.workingdiary.bean.ResponseStatus;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +62,9 @@ public class AdminController {
             jsonObject.put(pemCert, certInfo);
         }
         RepChainClient repChainClient = repClient.getRepClient();
+        CustomRepChainClient customRepChainClient = repClient.getCustomRepClient(null, null);
         List<String> argsList = repClient.getParamList(jsonObject);
-        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"certProof", argsList);
+        String hexTransaction = RepChainUtils.createHexTransaction(customRepChainClient, repClient.getChaincodeId(),"certProof", argsList);
         JSONObject signResult = repChainClient.postTranByString(hexTransaction);
 
         String addr = signResult.getString("result");

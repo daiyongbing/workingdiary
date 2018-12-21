@@ -70,8 +70,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //.and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/user/register").permitAll() //开放注册接口
-                .antMatchers(HttpMethod.GET, "/user/checkname","/user/checkid", "/swagger-ui.html").permitAll() //开放验证接口
+                .antMatchers(HttpMethod.GET, "/user/checkname","/user/checkid").permitAll() //开放验证接口
                 .antMatchers("/admin").hasRole("ADMIN") // 只有管理员能访问/admin/**
+                .mvcMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
                 .anyRequest()
                 .access("@rbacauthorityservice.hasPermission(request,authentication)") // RBAC 动态 url 认证
                 //.authenticated() //所有接口都必须经过身份验证
@@ -79,8 +80,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilter(jwtLoginFilter(authenticationManager()))
                 //.addFilterAfter(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
-                .csrf().disable();
     }
 }

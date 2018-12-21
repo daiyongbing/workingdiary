@@ -1,7 +1,7 @@
-package com.iscas.workingdiary.util;
+package com.iscas.workingdiary.util.repchain;
 
 import com.alibaba.fastjson.JSON;
-import com.client.RepChainClient;
+import com.iscas.workingdiary.util.Byte2Hex;
 import com.protos.Peer;
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class RepChainUtils {
 
-    public static String createHexTransaction(RepChainClient repChainClient, String chainCodeId, String functionName, List args ){
+    public static String createHexTransaction(CustomRepChainClient repChainClient, String chainCodeId, String functionName, List args ){
 
         Peer.Transaction transaction = null;
         try {

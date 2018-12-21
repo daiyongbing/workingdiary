@@ -43,27 +43,6 @@ public final class AESCrypt {
         return base64Encoded;
     }
 
-    public static String encrypt2String(byte[] bytes, String encypt_password){
-        byte[] keyBytes = new byte[0];
-        try {
-            keyBytes = encypt_password.getBytes("utf-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
-        Cipher cipher = null;
-        byte[] aesEncrypted = null;
-        try {
-            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
-            aesEncrypted = cipher.doFinal(bytes);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        String base64Encoded = Base64.getEncoder().encodeToString(aesEncrypted);
-        return base64Encoded;
-    }
-
     /**
      * AES解密算法
      * @param base64Str
@@ -91,13 +70,72 @@ public final class AESCrypt {
         }
     }
 
+    /**
+     * 自定义加密密钥加密
+     * @param bytes
+     * @param encypt_password
+     * @return
+     */
+    public static byte[] encrypt2Bytes(byte[] bytes, String encypt_password){
+        byte[] keyBytes = new byte[0];
+        try {
+            keyBytes = encypt_password.getBytes("utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
+        Cipher cipher = null;
+        byte[] aesEncrypted = null;
+        try {
+            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+            aesEncrypted = cipher.doFinal(bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return aesEncrypted;
+    }
+
+    /**
+     * 自定义密钥解密
+     * @param bytes
+     * @param decrypt_password
+     * @return
+     */
+    public static byte[] decrypt2bytes(byte[] bytes, String decrypt_password){
+        try {
+            byte[] keyBytes = decrypt_password.getBytes("utf-8");
+            SecretKeySpec skeySpec = new SecretKeySpec(keyBytes, "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+            try {
+                byte[] original = cipher.doFinal(bytes);
+                return original;
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                return null;
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
+            return null;
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         String cSrc = "123";
+        String password = "0123456789abcdef";
         String enString = AESEncrypt(cSrc);
         System.out.println("加密后的字符串：" + enString);
 
         // 解密
         String DeString = AESDecrypt(enString);
         System.out.println("解密后的字符串：" + DeString);
+
+        //自定义密钥
+        byte[] encrypt2Bytes = encrypt2Bytes(Base64.getEncoder().encode(cSrc.getBytes()),password);
+        System.out.println("自定义密钥加密后："+Base64.getEncoder().encodeToString(encrypt2Bytes));
+
+        String decryptBytes = Base64Utils.decode2String(decrypt2bytes(encrypt2Bytes, password));
+        System.out.println("自定义密钥解密后："+decryptBytes);
     }
 }

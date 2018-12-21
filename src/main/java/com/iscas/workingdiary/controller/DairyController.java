@@ -8,7 +8,9 @@ import com.iscas.workingdiary.bean.Integral;
 import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.service.UserService;
-import com.iscas.workingdiary.util.RepChainUtils;
+import com.iscas.workingdiary.util.cert.CertUtils;
+import com.iscas.workingdiary.util.repchain.CustomRepChainClient;
+import com.iscas.workingdiary.util.repchain.RepChainUtils;
 import com.iscas.workingdiary.util.encrypt.Base64Utils;
 import com.iscas.workingdiary.bean.ResponseStatus;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
@@ -18,13 +20,17 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.spec.InvalidKeySpecException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/diary")
-public class WorkingDairyController {
+public class DairyController {
 
     @Autowired
     private RepClient repClient;
@@ -66,7 +72,17 @@ public class WorkingDairyController {
             jsonObject.put("text", base64Text);
             RepChainClient repChainClient = repClient.getRepClient();
             List<String> argsList = repClient.getParamList(jsonObject);
-            String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"workingDiaryProof", argsList);
+            String cryptPK = cert.getPrivateKey();
+            Certificate certificate = CertUtils.getCertByPem(Base64Utils.decode2String(cert.getPemCert()));
+            PrivateKey privateKey = null;
+            try {
+                privateKey = CertUtils.decryptPrivateKey(cryptPK, "password");
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (InvalidKeySpecException e) {
+                e.printStackTrace();
+            }
+            String hexTransaction = RepChainUtils.createHexTransaction(repClient.getCustomRepClient(certificate, privateKey), repClient.getChaincodeId(),"workingDiaryProof", argsList);
             //repchain返回结果
             repchainResult = repChainClient.postTranByString(hexTransaction);
             String txid = repchainResult.getString("result"); //获得txid
@@ -127,8 +143,9 @@ public class WorkingDairyController {
     @GetMapping(value = "listdiary")
     public JSONObject queryWorkingDairy(@RequestParam("diaryKey")  String diaryKey){
         RepChainClient repChainClient = repClient.getRepClient();
+        CustomRepChainClient customRepChainClient = repClient.getCustomRepClient(null, null);
         List<String> argsList = repClient.getParamList(diaryKey);
-        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"queryWorkingDiary", argsList);
+        String hexTransaction = RepChainUtils.createHexTransaction(customRepChainClient, repClient.getChaincodeId(),"queryWorkingDiary", argsList);
         return repChainClient.postTranByString(hexTransaction);
     }
 

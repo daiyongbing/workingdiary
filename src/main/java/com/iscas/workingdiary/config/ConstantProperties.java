@@ -12,9 +12,6 @@ public class ConstantProperties {
     @Value("${repchain.host}")
     private String repchainHost;
 
-    @Value("${repchain.port}")
-    private String repchainPort;
-
     @Value("${cer.path}")
     private String certPath;
 
@@ -38,14 +35,6 @@ public class ConstantProperties {
 
     public void setRepchainHost(String repchainHost) {
         this.repchainHost = repchainHost;
-    }
-
-    public String getRepchainPort() {
-        return repchainPort;
-    }
-
-    public void setRepchainPort(String repchainPort) {
-        this.repchainPort = repchainPort;
     }
 
     public String getCertPath() {
