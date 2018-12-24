@@ -9,7 +9,6 @@ import com.iscas.workingdiary.bean.Integral;
 import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.config.ConstantProperties;
 import com.iscas.workingdiary.service.CertService;
-import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.repchain.CustomRepChainClient;
 import com.iscas.workingdiary.util.repchain.RepChainUtils;
@@ -58,8 +57,6 @@ public class UserController {
     @Autowired
     private CertService certService;
 
-    @Autowired
-    private RepClient repClient;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -118,7 +115,7 @@ public class UserController {
         User user;
         JSONObject certJson = usercertJson.getJSONObject("certInfo");
         try{
-            user = usercertJson.getJSONObject("user").toJavaObject(User.class);
+            user = usercertJson.getJSONObject("userInfo").toJavaObject(User.class);
             if (certJson.size()>0){
                 cert = generateCert(certJson.toJavaObject(CertInfo.class));
                 cert.setUserName(user.getUserName());
@@ -209,20 +206,24 @@ public class UserController {
     /**
      * 修改密码
      * @param request
-     * @param oldPassword
-     * @param newPassword
+     * @param jsonObject
      * @return
      */
     @PostMapping(value = "modifypassword", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData modifyPassword(HttpServletRequest request, @RequestParam String oldPassword, String newPassword){
+    public ResultData modifyPassword(HttpServletRequest request, @RequestBody JSONObject jsonObject){
         ResultData resultData = null;
+        String oldPassword = jsonObject.getString("oldPassword");
+        String newPassword = jsonObject.getString("newPassword");
         String authHead = request.getHeader("Authorization");
         String userName = JWTTokenUtil.parseToken(authHead).getSubject();
         try {
             User user = userService.selectUserByName(userName);
-            if (user.getPassword().equals(bCryptPasswordEncoder.encode(oldPassword))){
+            //if (user.getPassword().equals(bCryptPasswordEncoder.encode(oldPassword))){
+            if (bCryptPasswordEncoder.matches(oldPassword, user.getPassword())){
                 userService.modifyPassword(userName, newPassword);
                 resultData = new ResultData(ResponseStatus.SUCCESS, "密码修改成功");
+            } else {
+                resultData = new ResultData(ResponseStatus.DB_UPDATE_ERROR, "原密码验证失败");
             }
         }catch (Exception e){
             resultData = new ResultData(ResponseStatus.DB_ERROR, "系统错误");
@@ -315,11 +316,10 @@ public class UserController {
         String userName = "";
         Certificate certificate = null;
         PrivateKey privateKey = null;
-        RepChainClient repChainClient = repClient.getRepClient();
-        CustomRepChainClient customRepChainClient = repClient.getCustomRepClient(certificate,privateKey);
-        List<String> argsList = repClient.getParamList(userName);
-        String hexTransaction = RepChainUtils.createHexTransaction(customRepChainClient, repClient.getChaincodeId(),"queryIntegral", argsList);
-        return repChainClient.postTranByString(hexTransaction);
+        CustomRepChainClient customRepChainClient = new CustomRepChainClient(properties.getRepchainHost(), certificate, privateKey);
+        List<String> argsList = RepChainUtils.getParamList(userName);
+        String hexTransaction = RepChainUtils.createHexTransWithListParam(customRepChainClient,"queryIntegral", argsList);
+        return customRepChainClient.postTranByString(hexTransaction);
     }
 
 }

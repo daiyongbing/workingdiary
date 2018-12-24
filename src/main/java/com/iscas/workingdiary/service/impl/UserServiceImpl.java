@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void modifyPassword(String userName, String newPassword) {
-        userMapper.modifyPassword(userName, newPassword);
+        userMapper.modifyPassword(userName, bCryptPasswordEncoder.encode(newPassword));
     }
 
     @Override

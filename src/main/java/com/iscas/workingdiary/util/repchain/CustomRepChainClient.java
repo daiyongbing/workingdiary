@@ -1,13 +1,18 @@
 package com.iscas.workingdiary.util.repchain;
 
 import com.client.Client;
+import com.client.RepChainClient;
 import com.crypto.BitcoinUtils;
 import com.crypto.ECDSASign;
 import com.crypto.Sha256;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
+import com.iscas.workingdiary.config.ConstantProperties;
 import com.protos.Peer;
 import com.utils.certUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.core.parameters.P;
 import sun.security.ec.ECPublicKeyImpl;
 
 import java.security.PrivateKey;
@@ -20,19 +25,23 @@ import java.util.concurrent.Executors;
 /**
  * 自定义RepChain客户端（原RepChainClient不满足需求：我不希望构建签名交易的jks从文件系统中获取）
  */
-public class CustomRepChainClient extends Client {
-    private String repchainHost;
-    private Certificate cert;
+public class CustomRepChainClient extends RepChainClient {
+    private Certificate certificate;
     private PrivateKey privateKey;
-    private ExecutorService executor = Executors.newCachedThreadPool();
 
     public CustomRepChainClient() {
         super();
     }
 
-    public CustomRepChainClient(String repchainHost, Certificate cert, PrivateKey privateKey) {
-        this.repchainHost = repchainHost;
-        this.cert = cert;
+    public CustomRepChainClient(String host, Certificate certificate, PrivateKey privateKey) {
+        super(host);
+        this.certificate = certificate;
+        this.privateKey = privateKey;
+    }
+
+    public CustomRepChainClient(String host, String jksPath, String password, String alias, Certificate certificate, PrivateKey privateKey) {
+        super(host, jksPath, password, alias);
+        this.certificate = certificate;
         this.privateKey = privateKey;
     }
 
@@ -48,7 +57,7 @@ public class CustomRepChainClient extends Client {
      * @return
      * @throws Exception
      */
-    public Peer.Transaction createTransaction(Peer.Transaction.Type tranType, String chainCodeIdPath,
+    public Peer.Transaction createTransWithPK(Peer.Transaction.Type tranType, String chainCodeIdPath,
                                               String chaincodeInputFunc, String param, String spcPackage, String chaincodeId,
                                               Peer.ChaincodeSpec.CodeType ctype) throws Exception{
         if (!ctype.equals(Peer.ChaincodeSpec.CodeType.CODE_JAVASCRIPT)) {
@@ -90,7 +99,7 @@ public class CustomRepChainClient extends Client {
             txid = UUID.randomUUID().toString();
         }
         t = t.setTxid(txid);
-        t.setCert(ByteString.copyFromUtf8(BitcoinUtils.calculateBitcoinAddress(((ECPublicKeyImpl)cert.getPublicKey()).getEncodedPublicValue())));
+        t.setCert(ByteString.copyFromUtf8(BitcoinUtils.calculateBitcoinAddress(((ECPublicKeyImpl)certificate.getPublicKey()).getEncodedPublicValue())));
         byte[] sig = new ECDSASign().sign(privateKey,Sha256.hash(t.build().toByteArray()));
         t.setSignature(ByteString.copyFrom(sig));
         return t.build();
@@ -108,7 +117,7 @@ public class CustomRepChainClient extends Client {
      * @return
      * @throws Exception
      */
-    public Peer.Transaction createTransaction(Peer.Transaction.Type tranType, String chainCodeIdPath,
+    public Peer.Transaction createTransWithPK(Peer.Transaction.Type tranType, String chainCodeIdPath,
                                               String chaincodeInputFunc, List params, String spcPackage, String chaincodeId,
                                               Peer.ChaincodeSpec.CodeType ctype) throws Exception{
         if (!ctype.equals(Peer.ChaincodeSpec.CodeType.CODE_JAVASCRIPT)) {
@@ -150,28 +159,20 @@ public class CustomRepChainClient extends Client {
             txid = UUID.randomUUID().toString();
         }
         t = t.setTxid(txid);
-        t.setCert(ByteString.copyFromUtf8(BitcoinUtils.calculateBitcoinAddress(((ECPublicKeyImpl)cert.getPublicKey()).getEncodedPublicValue())));
+        t.setCert(ByteString.copyFromUtf8(BitcoinUtils.calculateBitcoinAddress(((ECPublicKeyImpl)certificate.getPublicKey()).getEncodedPublicValue())));
         byte[] sig = new ECDSASign().sign(privateKey,Sha256.hash(t.build().toByteArray()));
         t.setSignature(ByteString.copyFrom(sig));
         return t.build();
     }
 
-    /******* geter and seter *******/
 
-    public String getRepchainHost() {
-        return repchainHost;
+    /************************* geter and seter ***********************/
+    public Certificate getCertificate() {
+        return certificate;
     }
 
-    public void setRepchainHost(String repchainHost) {
-        this.repchainHost = repchainHost;
-    }
-
-    public Certificate getCert() {
-        return cert;
-    }
-
-    public void setCert(Certificate cert) {
-        this.cert = cert;
+    public void setCertificate(Certificate certificate) {
+        this.certificate = certificate;
     }
 
     public PrivateKey getPrivateKey() {

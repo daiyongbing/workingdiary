@@ -6,7 +6,6 @@ import com.crypto.BitcoinUtils;
 import com.iscas.workingdiary.bean.Cert;
 import com.iscas.workingdiary.config.ConstantProperties;
 import com.iscas.workingdiary.service.CertService;
-import com.iscas.workingdiary.service.RepClient;
 import com.iscas.workingdiary.util.FileUtils;
 import com.iscas.workingdiary.util.repchain.CustomRepChainClient;
 import com.iscas.workingdiary.util.repchain.RepChainUtils;
@@ -38,9 +37,6 @@ public class CertController {
 
     @Autowired
     private CertService certService;
-
-    @Autowired
-    private RepClient repClient;
 
     @Autowired
     ConstantProperties properties;
@@ -290,19 +286,19 @@ public class CertController {
 
     @PostMapping("signCert")
     public JSONObject signCert(@RequestBody JSONObject param){
-        RepChainClient repChainClient = repClient.getRepClient();
-        CustomRepChainClient customRepChainClient = repClient.getCustomRepClient(null, null);
-        List<String> argsList = repClient.getParamList(param);
-        String hexTransaction = RepChainUtils.createHexTransaction(customRepChainClient, repClient.getChaincodeId(),"certProof", argsList);
+        CustomRepChainClient customRepChainClient = new CustomRepChainClient(properties.getRepchainHost(), null, null);
+        RepChainClient repChainClient = new RepChainClient();
+        List<String> argsList = RepChainUtils.getParamList(param);
+        String hexTransaction = RepChainUtils.createHexTransWithListParam(customRepChainClient, "certProof", argsList);
         return repChainClient.postTranByString(hexTransaction);
     }
 
     @GetMapping(value = "destroy")
     public JSONObject destroyCert(@RequestParam("certAddr") String addr){
-        RepChainClient repChainClient = repClient.getRepClient();
-        CustomRepChainClient customRepChainClient = repClient.getCustomRepClient(null, null);
-        List<String> argsList = repClient.getParamList(addr);
-        String hexTransaction = RepChainUtils.createHexTransaction(customRepChainClient, repClient.getChaincodeId(),"destroyCert", argsList);
+        CustomRepChainClient customRepChainClient = new CustomRepChainClient(properties.getRepchainHost(), null, null);
+        RepChainClient repChainClient = new RepChainClient();
+        List<String> argsList = RepChainUtils.getParamList(addr);
+        String hexTransaction = RepChainUtils.createHexTransWithListParam(customRepChainClient,"destroyCert", argsList);
         return repChainClient.postTranByString(hexTransaction);
     }
 

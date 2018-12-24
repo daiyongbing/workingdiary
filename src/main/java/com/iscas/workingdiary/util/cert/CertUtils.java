@@ -249,7 +249,7 @@ public class CertUtils {
     public static PrivateKey decryptPrivateKey(String encryptPrivateKey, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] aesEncryptedKey = Base64Utils.decode2Bytes(encryptPrivateKey);
         byte[] privateKeyBytes = AESCrypt.decrypt2bytes(aesEncryptedKey, MD5Utils.crypt16Byte(password));
-        return loadPrivateKey(privateKeyBytes, ALGORITHM_CURVE_SECP256K1);
+        return loadPrivateKey(privateKeyBytes, "EC");
 
     }
 

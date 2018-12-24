@@ -12,6 +12,13 @@ import java.util.Map;
 
 public class JksUtils {
 
+    /**
+     * 只做测试，不做其他用途
+     * @param jksPath
+     * @param password
+     * @param alias
+     * @return
+     */
     public static List loadCertFromJKS(String jksPath, String password , String alias){
         return certUtil.getCertFromJKS(new File(jksPath),password,alias);
     }
