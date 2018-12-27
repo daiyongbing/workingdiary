@@ -8,14 +8,14 @@
     <resultMap id="cert" type="com.iscas.workingdiary.bean.Cert">
         <id column="user_name" property="userName"/>
         <id column="cert_no" property="certNo"/>
+        <result column="common_name" property="commonName"/>
         <result column="pem_cert" property="pemCert"/>
         <result column="cert_info" property="certInfo"/>
         <result column="cert_addr" property="certAddr"/>
         <result column="cert_status" property="certStatus"/>
         <result column="cert_level" property="certLevel"/>
         <result column="private_key" property="privateKey"/>
-        <result column="common_name" property="commonName"/>
-        <result column="create_time" property="createTime" javaType="java.sql.Timestamp"/>
+        <result column="create_time" property="createTime"/>
     </resultMap>
 
 
@@ -71,7 +71,7 @@
     </select>
 
     <select id="getCertByName" parameterType="String" resultMap="cert">
-        select from t_cert
+        select* from t_cert
         <where>
             <if test="userName != null and userName != ''">user_name=#{userName}</if>
         </where>

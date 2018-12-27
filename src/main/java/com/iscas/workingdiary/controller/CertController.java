@@ -1,19 +1,17 @@
 package com.iscas.workingdiary.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.client.RepChainClient;
 import com.crypto.BitcoinUtils;
 import com.iscas.workingdiary.bean.Cert;
 import com.iscas.workingdiary.config.ConstantProperties;
 import com.iscas.workingdiary.service.CertService;
 import com.iscas.workingdiary.util.FileUtils;
-import com.iscas.workingdiary.util.repchain.CustomRepChainClient;
-import com.iscas.workingdiary.util.repchain.RepChainUtils;
-import com.iscas.workingdiary.util.cert.CertUtils;
+import com.iscas.workingdiary.util.cert.CertificateUtils;
 import com.iscas.workingdiary.util.encrypt.Base64Utils;
 import com.iscas.workingdiary.util.encrypt.MD5Utils;
 import com.iscas.workingdiary.bean.ResponseStatus;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
+import com.iscas.workingdiary.util.json.JsonResult;
 import com.iscas.workingdiary.util.json.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -47,27 +45,25 @@ public class CertController {
      * @return
      */
     @GetMapping(value = "deleteByCertNo", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData deleteCertByCertNo(@RequestParam("certNO") String certNo){
-        ResultData resultData = null;
+    public void deleteCertByCertNo(HttpServletResponse response, HttpServletRequest request, @RequestParam("certNO") String certNo){
         try {
             certService.deleteCertByCertNo(certNo);
-            resultData = ResultData.deleteSuccess();
+            JsonResult.resultJson(response, request, ResponseStatus.SUCCESS, new ResultData("证书已删除"));
         }catch (Exception e){
-            resultData = new ResultData(ResponseStatus.DB_DELETE_ERROR, "删除失败");
+            e.printStackTrace();
+            JsonResult.resultJson(response, request, ResponseStatus.SERVER_ERROR, new ResultData("服务器异常"));
         }
-        return resultData;
     }
 
     @GetMapping(value = "deleteByUserId", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData deleteCertByCertNo(@RequestParam("userId") Integer userId){
-        ResultData resultData = null;
+    public void deleteCertByCertNo(HttpServletRequest request, HttpServletResponse response, @RequestParam("userId") Integer userId){
         try {
             //certService.deleteCertByUserId(userId);
-            resultData = ResultData.deleteSuccess();
+            JsonResult.resultJson(response, request, ResponseStatus.SUCCESS, new ResultData("证书已删除"));
         }catch (Exception e){
-            resultData = new ResultData(ResponseStatus.DB_DELETE_ERROR, "删除失败");
+            e.printStackTrace();
+            JsonResult.resultJson(response, request, ResponseStatus.SERVER_ERROR, new ResultData("服务器异常"));
         }
-        return resultData;
     }
 
     /**
@@ -76,17 +72,15 @@ public class CertController {
      * @return
      */
     @GetMapping(value = "queryByCertNo", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData queryCertByNo(@RequestParam("certNo") String certNo){
+    public void queryCertByNo(HttpServletResponse response, HttpServletRequest request, @RequestParam("certNo") String certNo){
         Cert cert = null;
-        ResultData resultData = null;
         try {
             cert =  certService.queryCert(certNo);
-            resultData = new ResultData(ResponseStatus.SUCCESS, "查询成功", cert);
+            JsonResult.resultJson(response, request, ResponseStatus.SUCCESS, new ResultData("查询成功", cert));
         } catch (Exception e){
-            resultData = new ResultData(ResponseStatus.DB_QUERY_ERROR, "查询失败");
+            e.printStackTrace();
+            JsonResult.resultJson(response, request, ResponseStatus.SERVER_ERROR, new ResultData("服务器异常"));
         }
-
-        return resultData;
     }
 
     /**
@@ -145,12 +139,11 @@ public class CertController {
      * @return
      */
     @PostMapping(value = "generate", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData generateCert(@RequestBody JSONObject jsonObject){
-        ResultData resultData;
+    public void generateCert(HttpServletRequest request, HttpServletResponse response, @RequestBody JSONObject jsonObject){
         String[] certInfo= {jsonObject.getString("CN"), jsonObject.getString("OU"), jsonObject.getString("O"),
                 jsonObject.getString("C"), jsonObject.getString("L"), jsonObject.getString("ST")};
         String password = jsonObject.getString("password");  // 密码用于私钥加密和解密，不做保存，一旦忘记不可找回
-        CertUtils certUtils = new CertUtils();
+        CertificateUtils certUtils = new CertificateUtils();
         KeyPair keyPair = null;
         X509Certificate certificate = null;
         String addr = "";
@@ -165,7 +158,9 @@ public class CertController {
             certNo = MD5Utils.stringMD5(pemCert); //使用pemCert的MD5作为证书编号
             encyptPrivateKey = certUtils.encryptPrivateKey(keyPair.getPrivate(), password);    //加密私钥
         }catch (Exception e){
-            e.getMessage();
+            e.printStackTrace();
+            JsonResult.resultJson(response, request, ResponseStatus.SERVER_ERROR, new ResultData("证书生成失败"));
+            return;
         }
 
         Cert cert = new Cert();
@@ -180,11 +175,11 @@ public class CertController {
                 certService.insertCert(cert);
                 certUtils.generateJksWithCert(certificate, keyPair, password, properties.getJksPath(), certInfo[0]);   //保存jks文件到服务器
                 certUtils.savePemCertAsFile(certificate, properties.getCertPath(), certInfo[0]); // 保存cer到服务器
-                resultData = new ResultData(ResponseStatus.SUCCESS, "success", addr);
+                JsonResult.resultJson(response, request, ResponseStatus.SUCCESS, new ResultData("success", addr));
         }catch (Exception e){
-            resultData = new ResultData(ResponseStatus.DB_INSERT_ERROR, "证书插入失败");
+            e.printStackTrace();
+            JsonResult.resultJson(response, request, ResponseStatus.SERVER_ERROR, new ResultData("插入数据库失败"));
         }
-        return resultData;
     }
 
     /**
@@ -193,13 +188,14 @@ public class CertController {
      * @return
      */
     @PostMapping(value = "upload", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResultData uploadCert(HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file){
+    public void uploadCert(HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file){
         String authHeader = request.getHeader("");
         ResultData resultData;
         String fileName = file.getOriginalFilename();
         String md5 = "";
         if(file.isEmpty() || file.getSize()>1048576){ // 文件最大2M
-            resultData = new ResultData(ResponseStatus.SERVER_PARAM_ERROR, "文件最大为2M且不能为空");
+            JsonResult.resultJson(response, request, ResponseStatus.SERVER_PARAM_ERROR, new ResultData("文件最大为2M且不能为空"));
+            return;
         } else {
             try {
                 md5 = MD5Utils.bytesMD5(file.getBytes());
@@ -217,14 +213,12 @@ public class CertController {
             }
             try {
                 file.transferTo(dest); //保存文件
-                resultData = new ResultData(ResponseStatus.SUCCESS, "success");
-            } catch (IllegalStateException e) {
-                resultData = new ResultData(ResponseStatus.SERVER_ERROR, "IllegalStateException");
-            } catch (IOException e) {
-                resultData = new ResultData(ResponseStatus.SERVER_ERROR, "IOException");
+                JsonResult.resultJson(response, request, ResponseStatus.SUCCESS, new ResultData("success"));
+            } catch (Exception e) {
+                e.printStackTrace();
+                JsonResult.resultJson(response, request, ResponseStatus.SERVER_ERROR, new ResultData("服务器异常"));
             }
         }
-        return resultData;
     }
 
     /**
@@ -263,50 +257,4 @@ public class CertController {
             }
         }
     }
-
-    /**
-     * 替换证书
-     * @param request
-     * @param response
-     * @param object
-     * @return
-     */
-    @PostMapping(value = "replace")
-    public ResultData replaceCert(HttpServletRequest request, HttpServletResponse response, @RequestBody JSONObject object){
-        ResultData resultData = null;
-
-
-        return resultData;
-    }
-
-
-
-
-    /********************************************以下接口针对区块链****************************************/
-
-    @PostMapping("signCert")
-    public JSONObject signCert(@RequestBody JSONObject param){
-        CustomRepChainClient customRepChainClient = new CustomRepChainClient(properties.getRepchainHost(), null, null);
-        RepChainClient repChainClient = new RepChainClient();
-        List<String> argsList = RepChainUtils.getParamList(param);
-        String hexTransaction = RepChainUtils.createHexTransWithListParam(customRepChainClient, "certProof", argsList);
-        return repChainClient.postTranByString(hexTransaction);
-    }
-
-    @GetMapping(value = "destroy")
-    public JSONObject destroyCert(@RequestParam("certAddr") String addr){
-        CustomRepChainClient customRepChainClient = new CustomRepChainClient(properties.getRepchainHost(), null, null);
-        RepChainClient repChainClient = new RepChainClient();
-        List<String> argsList = RepChainUtils.getParamList(addr);
-        String hexTransaction = RepChainUtils.createHexTransWithListParam(customRepChainClient,"destroyCert", argsList);
-        return repChainClient.postTranByString(hexTransaction);
-    }
-
-    /*@PostMapping(value = "replace")
-    public JSONObject replaceCert(@RequestBody JSONObject data){
-        RepChainClient repChainClient = repClient.getRepClient();
-        List<String> argsList = repClient.getParamList(data);
-        String hexTransaction = RepChainUtils.createHexTransaction(repChainClient, repClient.getChaincodeId(),"replaceCert", argsList);
-        return repChainClient.postTranByString(hexTransaction);
-    }*/
 }

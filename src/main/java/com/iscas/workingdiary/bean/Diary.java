@@ -1,5 +1,7 @@
 package com.iscas.workingdiary.bean;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import java.sql.Timestamp;
 
 public class Diary {
@@ -7,6 +9,7 @@ public class Diary {
     private String userName;
     private String diaryText;
     private String txId;
+    @JSONField(format="yyyy-MM-dd")
     private Timestamp createTime;
 
     public String getDiaryId() {

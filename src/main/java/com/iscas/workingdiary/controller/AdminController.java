@@ -1,22 +1,19 @@
 package com.iscas.workingdiary.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.client.RepChainClient;
 import com.iscas.workingdiary.bean.Cert;
 import com.iscas.workingdiary.bean.Diary;
 import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.config.ConstantProperties;
 import com.iscas.workingdiary.service.AdminService;
 import com.iscas.workingdiary.service.CertService;
-import com.iscas.workingdiary.util.Byte2Hex;
-import com.iscas.workingdiary.util.cert.CertUtils;
-import com.iscas.workingdiary.util.encrypt.Base64Utils;
+import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.JsonResult;
 import com.iscas.workingdiary.util.repchain.CustomRepChainClient;
-import com.iscas.workingdiary.util.repchain.RepChainUtils;
 import com.iscas.workingdiary.bean.ResponseStatus;
 import com.iscas.workingdiary.util.json.ResultData;
-import com.protos.Peer;
+import com.iscas.workingdiary.util.repchain.TransactionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,10 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.cert.Certificate;
-import java.security.spec.InvalidKeySpecException;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -46,6 +40,7 @@ public class AdminController {
 
     @Autowired
     private ConstantProperties properties;
+
     /**
      * 证书入链
      * @param pramJson
@@ -53,64 +48,57 @@ public class AdminController {
      */
     @PostMapping(value = "signcert", produces = MediaType.APPLICATION_JSON_VALUE)
     public void signCertByAdmin(HttpServletRequest request, HttpServletResponse response, @RequestBody JSONObject pramJson){
-        ResultData resultData = null;
-        Cert cert = null;
+        String authHeader = request.getHeader("Authorization");
+        Cert userCert = null;
+        Cert adminCert = null;
         JSONObject jsonObject = new JSONObject();
         String certNo = pramJson.getString("certNo");
+        String adminName = JWTTokenUtil.parseToken(authHeader).getSubject();
         try {
-            cert = certService.queryCert(certNo);
+            userCert = certService.queryCert(certNo);
+            adminCert = certService.getCertByName(adminName);
         }catch (Exception e){
             e.printStackTrace();
         }
-        if (cert == null){
-            resultData = new ResultData(ResponseStatus.DB_CERT_NOT_EXIST, "该用户没有上传证书");
+        if (userCert == null){
+            JsonResult.resultJson(response, request, ResponseStatus.DB_CERT_NOT_EXIST, "该用户没有上传证书");
+            return;
         } else {
-            String pemCert = cert.getPemCert();
-            String certInfo = cert.getCertInfo();
-            jsonObject.put(pemCert, certInfo);
+            String pemCert = userCert.getPemCert();
+            String certInfo = userCert.getCertInfo();
+            jsonObject.put("userName",userCert.getUserName());
+            jsonObject.put("pemCert", pemCert);
+            jsonObject.put("certInfo", certInfo);
         }
-        //反序列化Cert
-        Certificate certificate = CertUtils.getCertByPem(Base64Utils.decode2String(cert.getPemCert()));
-        // 获得私钥
-        PrivateKey privateKey = null;
-        try {
-            privateKey = CertUtils.decryptPrivateKey(cert.getPrivateKey(), pramJson.getString("password"));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        }
-        CustomRepChainClient customRepChainClient = new CustomRepChainClient(properties.getRepchainHost(), certificate, privateKey);
-        //List<String> argsList = RepChainUtils.getParamList(jsonObject);
-        String args = JSONObject.toJSONString(jsonObject);
-        String hexTransaction = null;
-        Peer.Transaction transaction;
-        try {
-            transaction = customRepChainClient.createTransWithPK(Peer.Transaction.Type.CHAINCODE_INVOKE, "path",
-                    "signCert", args, "string", properties.getChaincodeId(), Peer.ChaincodeSpec.CodeType.CODE_SCALA);
-            hexTransaction = Byte2Hex.bytes2hex(transaction.toByteArray());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        String hexTransaction = TransactionUtils.register(adminCert, jsonObject, pramJson.getString("password"));
         JSONObject signResult =null ;
+        CustomRepChainClient customRepChainClient = new CustomRepChainClient(properties.getRepchainHost());
         try {
-            signResult = customRepChainClient.postTranByString(hexTransaction);
-        }catch (Exception e){
+            signResult = customRepChainClient.postTransByString(JSON.toJSONString(hexTransaction));
+        }catch (IOException e){
+            JsonResult.resultJson(response, request,ResponseStatus.REPCHAIN_SERVER_CONNECTION_ERROR,  "RepChain服务器连接失败");
+            return;
+        } catch (RuntimeException e){
             e.printStackTrace();
-            resultData = new ResultData(ResponseStatus.REPCHAIN_SERVER_ERROR, "RepChain服务器异常");
+            JsonResult.resultJson(response, request, ResponseStatus.REPCHAIN_SERVER_ERROR, "RepChain服务器异常");
+            return;
         }
-
-       /* String addr = signResult.getString("result");
-        cert.setCertAddr(addr);
-        cert.setCertStatus("1");
-        certService.updateCert(cert);
-        resultData = new ResultData(ResponseStatus.SUCCESS, "success");*/
-        JsonResult.resultJson(response, request, resultData);
+        System.out.println(signResult);
+        System.out.println("err:"+signResult.getJSONObject("result").getString("err"));
+       if (signResult.getString("code") == "200" && signResult.getJSONObject("result").getString("err") == null){
+           String addr = signResult.getString("result");
+           userCert.setCertAddr(addr);
+           userCert.setCertStatus("1");
+           certService.updateCert(userCert);
+           JsonResult.resultJson(response, request,ResponseStatus.SUCCESS, signResult);
+       } else {
+           JsonResult.resultJson(response, request,ResponseStatus.REPCHAIN_REQUEST_ERROR, signResult); ;
+       }
     }
 
 
     /**
-     * 查看用户列表(分页查询所有用户)
+     * 查看用户列表（数据库）(分页查询所有用户)
      * @return
      */
     @GetMapping(value = "userlist")
@@ -130,17 +118,16 @@ public class AdminController {
      * @return
      */
     @PostMapping(value = "resetpwd" )
-    public ResultData resetPassword(HttpServletRequest request, HttpServletResponse response, @RequestBody JSONObject userNameJson){
+    public void resetPassword(HttpServletRequest request, HttpServletResponse response, @RequestBody JSONObject userNameJson){
         ResultData resultData = null;
         String userName = userNameJson.getString("userName");
         try {
             adminService.resetPassword(userName);
-            resultData = new ResultData(ResponseStatus.SUCCESS, "密码重置成功");
+            JsonResult.resultJson(response, request, ResponseStatus.SUCCESS, new ResultData("密码重置成功"));
         } catch (Exception e){
             e.printStackTrace();
-            resultData = new ResultData(ResponseStatus.DB_UPDATE_ERROR, "系统错误");
+            JsonResult.resultJson(response, request, ResponseStatus.SERVER_ERROR, new ResultData("服务器异常"));
         }
-        return resultData;
     }
 
     /**

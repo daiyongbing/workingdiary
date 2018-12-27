@@ -21,6 +21,12 @@ public class ConstantProperties {
     @Value("${http.header.authorization}")
     private String authorization;
 
+    @Value("${repchain.diary.prefix}")
+    private String diaryPrefix;
+
+    @Value("${repchain.credit.prefix}")
+    private String creditPrefix;
+
     public String getChaincodeId() {
         return chaincodeId;
     }
@@ -61,4 +67,20 @@ public class ConstantProperties {
         this.authorization = authorization;
     }
 
+
+    public String getDiaryPrefix() {
+        return diaryPrefix;
+    }
+
+    public void setDiaryPrefix(String diaryPrefix) {
+        this.diaryPrefix = diaryPrefix;
+    }
+
+    public String getCreditPrefix() {
+        return creditPrefix;
+    }
+
+    public void setCreditPrefix(String creditPrefix) {
+        this.creditPrefix = creditPrefix;
+    }
 }

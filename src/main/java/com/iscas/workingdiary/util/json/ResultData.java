@@ -11,54 +11,22 @@ import java.util.Map;
 
 public class ResultData {
 
-    public static ResultData addSuccess() {
-        return new ResultData(ResponseStatus.SUCCESS, "新增成功");
-    }
+    public ResultData() { }
 
-    public static ResultData updateSuccess() {
-        return new ResultData(ResponseStatus.SUCCESS, "更新成功");
-    }
-
-    public static ResultData checkSuccess() {
-        return new ResultData(ResponseStatus.SUCCESS, "验证成功");
-    }
-
-    public static ResultData deleteSuccess() {
-        return new ResultData(ResponseStatus.SUCCESS, "删除成功");
-    }
-
-    public static ResultData operationSuccess() {
-        return new ResultData(ResponseStatus.SUCCESS, "操作成功");
-    }
-
-    public ResultData() {
-        super();
-    }
-
-    public ResultData(int code, String message) {
-        super();
-        this.code = code;
+    public ResultData(String message) {
         this.message = message;
     }
 
-    public ResultData(int code, String message, Object obj) {
-        super();
-        this.code = code;
+    public ResultData(String message, Object obj) {
         this.message = message;
         this.datas = obj;
     }
 
-    public ResultData(String message) {
-        super();
-        this.code = ResponseStatus.SUCCESS;
-        this.message = message;
-    }
 
     /**
      * 返回单个实体
      */
     public <T> ResultData(T entity) {
-        super();
         this.code = ResponseStatus.SUCCESS;
         this.datas = entity;
     }
@@ -67,7 +35,6 @@ public class ResultData {
      * 返回集合类型
      */
     public ResultData(List<?> list) {
-        super();
         this.code = ResponseStatus.SUCCESS;
         this.datas = list;
     }
@@ -76,7 +43,6 @@ public class ResultData {
      * 返回Map集合类型
      */
     public ResultData(Map<String, Object> map) {
-        super();
         this.code = ResponseStatus.SUCCESS;
         this.datas = map;
     }
@@ -85,7 +51,6 @@ public class ResultData {
      * 500-业务逻辑错误
      */
     public ResultData(RuntimeServiceException rex) {
-        super();
         this.code = ResponseStatus.SERVER_ERROR;
         this.message = rex.getMessage();
     }
@@ -94,7 +59,6 @@ public class ResultData {
      * 501-功能不完善，无对应方法
      */
     public ResultData(RuntimeFunctionException rex) {
-        super();
         this.code = ResponseStatus.SERVER_FUNCTION_UNREALIZED_ERROR;
         this.message = rex.getMessage();
     }
@@ -103,7 +67,6 @@ public class ResultData {
      * 502-网络异常
      */
     public ResultData(RuntimeWebException rex) {
-        super();
         this.code = ResponseStatus.SERVER_WEB_ERROR;
         this.message = rex.getMessage();
     }
@@ -112,7 +75,6 @@ public class ResultData {
      * 506-未知其它
      */
     public ResultData(RuntimeOtherException rex) {
-        super();
         this.code = ResponseStatus.SERVER_OTHER_UNKNOWN_ERROR;
         this.message = rex.getMessage();
     }
@@ -121,7 +83,6 @@ public class ResultData {
      * 异常
      */
     public ResultData(Exception ex) {
-        super();
         this.code = ResponseStatus.SERVER_OTHER_UNKNOWN_ERROR;
         this.message = getErrorMessage(ex);
         ex.printStackTrace();
@@ -131,7 +92,6 @@ public class ResultData {
      * 运行时异常
      */
     public ResultData(RuntimeException rex) {
-        super();
         this.code = ResponseStatus.SERVER_OTHER_UNKNOWN_ERROR;
         this.message = rex.getMessage();
     }
@@ -140,7 +100,6 @@ public class ResultData {
      * 运行时异常
      */
     public ResultData(Throwable tx) {
-        super();
         this.code = ResponseStatus.SERVER_OTHER_UNKNOWN_ERROR;
         this.message = tx.getMessage();
     }
@@ -150,7 +109,6 @@ public class ResultData {
      * @param rex
      */
     public ResultData(RepChainServerException rex){
-        super();
         this.code = ResponseStatus.REPCHAIN_SERVER_ERROR;
         this.message = rex.getMessage();
     }
@@ -231,5 +189,4 @@ public class ResultData {
         }
         return ex.getMessage();
     }
-
 }

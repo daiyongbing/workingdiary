@@ -180,4 +180,9 @@ public class ResponseStatus {
      */
     public final static int REPCHAIN_BAD_REQUEST_ERROR = 606;
 
+    /**
+     * 607 RepChain请求错误（非RepChain服务器错误）
+     */
+    public final static int REPCHAIN_REQUEST_ERROR = 607;
+
 }

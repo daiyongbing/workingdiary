@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<CSpec>
+    <stype>2</stype>
+    <idPath></idPath>
+    <idName>61251ffbe41e3d3531b89403e40f4d8c4f9e6b62107a8dafd7a46adddcd81403</idName>
+    <iptFunc>register</iptFunc>
+    <iptArgs>
+        {
+        "userName":"String",
+        "pemCert":"String",
+        "certInfo":"String"
+        }
+    </iptArgs>
+    <timeout>0</timeout>
+    <secureContext>string</secureContext>
+    <code>
+    </code>
+    <ctype>2</ctype>
+</CSpec>

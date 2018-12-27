@@ -47,6 +47,29 @@ public class FileUtils extends Thread {
         return ext;
     }
 
+    /**
+     * 获得输入流
+     * @param tInputStream
+     * @return
+     */
+    public static String getStringFromInputStream(InputStream tInputStream){
+            if (tInputStream != null){
+            try{
+                BufferedReader tBufferedReader = new BufferedReader(new InputStreamReader(tInputStream));
+                StringBuffer tStringBuffer = new StringBuffer();
+                String sTempOneLine = new String("");
+                while ((sTempOneLine = tBufferedReader.readLine()) != null){
+                    tStringBuffer.append(sTempOneLine);
+                }
+                return tStringBuffer.toString();
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+
     public static void main(String[] args){
         System.out.println(getFileExt("gy.cer"));
     }

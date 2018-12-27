@@ -12,11 +12,11 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 
 public class JsonResult {
-    public static void resultJson(HttpServletResponse response, HttpServletRequest request, ResultData resultData){
+    public static void resultJson(HttpServletResponse response, HttpServletRequest request, int status, Object result){
         response.setContentType("application/json; charset=utf-8");
-        response.setStatus(resultData.getCode());
+        response.setStatus(status);
         try {
-            response.getWriter().write(JSON.toJSONString(resultData));
+            response.getWriter().write(JSON.toJSONString(result));
         } catch (IOException e) {
             e.printStackTrace();
         }

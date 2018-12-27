@@ -9,7 +9,7 @@ public class CertUtilsTest {
         String path = "G:/workingdiary/cert";
         String[] info = { "daiyongbing", "ISCAS", "ISCAS", "CN", "GUIZHOU", "GUIYANG" };
         String jks_password = "123";
-        CertUtils certUtils = new CertUtils();
+        CertificateUtils certUtils = new CertificateUtils();
         KeyPair keyPair = certUtils.generateKeyPair();  //生成KeyPair
         X509Certificate certificate = certUtils.generateCert(info,keyPair);  //生成证书
         System.out.println(certificate.toString());
