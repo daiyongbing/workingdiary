@@ -41,4 +41,8 @@ public interface UserMapper {
     void deleteIntegralByName(@Param("userName") String userName);
 
     void insertIntegral(Integral integral);
+
+    List<User> selectAll();
+
+    int userCount();
 }

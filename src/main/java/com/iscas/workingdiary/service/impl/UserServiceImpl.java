@@ -1,9 +1,7 @@
 package com.iscas.workingdiary.service.impl;
 
-import com.iscas.workingdiary.bean.Cert;
-import com.iscas.workingdiary.bean.Diary;
-import com.iscas.workingdiary.bean.Integral;
-import com.iscas.workingdiary.bean.User;
+import com.github.pagehelper.PageHelper;
+import com.iscas.workingdiary.bean.*;
 import com.iscas.workingdiary.mapper.CertMapper;
 import com.iscas.workingdiary.mapper.DiaryMapper;
 import com.iscas.workingdiary.mapper.UserMapper;
@@ -91,6 +89,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Diary> queryDiaryList(String userName) {
         return diaryMapper.selectDiaryByName(userName);
+    }
+
+    @Override
+    public List<User> selectUserByPage(int currentPage, int pageSize) {
+        PageHelper.startPage(currentPage, pageSize);
+        List<User> userList = userMapper.selectAll();
+        int count = userMapper.userCount();
+        PageBean<User> pageBean = new PageBean<>(currentPage, pageSize, count);
+        pageBean.setItems(userList);
+        return pageBean.getItems();
     }
 
     @Override

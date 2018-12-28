@@ -34,4 +34,6 @@ public interface UserService {
     void pushDairy(Diary diary, Integral integral);
 
     List<Diary> queryDiaryList(String userName);
+
+    List<User> selectUserByPage(int currentPage, int pageSize);
 }

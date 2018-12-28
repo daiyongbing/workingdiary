@@ -142,4 +142,12 @@
         value (#{id}, #{userName}, #{dairyId}, #{txid}, #{score}, #{gainTime})
     </insert>
 
+    <select id="selectAll" resultMap="user" useCache="true">
+        select* from t_user
+    </select>
+
+    <select id="userCount" resultType="int">
+        select count(*) from t_user;
+    </select>
+
 </mapper>

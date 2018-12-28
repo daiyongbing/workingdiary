@@ -1,5 +1,6 @@
 package com.iscas.workingdiary.bean;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Required;
@@ -29,6 +30,7 @@ public class User implements Serializable {
     private String leader;
     private String roleId;
     private String certNo;
+    @JSONField(format = "yyyy-MM-dd")
     private Timestamp registerTime;
     @NotBlank(message = "密码不能为空")
     @Min(value = 6, message = "密码至少6位")
@@ -100,7 +102,7 @@ public class User implements Serializable {
     }
 
     public Timestamp getRegisterTime() {
-        return registerTime;
+        return this.registerTime;
     }
 
     public void setRegisterTime(Timestamp registerTime) {

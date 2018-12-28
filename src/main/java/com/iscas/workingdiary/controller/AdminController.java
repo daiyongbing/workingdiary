@@ -8,6 +8,7 @@ import com.iscas.workingdiary.bean.User;
 import com.iscas.workingdiary.config.ConstantProperties;
 import com.iscas.workingdiary.service.AdminService;
 import com.iscas.workingdiary.service.CertService;
+import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.JsonResult;
 import com.iscas.workingdiary.util.repchain.CustomRepChainClient;
@@ -34,6 +35,9 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private CertService certService;
@@ -102,10 +106,12 @@ public class AdminController {
      * @return
      */
     @GetMapping(value = "userlist")
-    public List<User> selectAll(){
+    public List<User> selectAllByPage(HttpServletResponse response, HttpServletRequest request, @RequestParam int currentPage, int pageSize){
         List<User> userList = null;
         try {
-            userList = adminService.selectAllUser();
+            //userList = adminService.selectAllUser();
+            userList = userService.selectUserByPage(currentPage, pageSize);
+            //JsonResult.resultJson(response, request, ResponseStatus.SUCCESS, new ResultData(userList));
         } catch (Exception e){
             e.printStackTrace();
             new Exception("系统错误");
