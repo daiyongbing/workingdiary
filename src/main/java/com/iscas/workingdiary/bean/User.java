@@ -30,7 +30,7 @@ public class User implements Serializable {
     private String leader;
     private String roleId;
     private String certNo;
-    @JSONField(format = "yyyy-MM-dd")
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
     private Timestamp registerTime;
     @NotBlank(message = "密码不能为空")
     @Min(value = 6, message = "密码至少6位")
