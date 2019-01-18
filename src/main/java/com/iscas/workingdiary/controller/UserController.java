@@ -6,16 +6,16 @@ import com.iscas.workingdiary.bean.*;
 import com.iscas.workingdiary.bean.ResponseStatus;
 import com.iscas.workingdiary.config.ConstantProperties;
 import com.iscas.workingdiary.service.CertService;
+import com.iscas.workingdiary.service.MsgProducerService;
 import com.iscas.workingdiary.service.UserService;
 import com.iscas.workingdiary.util.cert.CertUtils;
 import com.iscas.workingdiary.util.repchain.CustomRepChainClient;
-import com.iscas.workingdiary.util.cert.CertificateUtils;
 import com.iscas.workingdiary.util.encrypt.Base64Utils;
-import com.iscas.workingdiary.util.encrypt.MD5Utils;
 import com.iscas.workingdiary.util.jjwt.JWTTokenUtil;
 import com.iscas.workingdiary.util.json.JsonResult;
 import com.iscas.workingdiary.util.json.ResultData;
 import com.iscas.workingdiary.util.repchain.TransactionUtils;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +26,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.jms.Destination;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -57,6 +56,9 @@ public class UserController {
 
     @Autowired
     private CertService certService;
+
+    @Autowired
+    private MsgProducerService producerService;
 
 
     @Autowired
@@ -194,22 +196,20 @@ public class UserController {
      * @return
      */
     @GetMapping(value = "mycredit")
-    public ResultData queryTotalIntegral(HttpServletRequest request, HttpServletResponse response){
-        ResultData resultData = null;
+    public void queryTotalCredit(HttpServletRequest request, HttpServletResponse response){
         String userName = JWTTokenUtil.parseToken(request.getHeader("Authorization")).getSubject();
         try {
-            Integer totalIntegral = userService.queryTotalIntegral(userName);
-            if (totalIntegral == null){
-                totalIntegral = 0;
+            Integer credit = userService.queryTotalIntegral(userName);
+            if (credit == null){
+                credit = 0;
             }
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("credit", totalIntegral);
+            jsonObject.put("credit", credit);
             JsonResult.resultJson(response, request, ResponseStatus.SUCCESS, new ResultData("success", jsonObject));
         }catch (Exception e){
             e.printStackTrace();
             JsonResult.resultJson(response, request, ResponseStatus.SERVER_ERROR, new ResultData("服务器异常"));
         }
-        return resultData;
     }
 
     /**
@@ -217,17 +217,16 @@ public class UserController {
      * @return
      */
     @GetMapping(value = "creditlist")
-    public List<Integral> seleteIntegralByName(HttpServletRequest request){
-        List<Integral> creditlist;
+    public void seleteIntegralByName(HttpServletRequest request, HttpServletResponse response, @RequestParam int currentPage, int pageSize){
+        List<Credit> creditlist;
         String userName = JWTTokenUtil.parseToken(request.getHeader("Authorization")).getSubject();
         try {
-            creditlist = userService.queryIntegralList(userName);
-
+            creditlist = userService.queryCreditsByPage(userName, currentPage, pageSize);
+            JsonResult.resultJson(response, request, ResponseStatus.SUCCESS, new ResultData("success", creditlist));
         }catch (Exception e){
             e.printStackTrace();
-            return null;
+            JsonResult.resultJson(response, request, ResponseStatus.DB_QUERY_ERROR, new ResultData("failed"));
         }
-        return creditlist;
     }
 
 
@@ -317,7 +316,7 @@ public class UserController {
             diary.setCreateTime(new Timestamp(System.currentTimeMillis()));
 
             //创建Integral对象
-            Integral integral = new Integral();
+            Credit integral = new Credit();
             integral.setDiaryId(diary.getDiaryId());
             integral.setScore(1);
             integral.setUserName(userName);
@@ -434,5 +433,11 @@ public class UserController {
 
         }
         return cert;
+    }
+    @GetMapping(value = "/jmstest")
+    public String jmsTest(String msg){
+        Destination destination = new ActiveMQQueue("test.queue");
+        producerService.sendMessage(destination,msg);
+        return "消息已发送";
     }
 }

@@ -23,10 +23,15 @@ public class JksUtils {
 
     public static void main(String[] args){
         List list = loadCertFromJKS("F:/workingdiary_repchain_server/RepChain/jks/mykeystore_1.jks", "123", "1");
-        CertificateUtils certUtils = new CertificateUtils();
-        String pemCert = Base64Utils.encode2String(certUtils.getPemFromCertificate((Certificate) list.get(0)));     // 获取pemcert
-        String encyptPrivateKey = certUtils.encryptPrivateKey((PrivateKey)list.get(1), "123456");    //加密私钥
+        CertificateUtils certificateUtils = new CertificateUtils();
+        String pemCert = Base64Utils.encode2String(certificateUtils.getPemFromCertificate((Certificate) list.get(0)));     // 获取pemcert
+        String encyptPrivateKey = certificateUtils.encryptPrivateKey((PrivateKey)list.get(1), "123456");    //加密私钥
 
-        System.out.println("pemCert:"+pemCert+"\nencyptPrivateKey:"+encyptPrivateKey);
+        System.out.println("encyptPrivateKey:"+encyptPrivateKey);
+        try {
+            System.out.println("PrivateKey:"+CertificateUtils.decryptPrivateKey(encyptPrivateKey, "123456"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

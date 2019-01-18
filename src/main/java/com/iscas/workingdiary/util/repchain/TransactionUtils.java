@@ -42,15 +42,11 @@ public class TransactionUtils {
         //反序列化adminCert
         String adminPemCert = Base64Utils.decode2String(adminCert.getPemCert());
         Certificate certificate = CertificateUtils.getCertByPem(adminPemCert);
+        String cryptedprivateKey = adminCert.getPrivateKey();
         try {
-            //解密私钥
-            privateKey = CertificateUtils.decryptPrivateKey(adminCert.getPrivateKey(), adminPassword);
-        } catch (NoSuchAlgorithmException e) {
+            privateKey = CertificateUtils.decryptPrivateKey(cryptedprivateKey, adminPassword);
+        } catch (Exception e) {
             e.printStackTrace();
-            new Exception("NoSuchAlgorithm");
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-            new Exception("InvalidKeySpec");
         }
 
         CustomRepChainClient customRepChainClient = new CustomRepChainClient(certificate, privateKey);
@@ -85,7 +81,7 @@ public class TransactionUtils {
         try {
             //解密私钥
             privateKey = CertificateUtils.decryptPrivateKey(cert.getPrivateKey(), pk_password);
-        } catch (NoSuchAlgorithmException |InvalidKeySpecException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             new Exception("私钥解析失败");
         }

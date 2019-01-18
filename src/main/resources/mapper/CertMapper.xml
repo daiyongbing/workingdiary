@@ -4,7 +4,7 @@
         "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
 
 <mapper namespace="com.iscas.workingdiary.mapper.CertMapper">
-    <cache type="com.iscas.workingdiary.redis.RedisCache" />
+   <!-- <cache type="com.iscas.workingdiary.redis.RedisCache" />-->
     <resultMap id="cert" type="com.iscas.workingdiary.bean.Cert">
         <id column="user_name" property="userName"/>
         <id column="cert_no" property="certNo"/>

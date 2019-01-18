@@ -1,14 +1,12 @@
 package com.iscas.workingdiary.mapper;
 
 import com.iscas.workingdiary.bean.CustomUserDetails;
-import com.iscas.workingdiary.bean.Integral;
+import com.iscas.workingdiary.bean.Credit;
 import com.iscas.workingdiary.bean.User;
-import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface UserMapper {
@@ -36,11 +34,11 @@ public interface UserMapper {
 
     Integer selectTotalIntegral(@Param("userName") String userName);
 
-    List<Integral> selectIntegralList(@Param("userName") String userName);
+    List<Credit> selectCreditsByName(@Param("userName") String userName);
 
     void deleteIntegralByName(@Param("userName") String userName);
 
-    void insertIntegral(Integral integral);
+    void insertIntegral(Credit integral);
 
     List<User> selectAll();
 

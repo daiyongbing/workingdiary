@@ -2,7 +2,7 @@ package com.iscas.workingdiary.service;
 
 import com.iscas.workingdiary.bean.Cert;
 import com.iscas.workingdiary.bean.Diary;
-import com.iscas.workingdiary.bean.Integral;
+import com.iscas.workingdiary.bean.Credit;
 import com.iscas.workingdiary.bean.User;
 import org.springframework.stereotype.Service;
 
@@ -29,11 +29,11 @@ public interface UserService {
 
     Integer queryTotalIntegral(String userName);
 
-    List<Integral> queryIntegralList(String userName);
-
-    void pushDairy(Diary diary, Integral integral);
+    void pushDairy(Diary diary, Credit integral);
 
     List<Diary> queryDiaryList(String userName);
 
-    List<User> selectUserByPage(int currentPage, int pageSize);
+    List<User> queryUsersByPage(int currentPage, int pageSize);
+
+    List<Credit> queryCreditsByPage(String userName, int currentPage, int pageSize);
 }

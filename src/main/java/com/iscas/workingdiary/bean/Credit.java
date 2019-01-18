@@ -1,15 +1,20 @@
 package com.iscas.workingdiary.bean;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class Integral implements Serializable {
+public class Credit implements Serializable {
     private static final long serialVersionUID = -4736298470017022092L;
+
+    @JSONField(ordinal = 1)
     private int id;
     private String userName;
     private String diaryId;
     private String txid;
     private Integer score;
+    @JSONField(format = "yyyy-MM-dd hh:mm:ss")
     private Timestamp gainTime;
 
     public int getId() {

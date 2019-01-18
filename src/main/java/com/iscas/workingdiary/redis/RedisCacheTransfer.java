@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RedisCacheTransfer {
-    @Autowired
+    //@Autowired
     public void setJedisConnectionFactory(JedisConnectionFactory jedisConnectionFactory) {
         RedisCache.setJedisConnectionFactory(jedisConnectionFactory);
     }
+
 }

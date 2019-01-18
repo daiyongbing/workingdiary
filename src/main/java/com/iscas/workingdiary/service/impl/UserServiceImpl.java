@@ -75,13 +75,9 @@ public class UserServiceImpl implements UserService {
         return userMapper.selectTotalIntegral(userName);
     }
 
-    @Override
-    public List<Integral> queryIntegralList(String userName) {
-        return userMapper.selectIntegralList(userName);
-    }
 
     @Override
-    public void pushDairy(Diary diary, Integral integral) {
+    public void pushDairy(Diary diary, Credit integral) {
         diaryMapper.insertDiary(diary);
         userMapper.insertIntegral(integral);
     }
@@ -92,13 +88,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> selectUserByPage(int currentPage, int pageSize) {
+    public List<User> queryUsersByPage(int currentPage, int pageSize) {
         PageHelper.startPage(currentPage, pageSize);
         List<User> userList = userMapper.selectAll();
         int count = userMapper.userCount();
         PageBean<User> pageBean = new PageBean<>(currentPage, pageSize, count);
         pageBean.setItems(userList);
         return pageBean.getItems();
+    }
+
+    @Override
+    public List<Credit> queryCreditsByPage(String userName, int currentPage, int pageSize) {
+        PageHelper.startPage(currentPage, pageSize);
+        List<Credit> creditsList = userMapper.selectCreditsByName(userName);
+        int count = creditsList.size();
+        PageBean<Credit> pageBean = new PageBean<>(currentPage, pageSize, count);
+        pageBean.setItems(creditsList);
+        return pageBean.getItems();
+
     }
 
     @Override

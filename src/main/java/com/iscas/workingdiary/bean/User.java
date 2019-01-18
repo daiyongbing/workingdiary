@@ -35,6 +35,8 @@ public class User implements Serializable {
     @NotBlank(message = "密码不能为空")
     @Min(value = 6, message = "密码至少6位")
     @Max(value = 15, message = "密码至多15位")
+
+    @JSONField(serialize = false)
     private String password;
 
     public String getUserId() {
@@ -114,7 +116,6 @@ public class User implements Serializable {
         return password;
     }
 
-    @JsonProperty
     public void setPassword(String password) {
         this.password = password;
     }

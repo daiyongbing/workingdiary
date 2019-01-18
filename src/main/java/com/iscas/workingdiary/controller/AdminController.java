@@ -106,17 +106,17 @@ public class AdminController {
      * @return
      */
     @GetMapping(value = "userlist")
-    public List<User> selectAllByPage(HttpServletResponse response, HttpServletRequest request, @RequestParam int currentPage, int pageSize){
+    public /*List<User>*/void selectAllByPage(HttpServletResponse response, HttpServletRequest request, @RequestParam int currentPage, int pageSize){
         List<User> userList = null;
         try {
             //userList = adminService.selectAllUser();
-            userList = userService.selectUserByPage(currentPage, pageSize);
-            //JsonResult.resultJson(response, request, ResponseStatus.SUCCESS, new ResultData(userList));
+            userList = userService.queryUsersByPage(currentPage, pageSize);
+            JsonResult.resultJson(response, request, ResponseStatus.SUCCESS, new ResultData(userList));
         } catch (Exception e){
             e.printStackTrace();
             new Exception("系统错误");
         }
-        return userList;
+        //return userList;
     }
 
     /**

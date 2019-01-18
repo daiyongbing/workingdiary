@@ -4,7 +4,7 @@
         "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
 
 <mapper namespace="com.iscas.workingdiary.mapper.UserMapper">
-    <cache type="com.iscas.workingdiary.redis.RedisCache" />
+    <!--<cache type="com.iscas.workingdiary.redis.RedisCache" />-->
     <resultMap id="user" type="User">
         <id column="user_id" property="userId"/>
         <result column="user_name" property="userName"/>
@@ -23,6 +23,15 @@
             <id column="role_id" property="roleId"/>
             <id column="role_name" property="roleName"/>
         </collection>
+    </resultMap>
+
+    <resultMap id="redit" type="com.iscas.workingdiary.bean.Credit">
+        <id property="id" column="id"/>
+        <id property="userName" column="user_name"/>
+        <id property="diaryId" column="diary_id"/>
+        <id property="txid" column="txid"/>
+        <id property="score" column="score"/>
+        <id property="gainTime" column="gain_time"/>
     </resultMap>
 
     <update id="updateByName" parameterType="User">
@@ -123,12 +132,12 @@
 
     <select id="selectTotalIntegral" parameterType="String" resultType="Integer">
         SELECT SUM(score) FROM t_integral
-        WHERE user_name=#{userName};
+        WHERE user_name=#{userName}
     </select>
 
-    <select id="selectIntegralList" parameterType="String" resultType="com.iscas.workingdiary.bean.Integral">
+    <select id="selectCreditsByName" parameterType="String" resultMap="redit">
         select* from t_integral
-        WHERE user_name=#{userName};
+        WHERE user_name=#{userName}
     </select>
 
     <delete id="deleteIntegralByName" parameterType="String">
@@ -136,7 +145,7 @@
         where user_name=#{userName};
     </delete>
 
-    <insert id="insertIntegral" parameterType="com.iscas.workingdiary.bean.Integral">
+    <insert id="insertIntegral" parameterType="com.iscas.workingdiary.bean.Credit">
         insert into t_integral
         (id, user_name, diary_id, tx_id, score, gain_time)
         value (#{id}, #{userName}, #{dairyId}, #{txid}, #{score}, #{gainTime})

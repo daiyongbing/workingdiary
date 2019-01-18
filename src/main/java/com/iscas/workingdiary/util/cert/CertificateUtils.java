@@ -14,10 +14,7 @@ import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
 import java.security.interfaces.ECPublicKey;
-import java.security.spec.ECGenParameterSpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.*;
 import java.util.Date;
 import java.util.Random;
 
@@ -126,6 +123,56 @@ public class CertificateUtils {
             e.printStackTrace();
         }
         return cert;
+    }
+
+    /**
+     * 将私钥转换成base64字符串
+     * @param privateKey
+     * @return
+     */
+    public static String getPemFromPrivateKey(PrivateKey privateKey) {
+        String strCertificate = null;
+        try {
+            String encode = Base64Utils.encode2String(privateKey.getEncoded());
+            strCertificate = "-----BEGIN PRIVATEKEY-----\r\n" + encode + "\r\n-----END PRIVATEKEY-----\r\n";
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("getPemFromPrivateKey:" + e.getMessage());
+        }
+        return Base64Utils.encode2String(strCertificate);
+    }
+    /**
+     * pem得到私钥
+     * @param content
+     * @param algorithm
+     * @return
+     * @throws Exception
+     */
+    public static PrivateKey loadECPrivateKey(String content,  String algorithm) throws Exception {
+        String privateKeyPEM = content.replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "").replace("", "");
+        //byte[] asBytes = Base64Utils.decode(privateKeyPEM);
+        byte[] asBytes = Base64Utils.decode2Bytes(privateKeyPEM);
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(asBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+        return keyFactory.generatePrivate(spec);
+    }
+
+    /**
+     * 加载公钥
+     * @param content
+     * @param algorithm
+     * @return
+     * @throws Exception
+     */
+    public static PublicKey loadECPublicKey(String content,  String algorithm) throws Exception {
+        String strPublicKey = content.replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "").replace("", "");
+        //byte[] asBytes = Base64Utils.decode(strPublicKey);
+        byte[] asBytes = Base64Utils.decode2Bytes(strPublicKey);
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(asBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+        return (ECPublicKey) keyFactory.generatePublic(spec);
     }
 
     /**
@@ -241,16 +288,20 @@ public class CertificateUtils {
      * @param password
      * @return
      */
-    public static String encryptPrivateKey(PrivateKey privateKey, String password){ ;
-        byte[] bytes = AESCrypt.encrypt2Bytes(privateKey.getEncoded(), MD5Utils.crypt16Byte(password));
-        return Base64Utils.encode2String(bytes);
+    public static String encryptPrivateKey(PrivateKey privateKey, String password){
+        String pemPrivateKey = CertificateUtils.getPemFromPrivateKey(privateKey);
+        String encyptPrivateKey = null;
+        try {
+            encyptPrivateKey = AESCrypt.encrypt2String(pemPrivateKey, MD5Utils.crypt16Byte(password));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return encyptPrivateKey;
     }
 
-    public static PrivateKey decryptPrivateKey(String encryptPrivateKey, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        byte[] aesEncryptedKey = Base64Utils.decode2Bytes(encryptPrivateKey);
-        byte[] privateKeyBytes = AESCrypt.decrypt2bytes(aesEncryptedKey, MD5Utils.crypt16Byte(password));
-        return loadPrivateKey(privateKeyBytes, "EC");
-
+    public static PrivateKey decryptPrivateKey(String encryptPrivateKey, String password) throws Exception {
+        String pemPrivateKey = AESCrypt.decrypt2String(encryptPrivateKey, MD5Utils.crypt16Byte(password));
+        return CertificateUtils.loadECPrivateKey(pemPrivateKey, "EC");
     }
 
     /**
@@ -263,7 +314,7 @@ public class CertificateUtils {
      */
     public static PrivateKey loadPrivateKey(byte[] encodedKey,  String algorithm)
             throws NoSuchAlgorithmException, InvalidKeySpecException{
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encodedKey);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encodedKey);
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
         return keyFactory.generatePrivate(keySpec);
     }
@@ -424,41 +475,4 @@ public class CertificateUtils {
         buffer.flush();
         return buffer.toByteArray();
     }
-
-    /**
-     * 加载私钥
-     * @param content
-     * @param algorithm
-     * @return
-     * @throws Exception
-     */
-    public static PrivateKey loadECPrivateKey(String content,  String algorithm) throws Exception {
-        String privateKeyPEM = content.replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "").replace("", "");
-        //byte[] asBytes = Base64Utils.decode(privateKeyPEM);
-        byte[] asBytes = Base64Utils.decode2Bytes(privateKeyPEM);
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(asBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
-        return keyFactory.generatePrivate(spec);
-    }
-
-    /**
-     * 加载公钥
-     * @param content
-     * @param algorithm
-     * @return
-     * @throws Exception
-     */
-    public static PublicKey loadECPublicKey(String content,  String algorithm) throws Exception {
-        String strPublicKey = content.replace("-----BEGIN PUBLIC KEY-----", "")
-                .replace("-----END PUBLIC KEY-----", "").replace("", "");
-        //byte[] asBytes = Base64Utils.decode(strPublicKey);
-        byte[] asBytes = Base64Utils.decode2Bytes(strPublicKey);
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(asBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
-        return (ECPublicKey) keyFactory.generatePublic(spec);
-    }
-
-
-
 }
